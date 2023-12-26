@@ -1,0 +1,111 @@
+<!doctype html>
+
+<html lang="uk" data-bs-theme="dark">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>
+            {% block title %}
+            {% endblock %}
+        </title>
+        <!--
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='/images/icon.png') }}">
+        -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+        <style>
+            @media (min-width: 700px) {
+                .container{
+                    max-width: 700px;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-success text-white p-2">
+            <div class="container-xxl container-fluid">
+
+                <a class="navbar-brand" href="{{ url_for('views.home') }}">
+                    <!--
+                    <img width="30" height="30" src="{{ url_for('static', filename='/images/icon.png') }}"/>
+                    -->
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+
+                    <ul class="navbar-nav">
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'views.home' %}active{% endif %}"
+                               href="{{ url_for('views.home') }}">
+                                Головна
+                            </a>
+                        </li>
+
+                    </ul>
+
+                    <ul class="navbar-nav ms-auto">
+
+                        {% if current_user.is_authenticated %}
+                            <li class="nav-item">
+                                <div class="dropdown">
+                                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        {{ current_user.username }}
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><p class="dropdown-item">Ім'я користувача: {{ current_user.username }}</p></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('auth.log_out') }}">Вихід</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.endpoint == 'auth.log_in' %}active{% endif %}"
+                                   href="{{ url_for('auth.log_in') }}">
+                                    Вхід
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.endpoint == 'auth.sign_up' %}active{% endif %}"
+                                   href="{{ url_for('auth.sign_up') }}">
+                                    Реєстрація
+                                </a>
+                            </li>
+                        {% endif %}
+
+                    </ul>
+
+                </div>
+
+            </div>
+        </nav>
+
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=True) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{% if category != 'message' %}{{ category }}{% else %}info{% endif %} alert-dismissible fade show m-2" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}
+            {% endblock %}
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    </body>
+
+</html>
