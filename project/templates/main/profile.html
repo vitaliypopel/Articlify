@@ -1,0 +1,97 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Профіль користувача @{{ user.username }}
+{% endblock %}
+
+{% block content %}
+    <div class="profile mt-5 mb-5">
+        <div class="user-data mt-3 mb-3">
+            <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=user.username) }}">
+                <img src="{{ url_for('static', filename=user.profile_picture_path) }}" class="img-thumbnail" width="100px">
+            </a>
+            <a class="btn btn-lg fs-3" href="{{ url_for('views.profile', username=user.username) }}">@{{ user.username }}</a>
+            <a class="btn btn-success" href="#">Підписатись</a>
+        </div>
+
+        <div class="navigation mt-3 mb-3">
+            <ul class="nav nav-tabs nav-fill">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">Публікації</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Про себе</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="articles mt-3 mb-3">
+
+            <div class="card mb-3">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Стаття 2</h5>
+                            <p class="card-text">Бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла  бла бла бла бла бла бла</p>
+                            <p class="card-text"><small class="text-body-secondary">Востаннє оновлено 5 хв. назад</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="row g-0">
+                    <div class="col-md-4">
+
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Стаття 1</h5>
+                            <p class="card-text">Бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла  бла бла бла бла бла бла</p>
+                            <p class="card-text"><small class="text-body-secondary">Востаннє оновлено 5 хв. назад</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="row g-0">
+                    <div class="col-md-4">
+
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Стаття 4</h5>
+                            <p class="card-text">Бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла  бла бла бла бла бла бла</p>
+                            <p class="card-text"><small class="text-body-secondary">Востаннє оновлено 5 хв. назад</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="row g-0">
+                    <div class="col-md-4">
+
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Стаття 3</h5>
+                            <p class="card-text">Бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла  бла бла бла бла бла бла</p>
+                            <p class="card-text"><small class="text-body-secondary">Востаннє оновлено 5 хв. назад</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

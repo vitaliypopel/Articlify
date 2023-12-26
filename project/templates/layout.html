@@ -60,7 +60,7 @@
                                         {{ current_user.username }}
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><p class="dropdown-item">Ім'я користувача: {{ current_user.username }}</p></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('views.profile', username=current_user.username) }}">@{{ current_user.username }}</a></li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item" href="{{ url_for('auth.log_out') }}">Вихід</a></li>
                                     </ul>
