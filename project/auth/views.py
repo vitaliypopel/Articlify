@@ -211,7 +211,18 @@ def email_confirmation(username: str, token: str):
         return response
 
     if confirmation.expiration_time < datetime.utcnow():
-        flash('Час на підтвердження вийшов! Спробуйте надіслати підтвердження повторно', 'danger')
+        try:
+            confirmations = EmailConfirmation.query.filter_by(user_id=current_user.id)
+            for conf in confirmations:
+                db.session.delete(conf)
+
+            db.session.delete(confirmation)
+            db.session.commit()
+        except Exception:
+            flash('Щось пішло не так! Спробуйте ще раз', 'danger')
+        else:
+            flash('Час на підтвердження вийшов! Спробуйте надіслати підтвердження повторно', 'danger')
+
         return response
 
     try:
