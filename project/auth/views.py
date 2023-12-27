@@ -125,6 +125,7 @@ def log_out():
 
 
 @auth.route('/@<username>/confirm-email', methods=['GET', 'POST'])
+@login_required
 def confirm_email(username: str):
     form = EmailConfirmationForm()
     user = User.query.filter_by(username=username).first()
@@ -187,6 +188,7 @@ def confirm_email(username: str):
 
 
 @auth.route('/@<username>/confirm-email/<token>')
+@login_required
 def email_confirmation(username: str, token: str):
     user = User.query.filter_by(username=username).first()
     confirmation = EmailConfirmation.query.filter_by(token=token).first()
@@ -225,7 +227,7 @@ def email_confirmation(username: str, token: str):
         flash('Щось пішло не так! Спробуйте ще раз', 'danger')
         return response
     else:
-        flash(f'Ви успішно підтвердили електронну пошту {current_user.email}')
+        flash(f'Ви успішно підтвердили електронну пошту {current_user.email}', 'success')
 
     recipient = current_user.email
     subject = 'Articlify'
@@ -242,6 +244,7 @@ def email_confirmation(username: str, token: str):
 
 
 @auth.route('/reset-password', methods=['GET', 'POST'])
+@login_required
 def reset_password():
     response = make_response(render_template('layout.html'))
     return response
