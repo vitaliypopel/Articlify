@@ -212,13 +212,15 @@ def email_confirmation(username: str, token: str):
 
     if confirmation.expiration_time < datetime.utcnow():
         try:
+            db.session.delete(confirmation)
+
             confirmations = EmailConfirmation.query.filter_by(user_id=current_user.id)
             for conf in confirmations:
                 db.session.delete(conf)
 
-            db.session.delete(confirmation)
             db.session.commit()
         except Exception:
+            db.session.rollback()
             flash('Щось пішло не так! Спробуйте ще раз', 'danger')
         else:
             flash('Час на підтвердження вийшов! Спробуйте надіслати підтвердження повторно', 'danger')
@@ -226,12 +228,13 @@ def email_confirmation(username: str, token: str):
         return response
 
     try:
+        current_user.email_status = True
+        db.session.delete(confirmation)
+
         confirmations = EmailConfirmation.query.filter_by(user_id=current_user.id)
         for conf in confirmations:
             db.session.delete(conf)
 
-        current_user.email_status = True
-        db.session.delete(confirmation)
         db.session.commit()
     except Exception:
         db.session.rollback()
