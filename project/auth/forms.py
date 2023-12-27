@@ -108,6 +108,12 @@ class LogOutForm(FlaskForm):
     cancel = SubmitField('Відхилити')
 
 
+class EmailConfirmationForm(FlaskForm):
+
+    submit = SubmitField('Підтвердити')
+    cancel = SubmitField('Відхилити')
+
+
 class ResetPassword(FlaskForm):
 
     new_password = PasswordField(

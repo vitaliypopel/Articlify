@@ -1,8 +1,9 @@
 from flask import Blueprint, make_response, render_template, request, flash, redirect, url_for
 from project import db, login_manager, login_required, login_user, logout_user, current_user, ValidationError
 from project import generate_password_hash, check_password_hash
-from .models import User
-from .forms import SignUpForm, LogInForm, LogOutForm
+from project import mail, Message, datetime
+from .models import User, EmailConfirmation
+from .forms import SignUpForm, LogInForm, LogOutForm, EmailConfirmationForm
 
 auth = Blueprint('auth', __name__)
 
@@ -41,6 +42,7 @@ def sign_up():
             db.session.add(new_user)
             db.session.commit()
         except Exception:
+            db.session.rollback()
             flash('Щось пішло не так! Спробуйте ще раз', 'danger')
             return redirect(url_for('auth.sign_up'))
         else:
@@ -122,9 +124,121 @@ def log_out():
     return response
 
 
-@auth.route('/<username>/confirm-email', methods=['GET', 'POST'])
+@auth.route('/@<username>/confirm-email', methods=['GET', 'POST'])
 def confirm_email(username: str):
-    pass
+    form = EmailConfirmationForm()
+    user = User.query.filter_by(username=username).first()
+    response = make_response(render_template('auth/confirm_email.html', form=form, user=user))
+    home_redirect = make_response(redirect(url_for('views.home')))
+
+    if not user:
+        flash('Користувача не знайдено', 'warning')
+        return home_redirect
+
+    if current_user.id != user.id:
+        flash('Ви не можете підтвердити чужу електронну пошту', 'danger')
+        return home_redirect
+
+    if current_user.email_status:
+        flash('Ви вже підтвердили свою електронну пошту', 'warning')
+        return home_redirect
+
+    if form.validate_on_submit():
+        data = form.data
+
+        if data['submit']:
+            try:
+                confirmations = EmailConfirmation.query.filter_by(user_id=current_user.id)
+                for conf in confirmations:
+                    db.session.delete(conf)
+
+                new_confirmation = EmailConfirmation(current_user.id)
+                db.session.add(new_confirmation)
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+                flash('Щось пішло не так! Спробуйте ще раз', 'warning')
+                return home_redirect
+
+            url = url_for(
+                "auth.email_confirmation",
+                username=current_user.username,
+                token=new_confirmation.token,
+                _external=True
+            )
+
+            recipient = current_user.email
+            subject = 'Articlify'
+            body = f'<h1>Для того, щоб підтвердити пошту перейдіть по посиланню нижче:</h1>\n' \
+                   f'<h3><a href="{url}">Посилання для підтвердження пошти</a></h3>'
+
+            try:
+                message = Message(recipients=[recipient], subject=subject, html=body)
+                mail.send(message)
+            except Exception:
+                flash('Повідомлення не надіслано! Спробуйте ще раз', 'danger')
+                return home_redirect
+            else:
+                flash(f'Повідомлення для підтвердження наліслано на {current_user.email}', 'success')
+
+        return home_redirect
+
+    return response
+
+
+@auth.route('/@<username>/confirm-email/<token>')
+def email_confirmation(username: str, token: str):
+    user = User.query.filter_by(username=username).first()
+    confirmation = EmailConfirmation.query.filter_by(token=token).first()
+    response = make_response(redirect(url_for('views.home')))
+
+    if not user:
+        flash('Користувача не знайдено', 'warning')
+        return response
+
+    if not confirmation:
+        flash('Токен не знайдено', 'warning')
+        return response
+
+    if current_user.id != user.id:
+        flash('Ви не можете підтвердити чужу електронну пошту', 'danger')
+        return response
+
+    if current_user.email_status:
+        flash('Ви вже підтвердили свою електронну пошту', 'warning')
+        return response
+
+    if confirmation.expiration_time < datetime.utcnow():
+        flash('Час на підтвердження вийшов! Спробуйте надіслати підтвердження повторно', 'danger')
+        return response
+
+    try:
+        confirmations = EmailConfirmation.query.filter_by(user_id=current_user.id)
+        for conf in confirmations:
+            db.session.delete(conf)
+
+        current_user.email_status = True
+        db.session.delete(confirmation)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        flash('Щось пішло не так! Спробуйте ще раз', 'danger')
+        return response
+    else:
+        flash(f'Ви успішно підтвердили електронну пошту {current_user.email}')
+
+    recipient = current_user.email
+    subject = 'Articlify'
+    body = f'<h1>Підтвердження електронної пошти</h1>\n' \
+           f'<h3>Ви успішно підтвердили цю електронну пошту!</h3>'
+
+    try:
+        message = Message(recipients=[recipient], subject=subject, html=body)
+        mail.send(message)
+    except Exception:
+        return response
+
+    return response
 
 
 @auth.route('/reset-password', methods=['GET', 'POST'])

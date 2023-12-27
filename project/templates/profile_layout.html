@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    {% block username %}
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+    <div class="profile mt-5 mb-5">
+        <div class="user-data mt-3 mb-3">
+            <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=user.username) }}">
+                <img src="{{ url_for('static', filename=user.profile_picture_path) }}" class="img-thumbnail" width="100px">
+            </a>
+            <a class="btn btn-lg fs-3" href="{{ url_for('views.profile', username=user.username) }}">@{{ user.username }}</a>
+            <a class="btn btn-success" href="#">Підписатись</a>
+        </div>
+
+        <div class="navigation mt-3 mb-3">
+            <ul class="nav nav-tabs nav-fill">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'views.profile' %}active{% endif %}"
+                       href="{{ url_for('views.profile', username=user.username) }}">
+                        Публікації
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'views.profile_about' %}active{% endif %}"
+                       href="{{ url_for('views.profile_about', username=user.username) }}">
+                        Про себе
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        {% block profile_content %}
+
+        {% endblock %}
+
+    </div>
+{% endblock %}
