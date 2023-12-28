@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, make_response
 from project.auth import User
 from project import current_user, login_required, mail, Message
 
@@ -32,24 +32,19 @@ def profile_about(username: str):
     return render_template('main/profile_about.html', user=user)
 
 
-@views.route('/send-mail')
-@login_required
-def send_mail():
-    recipient = current_user.email
-    subject = 'Title'
-    body = 'Text'
+# != prod
+@views.route('/theme', methods=['GET', 'POST'])
+def theme():
+    response = make_response(render_template('main/theme.html'))
 
-    try:
-        message = Message(recipients=[recipient], subject=subject, body=body)
-        mail.send(message)
-    except Exception as error:
-        print(f'{error}')
-    else:
-        flash('Повідомлення надіслано', 'success')
-
-    return redirect(url_for('views.home'))
+    if request.method == 'POST':
+        _theme = request.form.get('theme')
+        response.set_cookie('theme', _theme)
+        
+    return response
 
 
+# != prod
 @views.route('/favicon.ico')
 def favicon():
     return 'icon'
