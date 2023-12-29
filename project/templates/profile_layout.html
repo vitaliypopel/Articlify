@@ -12,7 +12,6 @@
                 <img src="{{ url_for('static', filename=user.profile_picture_path) }}" class="img-thumbnail" width="100px">
             </a>
             <a class="btn btn-lg fs-3" href="{{ url_for('views.profile', username=user.username) }}">@{{ user.username }}</a>
-            <a class="btn btn-success" href="#">Підписатись</a>
         </div>
 
         <div class="navigation mt-3 mb-3">

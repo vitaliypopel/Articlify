@@ -33,18 +33,6 @@ def profile_about(username: str):
 
 
 # != prod
-@views.route('/theme', methods=['GET', 'POST'])
-def theme():
-    response = make_response(render_template('main/theme.html'))
-
-    if request.method == 'POST':
-        _theme = request.form.get('theme')
-        response.set_cookie('theme', _theme)
-        
-    return response
-
-
-# != prod
 @views.route('/favicon.ico')
 def favicon():
     return 'icon'

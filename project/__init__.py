@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, current_user, login_required, login_user, logout_user
 from flask_mail import Mail, Message
 from flask_bootstrap import Bootstrap5
+from config import Config
 from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, EmailField, SubmitField
@@ -17,27 +18,31 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 mail = Mail()
 bootstrap = Bootstrap5()
+config = Config()
 
 
 def create_app():
 
-    app.config['SECRET_KEY'] = 'this_is_my_secret_key'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-    app.config['TEMPLATES_FOLDER'] = 'project/templates'
-    app.config['STATIC_FOLDER'] = 'project/static'
-    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-    app.config['MAIL_PORT'] = 587
-    app.config['MAIL_USE_TLS'] = True
-    app.config['MAIL_USE_SSL'] = False
-    app.config['MAIL_DEFAULT_SENDER'] = 'popelcompany@gmail.com'
-    app.config['MAIL_USERNAME'] = 'popelcompany@gmail.com'
-    app.config['MAIL_PASSWORD'] = 'xvcexfmxbgwcwhnz'
+    app.config['SECRET_KEY'] = config.get('SECRET_KEY')
+    app.config['SQLALCHEMY_DATABASE_URI'] = config.get('SQLALCHEMY_DATABASE_URI')
+    app.config['TEMPLATES_FOLDER'] = config.get('TEMPLATES_FOLDER')
+    app.config['STATIC_FOLDER'] = config.get('STATIC_FOLDER')
+    app.config['MAIL_SERVER'] = config.get('MAIL_SERVER')
+    app.config['MAIL_PORT'] = config.get('MAIL_PORT')
+    app.config['MAIL_USE_TLS'] = config.get('MAIL_USE_TLS')
+    app.config['MAIL_USE_SSL'] = config.get('MAIL_USE_SSL')
+    app.config['MAIL_DEFAULT_SENDER'] = config.get('MAIL_DEFAULT_SENDER')
+    app.config['MAIL_USERNAME'] = config.get('MAIL_USERNAME')
+    app.config['MAIL_PASSWORD'] = config.get('MAIL_PASSWORD')
 
     from .auth import auth
     app.register_blueprint(auth)
 
     from .main import views
     app.register_blueprint(views)
+
+    from .api import api
+    app.register_blueprint(api)
 
     db.init_app(app)
 
