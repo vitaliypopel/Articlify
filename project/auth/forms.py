@@ -51,6 +51,7 @@ class SignUpForm(FlaskForm):
 
     @staticmethod
     def validate_name(username: str):
+        username = username.lower()
         user = User.query.filter_by(username=username).first()
 
         if user:
@@ -58,6 +59,7 @@ class SignUpForm(FlaskForm):
 
     @staticmethod
     def validate_mail(email: str):
+        email = email.lower()
         try:
             validate_email(email)
         except Exception:
@@ -96,6 +98,7 @@ class LogInForm(FlaskForm):
 
     @staticmethod
     def validate_name(username: str):
+        username = username.lower()
         user = User.query.filter_by(username=username).first()
 
         if not user:

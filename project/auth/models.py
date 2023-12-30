@@ -9,15 +9,16 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
     about = db.Column(db.String(1000), nullable=False, default='')
-    profile_picture_path = db.Column(db.String(100), nullable=False, default='photos/profile_pictures/default_pfp.svg')
+    profile_picture_path = db.Column(db.String(100), nullable=False, default='images/user_pictures/default_pfp.svg')
     public_profile = db.Column(db.Boolean, nullable=False, default=True)
     email_status = db.Column(db.Boolean, nullable=False, default=False)
-    registration = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+    registration = db.Column(db.DateTime, nullable=False)
 
     def __init__(self, username: str, password: str, email: str):
-        self.username = username
+        self.username = username.lower()
         self.password = password
-        self.email = email
+        self.email = email.lower()
+        self.registration = datetime.utcnow()
 
     def __repr__(self) -> str:
         return f'User(\n' \
@@ -34,7 +35,7 @@ class User(db.Model, UserMixin):
 
 
 class EmailConfirmation(db.Model):
-    __tablename__ = 'emails_confirmation'
+    __tablename__: str = 'emails_confirmation'
 
     id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(100), nullable=False, unique=True)

@@ -6,7 +6,7 @@ from flask_bootstrap import Bootstrap5
 from config import Config
 from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, EmailField, SubmitField
+from wtforms import StringField, TextAreaField, SelectField, PasswordField, EmailField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError, Regexp
 from email_validator import validate_email
 from datetime import datetime, timedelta

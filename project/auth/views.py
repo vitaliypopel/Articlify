@@ -24,8 +24,8 @@ def sign_up():
 
     if form.validate_on_submit():
         data = form.data
-        username = data['username'].lower()
-        email = data['email'].lower()
+        username = data['username']
+        email = data['email']
         password = data['password']
         confirm_password = data['confirm_password']
 
@@ -71,7 +71,7 @@ def log_in():
 
     if form.validate_on_submit():
         data = form.data
-        username = data['username'].lower()
+        username = data['username']
         password = data['password']
 
         try:
@@ -92,6 +92,10 @@ def log_in():
             return redirect(url_for('auth.log_in'))
 
         flash(f'Вітаємо, {username}! Вхід успішно виконано', 'success')
+
+        if not current_user.email_status:
+            flash('Ваша електронна пошта не підтверджена! Зробити це можна в налаштуваннях', 'warning')
+
         return redirect(url_for('views.home'))
 
     elif form.errors:
