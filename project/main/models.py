@@ -24,3 +24,19 @@ class Feedback(db.Model):
                f'   sent_at:        {self.sent_at}\n' \
                f'   body:           {self.body}\n' \
                f')'
+
+
+class Topic(db.Model):
+    __tablename__: str = 'topics'
+
+    id = db.Column(db.Integer, primary_key=True)
+    topic = db.Column(db.String(100), nullable=False)
+
+    def __init__(self, topic: str):
+        self.topic = topic
+
+    def __repr__(self):
+        return f'Topic(\n' \
+               f'   id [PK]:    {self.id}\n' \
+               f'   topic:      {self.topic}\n' \
+               f')'

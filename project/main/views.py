@@ -1,7 +1,7 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, make_response, send_from_directory
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, send_from_directory
 from project.auth import User
 from project import db, current_user, login_required, ValidationError, datetime
-from .models import Feedback
+from .models import Feedback, Topic
 from .forms import FeedbackForm
 
 views = Blueprint('views', __name__)
@@ -16,6 +16,37 @@ def favicon():
 @views.route('/')
 def home():
     return render_template('main/home.html')
+
+
+# != prod | admin
+@views.route('/topics-auto-complete')
+def topics_auto_complete():
+    response = dict()
+
+    topics = [
+        'Python', 'NodeJS', 'C',
+        'C++', 'Rust', 'Java',
+        'C#', 'Ruby', 'Go',
+        'HTML', 'CSS', 'JavaScript',
+        'TypeScript', 'SQL', 'Swift',
+        'Kotlin', 'Flutter', 'GIT',
+        'Linux', 'Networking', 'Security',
+        'Clouds', 'DevOps', 'QA', 'Other'
+    ]
+
+    try:
+        for topic in topics:
+            if not Topic.query.filter_by(topic=topic).first():
+                new_topic = Topic(topic)
+                db.session.add(new_topic)
+
+                response[topics.index(topic) + 1] = topic
+
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+    return jsonify(response)
 
 
 @views.route('/feedback', methods=['GET', 'POST'])

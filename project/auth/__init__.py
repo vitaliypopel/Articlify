@@ -1,2 +1,2 @@
 from .views import auth
-from .models import User
+from .models import User, EmailConfirmation
