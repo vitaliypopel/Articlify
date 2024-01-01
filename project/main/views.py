@@ -115,3 +115,21 @@ def profile_about(username: str):
 
     return render_template('main/profile_about.html', user=user)
 
+
+@views.route('/settings')
+@views.route('/settings/general')
+@login_required
+def settings():
+    return render_template('main/settings.html')
+
+
+@views.route('/settings/account')
+@login_required
+def account_settings():
+    return render_template('main/account_settings.html')
+
+
+@views.route('/settings/security')
+@login_required
+def security_settings():
+    return render_template('main/security_settings.html')

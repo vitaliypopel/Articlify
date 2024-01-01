@@ -8,7 +8,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
-    about = db.Column(db.String(1000), nullable=False, default='')
+    bio = db.Column(db.String(1000), nullable=False, default='')
     profile_picture_path = db.Column(db.String(100), nullable=False, default='images/user_pictures/default_pfp.svg')
     public_profile = db.Column(db.Boolean, nullable=False, default=True)
     email_status = db.Column(db.Boolean, nullable=False, default=False)
@@ -26,7 +26,7 @@ class User(db.Model, UserMixin):
                f'   username:               {self.username}\n' \
                f'   password:               {self.password}\n' \
                f'   email:                  {self.email}\n' \
-               f'   about:                  {self.about}\n' \
+               f'   bio:                    {self.bio}\n' \
                f'   profile_picture_path:   {self.profile_picture_path}\n' \
                f'   public_profile:         {self.public_profile}\n' \
                f'   email_status:           {self.email_status}\n' \
@@ -35,7 +35,7 @@ class User(db.Model, UserMixin):
 
 
 class EmailConfirmation(db.Model):
-    __tablename__: str = 'emails_confirmation'
+    __tablename__: str = 'email_confirmations'
 
     id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(100), nullable=False, unique=True)

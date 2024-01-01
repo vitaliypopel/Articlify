@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+{% extends 'layouts/layout.html' %}
 {% from 'bootstrap5/form.html' import render_form %}
 
 {% block title %}
@@ -6,13 +6,13 @@
 {% endblock %}
 
 {% block content %}
-
     <div class="title mt-3 mb-3" align="center">
         <h1>Підтвердження електронної пошти</h1>
     </div>
 
     <div class="form mt-3 mb-3" align="center">
-        <h3>Бажаєте підтвердити пошту?</h3>
+        <h3 class="m-4">Бажаєте підтвердити пошту?</h3>
         {{ render_form(form) }}
     </div>
+
 {% endblock %}
