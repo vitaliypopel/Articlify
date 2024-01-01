@@ -184,7 +184,7 @@ def confirm_email(username: str):
                 flash('Повідомлення не надіслано! Спробуйте ще раз', 'danger')
                 return home_redirect
             else:
-                flash(f'Повідомлення для підтвердження наліслано на {current_user.email}', 'success')
+                flash(f'Повідомлення для підтвердження надіслано на {current_user.email}', 'success')
 
         return home_redirect
 
