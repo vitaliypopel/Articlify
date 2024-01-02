@@ -55,7 +55,7 @@ class SignUpForm(FlaskForm):
         user = User.query.filter_by(username=username).first()
 
         if user:
-            raise ValidationError('Ім\'я вже зайняте! Спробуйте ще раз')
+            raise ValidationError('Ім\'я вже зайняте! Спробуйте використати інше')
 
     @staticmethod
     def validate_mail(email: str):

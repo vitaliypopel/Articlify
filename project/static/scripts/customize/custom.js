@@ -24,7 +24,7 @@ function setTheme(theme) {
 
 function setCookieTheme(theme) {
     fetch('/api/change-theme', {
-        method: "POST",
+        method: "PATCH",
         headers: {
             'Content-Type': 'application/json'
         },
@@ -38,6 +38,6 @@ function setCookieTheme(theme) {
         }
     })
     .catch(error => {
-        alert('Error:', error);
+        alert(error);
     })
 }

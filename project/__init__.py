@@ -11,6 +11,7 @@ from wtforms.validators import InputRequired, Length, ValidationError, Regexp
 from email_validator import validate_email
 from datetime import datetime, timedelta
 from secrets import token_urlsafe
+from re import match
 
 
 app = Flask(__name__)

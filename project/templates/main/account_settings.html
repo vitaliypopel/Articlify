@@ -11,6 +11,57 @@
 
     <div class="settings mt-3 mb-3">
 
+        <div class="profile-picture mt-3 mb-3">
+
+            <div class="input-group w-100">
+
+                <span class="input-group-text border-end-0 bg-transparent flex-grow-1">
+                    Фото профілю
+                </span>
+                <span class="input-group-text border-start-0 border-end-0 bg-transparent text-end">
+                    <img src="{{ url_for('static', filename=current_user.profile_picture_path) }}"
+                         class="img-thumbnail" width="100px">
+                </span>
+
+                <button class="btn btn-outline-info border-start-0 border" type="button"
+                        data-bs-toggle="modal" data-bs-target="#changeProfilePicture">
+                    Редагувати
+                </button>
+
+            </div>
+
+            <div class="modal fade" id="changeProfilePicture">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5">Зміна фото профілю</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+
+                            <p>Ваше попереднє фото профілю:</p>
+                            <img src="{{ url_for('static', filename=current_user.profile_picture_path) }}"
+                                 class="img-thumbnail mb-3" width="100px">
+
+                            <p>Завантажте нове фото профілю (.png, .jpg):</p>
+                            <input type="file" class="form-control" id="profilePicture" name="profilePicture">
+
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" id="changeProfilePictureButton" onclick="changeProfilePicture()">
+                                Змінити
+                            </button>
+                            <button type="button" class="btn btn-danger" id="cancelChangeProfilePictureButton" data-bs-dismiss="modal">
+                                Відхилити
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
         <div class="username mt-3 mb-3">
 
             <div class="input-group w-100">
@@ -46,8 +97,12 @@
 
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-success">Змінити</button>
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Відхилити</button>
+                            <button type="button" class="btn btn-success" id="changeUsernameButton" onclick="changeUsername()">
+                                Змінити
+                            </button>
+                            <button type="button" class="btn btn-danger" id="cancelChangeUsernameButton" data-bs-dismiss="modal">
+                                Відхилити
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -99,8 +154,12 @@
 
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-success">Змінити</button>
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Відхилити</button>
+                            <button type="button" class="btn btn-success" id="changeEmailButton" onclick="changeEmail()">
+                                Змінити
+                            </button>
+                            <button type="button" class="btn btn-danger" id="cancelChangeEmailButton" data-bs-dismiss="modal">
+                                Відхилити
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -122,4 +181,6 @@
         -->
 
     </div>
+
+    <script src="{{ url_for('static', filename='scripts/settings/settings.js') }}"></script>
 {% endblock %}
