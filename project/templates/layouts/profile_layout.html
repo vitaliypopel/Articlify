@@ -9,7 +9,8 @@
     <div class="profile mt-5 mb-5">
         <div class="user-data mt-3 mb-3">
             <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=user.username) }}">
-                <img src="{{ url_for('static', filename=user.profile_picture_path) }}" class="img-thumbnail" width="100px">
+                <img src="{{ url_for('static', filename=user.profile_picture_path) }}"
+                     class="pfp rounded" width="100px">
             </a>
             <a class="btn btn-lg fs-3" href="{{ url_for('views.profile', username=user.username) }}">@{{ user.username }}</a>
         </div>

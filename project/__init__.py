@@ -12,6 +12,7 @@ from email_validator import validate_email
 from datetime import datetime, timedelta
 from secrets import token_urlsafe
 from re import match
+import os
 
 
 app = Flask(__name__)

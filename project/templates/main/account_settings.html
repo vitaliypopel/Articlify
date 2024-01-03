@@ -20,7 +20,7 @@
                 </span>
                 <span class="input-group-text border-start-0 border-end-0 bg-transparent text-end">
                     <img src="{{ url_for('static', filename=current_user.profile_picture_path) }}"
-                         class="img-thumbnail" width="100px">
+                         class="pfp rounded" width="100px">
                 </span>
 
                 <button class="btn btn-outline-info border-start-0 border" type="button"
@@ -41,7 +41,14 @@
 
                             <p>Ваше попереднє фото профілю:</p>
                             <img src="{{ url_for('static', filename=current_user.profile_picture_path) }}"
-                                 class="img-thumbnail mb-3" width="100px">
+                                 class="pfp rounded mb-3">
+
+                            {% if current_user.profile_picture_name != 'default_pfp.svg' %}
+                                <br>
+                                <button type="button" class="btn btn-outline-danger border mb-3" onclick="deleteProfilePicture()">
+                                    Видалити фото
+                                </button>
+                            {% endif %}
 
                             <p>Завантажте нове фото профілю (.png, .jpg):</p>
                             <input type="file" class="form-control" id="profilePicture" name="profilePicture">

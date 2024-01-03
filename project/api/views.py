@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, make_response, flash, redirect, url_for
-from project import db, current_user, validate_email, match
+from project import db, current_user, validate_email, match, app, os
 from project.auth import User
 
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -96,5 +96,55 @@ def change_email():
 
 @api.route('/change-profile-picture', methods=['PATCH'])
 def change_profile_picture():
-    profile_picture_path = url_for('static', filename='images/user_pictures')
-    ...
+    response = make_response(jsonify({
+        'redirect': url_for('views.account_settings')
+    }))
+
+    profile_pictures_path = url_for('static', filename='images/user_pictures')
+
+    req = request.files
+    new_profile_picture = req['new_profile_picture']
+
+    filename = f'user_{current_user.id}_pfp.{new_profile_picture.content_type.replace("image/", "")}'
+    new_profile_picture.filename = filename
+
+    try:
+        old_path = os.path.join(app.root_path, *profile_pictures_path.split('/'), current_user.profile_picture_name)
+        if os.path.exists(old_path) and current_user.profile_picture_name != 'default_pfp.svg':
+            os.remove(old_path)
+
+        path = os.path.join(app.root_path, *profile_pictures_path.split('/'), filename)
+        new_profile_picture.save(path)
+
+        current_user.profile_picture_path = f'images/user_pictures/{filename}'
+        current_user.profile_picture_name = filename
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        flash('Не вдалось оновити фото профілю! Спробуйте ще раз', 'danger')
+        return response, 400
+
+    return response, 200
+
+
+@api.route('/delete-profile-picture', methods=['DELETE'])
+def delete_profile_picture():
+    response = make_response(jsonify({
+        'redirect': url_for('views.account_settings')
+    }))
+
+    try:
+        old_path = os.path.join(app.root_path, 'static', *current_user.profile_picture_path.split('/'))
+        if os.path.exists(old_path):
+            os.remove(old_path)
+
+        current_user.profile_picture_path = 'images/user_pictures/default_pfp.svg'
+        current_user.profile_picture_name = 'default_pfp.svg'
+
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        flash('Не вдалось видалити фото профілю! Спробуйте ще раз', 'danger')
+        return response, 400
+
+    return response, 200

@@ -7,7 +7,7 @@ function changeUsername() {
 
     req = {'new_username': newUsername};
     
-    fetch('/api/change-username',{
+    fetch('/api/change-username', {
         method: "PATCH",
         headers: {
             'Content-Type': 'application/json'
@@ -34,7 +34,7 @@ function changeEmail() {
 
     req = {'new_email': newEmail};
     
-    fetch('/api/change-email',{
+    fetch('/api/change-email', {
         method: "PATCH",
         headers: {
             'Content-Type': 'application/json'
@@ -72,6 +72,42 @@ function changeProfilePicture() {
     }
 
     closeButton.click();
-    
 
+    let formData = new FormData();
+    formData.append('new_profile_picture', profilePictureFile);
+
+
+    fetch('/api/change-profile-picture', {
+        method: 'PATCH',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    })
+
+}
+
+function deleteProfilePicture() {
+    let closeButton = document.getElementById('cancelChangeProfilePictureButton');
+    closeButton.click();
+
+    fetch('/api/delete-profile-picture', {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    })
+    
 }
