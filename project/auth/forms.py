@@ -117,6 +117,40 @@ class EmailConfirmationForm(FlaskForm):
     cancel = SubmitField('Відхилити')
 
 
+class ChangePasswordForm(FlaskForm):
+
+    password = PasswordField(
+        label='Старий пароль',
+        validators=[
+            InputRequired(),
+            Length(min=8, max=20, message='Пароль повинен містити від 8 до 20 символів')
+        ]
+    )
+
+    new_password = PasswordField(
+        label='Новий пароль',
+        validators=[
+            InputRequired(),
+            Length(min=8, max=20, message='Пароль повинен містити від 8 до 20 символів')
+        ]
+    )
+
+    confirm_new_password = PasswordField(
+        label='Підтвердження нового паролю',
+        validators=[
+            InputRequired(),
+            Length(min=8, max=20, message='Пароль повинен містити від 8 до 20 символів')
+        ]
+    )
+
+    submit = SubmitField('Змінити пароль')
+
+    @staticmethod
+    def password_confirmation(new_password: str, confirm_new_password: str):
+        if new_password != confirm_new_password:
+            raise ValidationError('Нові паролі не збігаються! Спробуйте ще раз')
+
+
 class ResetPassword(FlaskForm):
 
     new_password = PasswordField(

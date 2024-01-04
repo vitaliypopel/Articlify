@@ -8,7 +8,7 @@ function changeUsername() {
     req = {'new_username': newUsername};
     
     fetch('/api/change-username', {
-        method: "PATCH",
+        method: 'PATCH',
         headers: {
             'Content-Type': 'application/json'
         },
@@ -22,7 +22,7 @@ function changeUsername() {
     })
     .catch(error => {
         console.error(error);
-    })
+    });
 
 }
 
@@ -35,7 +35,7 @@ function changeEmail() {
     req = {'new_email': newEmail};
     
     fetch('/api/change-email', {
-        method: "PATCH",
+        method: 'PATCH',
         headers: {
             'Content-Type': 'application/json'
         },
@@ -49,7 +49,7 @@ function changeEmail() {
     })
     .catch(error => {
         console.error(error);
-    })
+    });
 
 }
 
@@ -89,7 +89,7 @@ function changeProfilePicture() {
     })
     .catch(error => {
         console.error(error);
-    })
+    });
 
 }
 
@@ -108,6 +108,33 @@ function deleteProfilePicture() {
     })
     .catch(error => {
         console.error(error);
-    })
+    });
     
+}
+
+function changeBio() {
+    let closeButton = document.getElementById('cancelChangeBioButton');
+    closeButton.click();
+
+    let newBio = document.getElementById('bio').value;
+    
+    req = {'new_bio': newBio};
+
+    fetch('/api/change-bio', {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(req)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    });
+
 }

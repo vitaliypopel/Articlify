@@ -69,6 +69,7 @@
 
         </div>
 
+
         <div class="username mt-3 mb-3">
 
             <div class="input-group w-100">
@@ -117,12 +118,59 @@
 
         </div>
 
+
+        <div class="bio mt-3 mb-3">
+
+            <div class="input-group w-100">
+
+                <span class="input-group-text border-end-0 bg-transparent flex-grow-1">
+                    Біографія
+                </span>
+
+                <span class="input-group-text border-start-0 border-end-0 bg-transparent text-start w-50 pre ">"{{ current_user.bio[:70] }}..."</span>
+
+                <button class="btn btn-outline-info border-start-0 border" type="button"
+                        data-bs-toggle="modal" data-bs-target="#changeBio">
+                    Редагувати
+                </button>
+
+            </div>
+
+            <div class="modal fade" id="changeBio">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5">Редагування біографії користувача</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Ваша біографія:</p>
+
+                            <textarea class="form-control" minlength="0" maxlength="1000" style="height: 350px;"
+                                      id="bio" name="bio">{{ current_user.bio }}</textarea>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" id="changeBioButton" onclick="changeBio()">
+                                Змінити
+                            </button>
+                            <button type="button" class="btn btn-danger" id="cancelChangeBioButton" data-bs-dismiss="modal">
+                                Відхилити
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
         <div class="email mt-3 mb-3">
 
             <div class="input-group w-100">
 
                 <span class="input-group-text border-end-0 bg-transparent flex-grow-1">
-                    Електронна пошта
+                    Пошта
                 </span>
                 <span class="input-group-text border-start-0 border-end-0 bg-transparent text-end">
                     {{ current_user.email }}

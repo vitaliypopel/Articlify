@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, make_response, flash, redirect, url_for
-from project import db, current_user, validate_email, match, app, os
+from project import app, db, current_user, validate_email, os, match, sub
 from project.auth import User
 
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -48,7 +48,7 @@ def change_username():
         db.session.commit()
     except Exception:
         db.session.rollback()
-        flash('Щось пішло не так! Спробуйте ще раз', 'danger')
+        flash('Не вдалось змінити ім\'я! Спробуйте ще раз', 'danger')
         return response, 400
 
     flash('Ім\'я успішно змінене', 'success')
@@ -72,13 +72,13 @@ def change_email():
         return response, 400
 
     if User.query.filter_by(email=new_email).first():
-        flash('Емейл вже зайнятий! Спробуйте використати інший', 'danger')
+        flash('Електронна пошта вже зайнята! Спробуйте використати іншу', 'danger')
         return response, 400
 
     try:
         validate_email(new_email)
     except Exception:
-        flash('Неправильний емейл! Спробуйте ще раз', 'danger')
+        flash('Неправильна електронна пошта! Спробуйте ще раз', 'danger')
         return response, 400
 
     try:
@@ -87,10 +87,10 @@ def change_email():
         db.session.commit()
     except Exception:
         db.session.rollback()
-        flash('Щось пішло не так! Спробуйте ще раз', 'danger')
+        flash('Не вдалось змінити електронну пошту! Спробуйте ще раз', 'danger')
         return response, 400
 
-    flash('Емейл успішно змінено', 'success')
+    flash('Електронну пошту успішно змінено', 'success')
     return response, 200
 
 
@@ -124,6 +124,8 @@ def change_profile_picture():
         flash('Не вдалось оновити фото профілю! Спробуйте ще раз', 'danger')
         return response, 400
 
+    flash('Фото профілю успішно змінено', 'success')
+
     return response, 200
 
 
@@ -146,5 +148,32 @@ def delete_profile_picture():
         db.session.rollback()
         flash('Не вдалось видалити фото профілю! Спробуйте ще раз', 'danger')
         return response, 400
+
+    flash('Фото профілю успішно видалено', 'success')
+
+    return response, 200
+
+
+@api.route('/change-bio', methods=['PATCH'])
+def change_bio():
+    response = make_response(jsonify({
+        'redirect': url_for('views.account_settings')
+    }))
+
+    req = request.get_json()
+
+    new_bio = req['new_bio']
+    new_bio = [sub(r'\s+', ' ', line).strip() for line in new_bio.split('\n')]
+    new_bio = '\n'.join(new_bio)
+
+    try:
+        current_user.bio = new_bio
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        flash('Не вдалось змінити біографію! Спробуйте ще раз', 'danger')
+        return response, 400
+
+    flash('Біографію успішно змінено', 'success')
 
     return response, 200

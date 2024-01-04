@@ -3,7 +3,7 @@ from project import db, login_manager, login_required, login_user, logout_user, 
 from project import generate_password_hash, check_password_hash
 from project import mail, Message, datetime
 from .models import User, EmailConfirmation
-from .forms import SignUpForm, LogInForm, LogOutForm, EmailConfirmationForm
+from .forms import SignUpForm, LogInForm, LogOutForm, EmailConfirmationForm, ChangePasswordForm
 
 auth = Blueprint('auth', __name__)
 
@@ -124,6 +124,54 @@ def log_out():
             flash('Вихід успішно виконаний', 'success')
 
         return redirect(url_for('views.home'))
+
+    return response
+
+
+@auth.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    response = make_response(render_template('auth/change_password.html', form=form))
+    bad_response = make_response(redirect(url_for('auth.change_password')))
+
+    if form.validate_on_submit():
+        data = form.data
+
+        password = data['password']
+        new_password = data['new_password']
+        confirm_new_password = data['confirm_new_password']
+
+        print(password, new_password, confirm_new_password)
+
+        try:
+            form.password_confirmation(new_password, confirm_new_password)
+        except ValidationError as error:
+            flash(str(error), 'danger')
+            return bad_response
+
+        if check_password_hash(current_user.password, generate_password_hash(password)):
+            flash('Не правильний пароль! Спробуйте ще раз', 'danger')
+            return bad_response
+
+        try:
+            current_user.password = generate_password_hash(new_password)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            flash('Щось пішло не так! Спробуйте ще раз', 'danger')
+            return bad_response
+
+        flash('Пароль успішно змінено', 'success')
+        return redirect(url_for('views.security_settings'))
+
+    elif form.errors:
+        form_errors = form.errors
+        for errors in form_errors.values():
+            for error in errors:
+                flash(str(error), 'danger')
+
+        return bad_response
 
     return response
 
