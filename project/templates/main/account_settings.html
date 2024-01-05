@@ -16,16 +16,16 @@
             <div class="input-group w-100">
 
                 <span class="input-group-text border-end-0 bg-transparent flex-grow-1">
-                    Фото профілю
+                    Фото
                 </span>
                 <span class="input-group-text border-start-0 border-end-0 bg-transparent text-end">
                     <img src="{{ url_for('static', filename=current_user.profile_picture_path) }}"
-                         class="pfp rounded" width="100px">
+                         class="pfp rounded">
                 </span>
 
                 <button class="btn btn-outline-info border-start-0 border" type="button"
                         data-bs-toggle="modal" data-bs-target="#changeProfilePicture">
-                    Редагувати
+                    <i class="fa-regular fa-pen-to-square"></i>
                 </button>
 
             </div>
@@ -75,7 +75,7 @@
             <div class="input-group w-100">
 
                 <span class="input-group-text border-end-0 bg-transparent flex-grow-1">
-                    Ім'я користувача
+                    Ім'я
                 </span>
                 <span class="input-group-text border-start-0 border-end-0 bg-transparent text-end">
                     @{{ current_user.username }}
@@ -83,7 +83,7 @@
 
                 <button class="btn btn-outline-info border-start-0 border" type="button"
                         data-bs-toggle="modal" data-bs-target="#changeUsername">
-                    Редагувати
+                    <i class="fa-regular fa-pen-to-square"></i>
                 </button>
 
             </div>
@@ -127,11 +127,13 @@
                     Біографія
                 </span>
 
-                <span class="input-group-text border-start-0 border-end-0 bg-transparent text-start w-50 pre ">"{{ current_user.bio[:70] }}..."</span>
+                <span class="input-group-text border-start-0 border-end-0 bg-transparent text-start pre"
+                      style="max-width: 45% !important;"
+                >"{{ current_user.bio[:70] }}{% if current_user.bio|length > 70 %}...{% endif %}"</span>
 
                 <button class="btn btn-outline-info border-start-0 border" type="button"
                         data-bs-toggle="modal" data-bs-target="#changeBio">
-                    Редагувати
+                    <i class="fa-regular fa-pen-to-square"></i>
                 </button>
 
             </div>
@@ -178,7 +180,7 @@
 
                 <button class="btn btn-outline-info border-start-0 border" type="button"
                         data-bs-toggle="modal" data-bs-target="#changeEmail">
-                    Редагувати
+                    <i class="fa-regular fa-pen-to-square"></i>
                 </button>
 
             </div>
@@ -187,7 +189,7 @@
                 <div class="email-confirmation">
                     <p class="text-danger m-2">
                         Електронна пошта не підтверджена.
-                        <a href="{{ url_for('auth.confirm_email', username=current_user.username) }}"
+                        <a href="{{ url_for('auth.confirm_email') }}"
                             class="link-danger link-offset-2">Підтвердити зараз.</a>
                     </p>
                 </div>

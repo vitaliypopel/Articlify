@@ -105,18 +105,6 @@ class LogInForm(FlaskForm):
             raise ValidationError('Користувача не знайдено! Спробуйте ще раз')
 
 
-class LogOutForm(FlaskForm):
-
-    submit = SubmitField('Вийти')
-    cancel = SubmitField('Відхилити')
-
-
-class EmailConfirmationForm(FlaskForm):
-
-    submit = SubmitField('Підтвердити')
-    cancel = SubmitField('Відхилити')
-
-
 class ChangePasswordForm(FlaskForm):
 
     password = PasswordField(

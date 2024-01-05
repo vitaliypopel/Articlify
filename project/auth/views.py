@@ -3,7 +3,7 @@ from project import db, login_manager, login_required, login_user, logout_user, 
 from project import generate_password_hash, check_password_hash
 from project import mail, Message, datetime
 from .models import User, EmailConfirmation
-from .forms import SignUpForm, LogInForm, LogOutForm, EmailConfirmationForm, ChangePasswordForm
+from .forms import SignUpForm, LogInForm, ChangePasswordForm
 
 auth = Blueprint('auth', __name__)
 
@@ -71,7 +71,7 @@ def log_in():
 
     if form.validate_on_submit():
         data = form.data
-        username = data['username']
+        username = data['username'].lower()
         password = data['password']
 
         try:
@@ -94,7 +94,13 @@ def log_in():
         flash(f'Вітаємо, {username}! Вхід успішно виконано', 'success')
 
         if not current_user.email_status:
-            flash('Ваша електронна пошта не підтверджена! Зробити це можна в налаштуваннях', 'warning')
+            account_settings_url = url_for('views.account_settings')
+
+            flash(
+                f'Ваша електронна пошта не підтверджена! Зробити це можна в '
+                f'<a class="btn-link" style="text-decoration: none;" href="{account_settings_url}">налаштуваннях</a>',
+                'warning'
+            )
 
         return redirect(url_for('views.home'))
 
@@ -109,21 +115,18 @@ def log_in():
     return response
 
 
-@auth.route('/logout', methods=['GET', 'POST'])
-@auth.route('/log-out', methods=['GET', 'POST'])
+@auth.route('/logout')
+@auth.route('/log-out')
 @login_required
 def log_out():
-    form = LogOutForm()
-    response = make_response(render_template('auth/log_out.html', form=form))
+    response = make_response(redirect(url_for('views.home')))
 
-    if form.validate_on_submit():
-        data = form.data
-
-        if data['submit']:
-            logout_user()
-            flash('Вихід успішно виконаний', 'success')
-
-        return redirect(url_for('views.home'))
+    try:
+        logout_user()
+    except Exception:
+        flash('Щось пішло не так! Спробуйте ще раз')
+    else:
+        flash('Вихід успішно виконаний', 'success')
 
     return response
 
@@ -141,8 +144,6 @@ def change_password():
         password = data['password']
         new_password = data['new_password']
         confirm_new_password = data['confirm_new_password']
-
-        print(password, new_password, confirm_new_password)
 
         try:
             form.password_confirmation(new_password, confirm_new_password)
@@ -176,86 +177,59 @@ def change_password():
     return response
 
 
-@auth.route('/@<username>/confirm-email', methods=['GET', 'POST'])
+@auth.route('/confirm-email')
 @login_required
-def confirm_email(username: str):
-    form = EmailConfirmationForm()
-    user = User.query.filter_by(username=username).first()
-    response = make_response(render_template('auth/confirm_email.html', form=form, user=user))
-    home_redirect = make_response(redirect(url_for('views.home')))
-
-    if not user:
-        flash('Користувача не знайдено', 'warning')
-        return home_redirect
-
-    if current_user.id != user.id:
-        flash('Ви не можете підтвердити чужу електронну пошту', 'danger')
-        return home_redirect
+def confirm_email():
+    response = make_response(redirect(url_for('views.account_settings')))
 
     if current_user.email_status:
         flash('Ви вже підтвердили свою електронну пошту', 'warning')
-        return home_redirect
+        return response
 
-    if form.validate_on_submit():
-        data = form.data
+    try:
+        confirmations = EmailConfirmation.query.filter_by(user_id=current_user.id)
+        for conf in confirmations:
+            db.session.delete(conf)
 
-        if data['submit']:
-            try:
-                confirmations = EmailConfirmation.query.filter_by(user_id=current_user.id)
-                for conf in confirmations:
-                    db.session.delete(conf)
+        new_confirmation = EmailConfirmation(current_user.id)
+        db.session.add(new_confirmation)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        flash('Щось пішло не так! Спробуйте ще раз', 'warning')
+        return response
 
-                new_confirmation = EmailConfirmation(current_user.id)
-                db.session.add(new_confirmation)
-                db.session.commit()
-            except Exception:
-                db.session.rollback()
-                flash('Щось пішло не так! Спробуйте ще раз', 'warning')
-                return home_redirect
+    url = url_for(
+        "auth.email_confirmation",
+        username=current_user.username,
+        token=new_confirmation.token,
+        _external=True
+    )
 
-            url = url_for(
-                "auth.email_confirmation",
-                username=current_user.username,
-                token=new_confirmation.token,
-                _external=True
-            )
+    recipient = current_user.email
+    subject = 'Articlify'
+    template = render_template('newsletter/email_confirmation.html', url=url)
 
-            recipient = current_user.email
-            subject = 'Articlify'
-            body = f'<h1>Для того, щоб підтвердити пошту перейдіть по посиланню нижче:</h1>\n' \
-                   f'<h3><a href="{url}">Посилання для підтвердження пошти</a></h3>'
-
-            try:
-                message = Message(recipients=[recipient], subject=subject, html=body)
-                mail.send(message)
-            except Exception:
-                flash('Повідомлення не надіслано! Спробуйте ще раз', 'danger')
-                return home_redirect
-            else:
-                flash(f'Повідомлення для підтвердження надіслано на {current_user.email}', 'success')
-
-        return home_redirect
+    try:
+        message = Message(recipients=[recipient], subject=subject, html=template)
+        mail.send(message)
+    except Exception:
+        flash('Повідомлення не надіслано! Спробуйте ще раз', 'danger')
+        return response
+    else:
+        flash(f'Повідомлення для підтвердження надіслано на {current_user.email}', 'success')
 
     return response
 
 
-@auth.route('/@<username>/confirm-email/<token>')
+@auth.route('/confirm-email/<token>')
 @login_required
-def email_confirmation(username: str, token: str):
-    user = User.query.filter_by(username=username).first()
-    confirmation = EmailConfirmation.query.filter_by(token=token).first()
-    response = make_response(redirect(url_for('views.home')))
-
-    if not user:
-        flash('Користувача не знайдено', 'warning')
-        return response
+def email_confirmation(token: str):
+    response = make_response(redirect(url_for('views.account_settings')))
+    confirmation = EmailConfirmation.query.filter_by(token=token, user_id=current_user.id).first()
 
     if not confirmation:
         flash('Токен не знайдено', 'warning')
-        return response
-
-    if current_user.id != user.id:
-        flash('Ви не можете підтвердити чужу електронну пошту', 'danger')
         return response
 
     if current_user.email_status:
@@ -297,11 +271,10 @@ def email_confirmation(username: str, token: str):
 
     recipient = current_user.email
     subject = 'Articlify'
-    body = f'<h1>Підтвердження електронної пошти</h1>\n' \
-           f'<h3>Ви успішно підтвердили цю електронну пошту!</h3>'
+    template = render_template('newsletter/email_confirmed.html')
 
     try:
-        message = Message(recipients=[recipient], subject=subject, html=body)
+        message = Message(recipients=[recipient], subject=subject, html=template)
         mail.send(message)
     except Exception:
         return response
