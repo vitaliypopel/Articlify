@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, make_response, flash, redirect, url_for
-from project import app, db, current_user, validate_email, os, match, sub
+from project import app, db, current_user, login_required, validate_email, os, match, sub
 from project.auth import User
+from project.main import UserSubscription
 
 api = Blueprint('api', __name__, url_prefix='/api')
 
@@ -20,6 +21,7 @@ def change_theme():
 
 
 @api.route('/change-username', methods=['PATCH'])
+@login_required
 def change_username():
     response = make_response(jsonify({
         'redirect': url_for('views.account_settings')
@@ -56,6 +58,7 @@ def change_username():
 
 
 @api.route('/change-email', methods=['PATCH'])
+@login_required
 def change_email():
     response = make_response(jsonify({
         'redirect': url_for('views.account_settings')
@@ -95,6 +98,7 @@ def change_email():
 
 
 @api.route('/change-profile-picture', methods=['PATCH'])
+@login_required
 def change_profile_picture():
     response = make_response(jsonify({
         'redirect': url_for('views.account_settings')
@@ -130,6 +134,7 @@ def change_profile_picture():
 
 
 @api.route('/delete-profile-picture', methods=['DELETE'])
+@login_required
 def delete_profile_picture():
     response = make_response(jsonify({
         'redirect': url_for('views.account_settings')
@@ -155,6 +160,7 @@ def delete_profile_picture():
 
 
 @api.route('/change-bio', methods=['PATCH'])
+@login_required
 def change_bio():
     response = make_response(jsonify({
         'redirect': url_for('views.account_settings')
@@ -177,3 +183,40 @@ def change_bio():
     flash('Біографію успішно змінено', 'success')
 
     return response, 200
+
+
+@api.route('/follow/<author_id>', methods=['POST'])
+@login_required
+def follow_user(author_id: int):
+    subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=author_id).first()
+
+    if not subscription:
+
+        try:
+            new_subscription = UserSubscription(current_user.id, author_id)
+            db.session.add(new_subscription)
+            db.session.commit()
+
+            print(f'Підписка користувача {current_user.id} на користувача {author_id} пройшла успішно')
+        except Exception:
+            db.session.rollback()
+
+    return jsonify(), 200
+
+
+@api.route('/unfollow/<author_id>', methods=['POST'])
+@login_required
+def unfollow_user(author_id: int):
+    subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=author_id).first()
+
+    if subscription:
+
+        try:
+            db.session.delete(subscription)
+            db.session.commit()
+
+            print(f'Відписка користувача {current_user.id} від користувача {author_id} пройшла успішно')
+        except Exception:
+            db.session.rollback()
+
+    return jsonify(), 200

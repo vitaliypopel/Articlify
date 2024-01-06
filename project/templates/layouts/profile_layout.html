@@ -9,10 +9,117 @@
     <div class="profile mt-5 mb-5">
         <div class="user-data mt-3 mb-3">
             <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=user.username) }}">
-                <img src="{{ url_for('static', filename=user.profile_picture_path) }}"
-                     class="pfp rounded" width="100px">
+                <img src="{{ url_for('static', filename=user.profile_picture_path) }}" class="pfp rounded">
             </a>
             <a class="btn btn-lg fs-3" href="{{ url_for('views.profile', username=user.username) }}">@{{ user.username }}</a>
+
+            {% if current_user.id != user.id %}
+                <span class="subscription">
+                    {% if subscription %}
+                        <button class="btn btn-outline-danger" id="unfollowButton" type="button"
+                                onclick="unfollow({{ user.id }})">
+                            Відписатись
+                        </button>
+                    {% else %}
+                        <button class="btn btn-outline-success" id="followButton" type="button"
+                                onclick="follow({{ user.id }})">
+                            Підписатись
+                        </button>
+                    {% endif %}
+                </span>
+            {% endif %}
+        </div>
+
+        <div class="subscription-data mt-3 mb-3">
+            <table class="table table-borderless">
+                <thead>
+                    <tr align="center">
+                        <th scope="col">
+                            <button class="btn border w-75" type="button"
+                                    data-bs-toggle="modal" data-bs-target="#followersModal">
+                                Підписники
+                                <br>
+                                <span id="followers">{{ followers|length }}</span>
+                            </button>
+                        </th>
+                        <th scope="col">
+                            <button class="btn border w-75" type="button"
+                                    data-bs-toggle="modal" data-bs-target="#followingsModal">
+                                Підписки
+                                <br>
+                                <span id="followings">{{ followings|length }}</span>
+                            </button>
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+
+            <div class="modal fade" id="followersModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5">Підписники</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+
+                            {% if followers %}
+                                {% for person in followers %}
+                                    {% with person = person.user_id|user_loader %}
+                                        <div class="user-data mt-3 mb-3">
+                                            <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=person.username) }}">
+                                                <img src="{{ url_for('static', filename=person.profile_picture_path) }}"
+                                                     class="rounded" width="50px">
+                                            </a>
+                                            <a class="btn btn-lg fs-5" href="{{ url_for('views.profile', username=person.username) }}">
+                                                @{{ person.username }}
+                                            </a>
+                                        </div>
+                                    {% endwith %}
+                                {% endfor %}
+                            {% else %}
+                                <p>Підписники відсутні</p>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="followingsModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5">Підписки</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+
+                            {% if followings %}
+                                {% for person in followings %}
+                                    {% with person = person.author_id|user_loader %}
+                                        <div class="user-data mt-3 mb-3">
+                                            <a class="btn m-0 p-0"
+                                               href="{{ url_for('views.profile', username=person.username) }}">
+                                                <img src="{{ url_for('static', filename=person.profile_picture_path) }}"
+                                                     class="rounded" width="50px">
+                                            </a>
+                                            <a class="btn btn-lg fs-5"
+                                               href="{{ url_for('views.profile', username=person.username) }}">
+                                                @{{ person.username }}
+                                            </a>
+                                        </div>
+                                    {% endwith %}
+                                {% endfor %}
+                            {% else %}
+                                <p>Підписки відсутні</p>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div class="navigation mt-3 mb-3">
@@ -37,4 +144,6 @@
         {% endblock %}
 
     </div>
+
+    <script src="{{ url_for('static', filename='scripts/subscriptions/subscriptions.js') }}"></script>
 {% endblock %}

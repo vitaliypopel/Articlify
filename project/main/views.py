@@ -1,7 +1,7 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, send_from_directory
+from flask import Blueprint, render_template, flash, redirect, url_for, jsonify, send_from_directory, make_response
 from project.auth import User
 from project import db, current_user, login_required, ValidationError, datetime
-from .models import Feedback, Topic
+from .models import Feedback, Topic, UserSubscription
 from .forms import FeedbackForm
 
 views = Blueprint('views', __name__)
@@ -102,7 +102,16 @@ def profile(username: str):
         flash('Користувача не знайдено', 'warning')
         return redirect(url_for('views.home'))
 
-    return render_template('main/profile.html', user=user)
+    followers = UserSubscription.query.filter_by(author_id=user.id).all()
+    followings = UserSubscription.query.filter_by(user_id=user.id).all()
+
+    if current_user.id != user.id:
+        subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=user.id).first()
+        return render_template(
+            'main/profile.html', user=user, subscription=subscription, followers=followers, followings=followings
+        )
+
+    return render_template('main/profile.html', user=current_user, followers=followers, followings=followings)
 
 
 @views.route('/@<username>/about')
@@ -113,7 +122,16 @@ def profile_about(username: str):
         flash('Користувача не знайдено', 'warning')
         return redirect(url_for('views.home'))
 
-    return render_template('main/profile_about.html', user=user)
+    followers = UserSubscription.query.filter_by(author_id=user.id).all()
+    followings = UserSubscription.query.filter_by(user_id=user.id).all()
+
+    if current_user.id != user.id:
+        subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=user.id).first()
+        return render_template(
+            'main/profile_about.html', user=user, subscription=subscription, followers=followers, followings=followings
+        )
+
+    return render_template('main/profile_about.html', user=current_user, followers=followers, followings=followings)
 
 
 @views.route('/settings')

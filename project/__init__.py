@@ -1,3 +1,4 @@
+import jinja2
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, current_user, login_required, login_user, logout_user
@@ -59,5 +60,12 @@ def create_app():
     mail.init_app(app)
 
     bootstrap.init_app(app)
+
+    from project.auth import User
+
+    def user_loader(user_id: int) -> object:
+        return User.query.filter_by(id=user_id).first()
+
+    app.jinja_env.filters['user_loader'] = user_loader
 
     return app
