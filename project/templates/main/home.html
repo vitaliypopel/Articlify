@@ -9,4 +9,16 @@
         <h1>Головна</h1>
     </div>
 
+    <div class="topics mt-3 mb-3" align="center">
+        {% if current_user.is_authenticated %}
+            {% for topic_subscription in topic_subscriptions %}
+                {% with topic = topic_subscription.topic_id|topic_loader %}
+                    <a class="btn border mt-3 m-1" href="{{ url_for('views.articles_topic', topic=topic.topic.lower()) }}">
+                        {{ topic.topic }}
+                    </a>
+                {% endwith %}
+            {% endfor %}
+        {% endif %}
+    </div>
+
 {% endblock %}

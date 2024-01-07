@@ -1,0 +1,39 @@
+{% extends 'layouts/layout.html' %}
+
+{% block title %}
+    {% block topic_title %}
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+    <div class="title mt-3 mb-3" align="center">
+        <h1>{{ topic.topic }}</h1>
+    </div>
+
+    <div class="topic-data mt-3 mb-3" align="center">
+        <p>
+            Категорія • Читачі: <span id="followers">{{ subscriptions|length }}</span> • Статті: <span id="articles-count">100</span>
+        </p>
+
+        {% if current_user.is_authenticated %}
+            <span class="subscription subscription-topic">
+                {% if subscription %}
+                    <button class="btn btn-outline-danger" id="unfollowButton" type="button"
+                            onclick="unfollow({{ topic.id }}, 'topic')">
+                        Не стежити
+                    </button>
+                {% else %}
+                    <button class="btn btn-outline-success" id="followButton" type="button"
+                            onclick="follow({{ topic.id }}, 'topic')">
+                        Стежити
+                    </button>
+                {% endif %}
+            </span>
+        {% endif %}
+    </div>
+
+    {% block topic_content %}
+    {% endblock %}
+
+    <script src="{{ url_for('static', filename='scripts/subscriptions/subscriptions.js') }}"></script>
+{% endblock %}

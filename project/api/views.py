@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, make_response, flash, redirect, url_for
 from project import app, db, current_user, login_required, validate_email, os, match, sub
 from project.auth import User
-from project.main import UserSubscription
+from project.main import Topic, TopicSubscription, UserSubscription
 
 api = Blueprint('api', __name__, url_prefix='/api')
 
@@ -185,38 +185,86 @@ def change_bio():
     return response, 200
 
 
-@api.route('/follow/<author_id>', methods=['POST'])
+@api.route('/follow/user/<author_id>', methods=['POST'])
 @login_required
 def follow_user(author_id: int):
-    subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=author_id).first()
+    response = make_response(jsonify())
 
+    author = User.query.get(author_id)
+    if not author:
+        return response, 400
+
+    subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=author.id).first()
     if not subscription:
-
         try:
-            new_subscription = UserSubscription(current_user.id, author_id)
+            new_subscription = UserSubscription(current_user.id, author.id)
             db.session.add(new_subscription)
             db.session.commit()
-
-            print(f'Підписка користувача {current_user.id} на користувача {author_id} пройшла успішно')
         except Exception:
             db.session.rollback()
+            return response, 400
 
-    return jsonify(), 200
+    return response, 200
 
 
-@api.route('/unfollow/<author_id>', methods=['POST'])
+@api.route('/unfollow/user/<author_id>', methods=['POST'])
 @login_required
 def unfollow_user(author_id: int):
-    subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=author_id).first()
+    response = make_response(jsonify())
 
+    author = User.query.get(author_id)
+    if not author:
+        return response, 400
+
+    subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=author.id).first()
     if subscription:
-
         try:
             db.session.delete(subscription)
             db.session.commit()
-
-            print(f'Відписка користувача {current_user.id} від користувача {author_id} пройшла успішно')
         except Exception:
             db.session.rollback()
+            return response, 400
 
-    return jsonify(), 200
+    return response, 200
+
+
+@api.route('follow/topic/<topic_id>', methods=['POST'])
+@login_required
+def follow_topic(topic_id: int):
+    response = make_response(jsonify())
+
+    topic = Topic.query.get(topic_id)
+    if not topic:
+        return response, 400
+
+    subscription = TopicSubscription.query.filter_by(user_id=current_user.id, topic_id=topic.id).first()
+    if not subscription:
+        try:
+            new_subscription = TopicSubscription(current_user.id, topic.id)
+            db.session.add(new_subscription)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            return response, 400
+
+    return response, 200
+
+
+@api.route('unfollow/topic/<topic_id>', methods=['POST'])
+def unfollow_topic(topic_id: int):
+    response = make_response(jsonify())
+
+    topic = Topic.query.get(topic_id)
+    if not topic:
+        return response, 400
+
+    subscription = TopicSubscription.query.filter_by(user_id=current_user.id, topic_id=topic.id).first()
+    if subscription:
+        try:
+            db.session.delete(subscription)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            return response, 400
+
+    return response, 200

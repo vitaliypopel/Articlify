@@ -43,11 +43,20 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint == 'views.feedback' %}active{% endif %}"
-                               href="{{ url_for('views.feedback') }}">
-                                Зворотній зв'язок
+                            <a class="nav-link {% if request.endpoint == 'views.articles_topics' %}active{% endif %}"
+                               href="{{ url_for('views.articles_topics') }}">
+                                Категорії статей
                             </a>
                         </li>
+
+                        {% if not current_user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.endpoint == 'views.feedback' %}active{% endif %}"
+                                   href="{{ url_for('views.feedback') }}">
+                                    Зворотній зв'язок
+                                </a>
+                            </li>
+                        {% endif %}
 
                     </ul>
 
@@ -73,6 +82,13 @@
                                                 <i class="fa-solid fa-gear"></i> Налаштування
                                             </a>
                                         </li>
+
+                                        <li>
+                                            <a class="dropdown-item" href="{{ url_for('views.feedback') }}">
+                                                <i class="fa-solid fa-comment-dots"></i> Зворотній зв'язок
+                                            </a>
+                                        </li>
+
 
                                         <li><hr class="dropdown-divider"></li>
 

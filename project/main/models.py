@@ -35,10 +35,29 @@ class Topic(db.Model):
     def __init__(self, topic: str):
         self.topic = topic
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Topic(\n' \
                f'   id [PK]:    {self.id}\n' \
                f'   topic:      {self.topic}\n' \
+               f')'
+
+
+class TopicSubscription(db.Model):
+    __tablename__: str = 'topic_subscriptions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topics.id'), nullable=False)
+
+    def __init__(self, user_id: int, topic_id: int):
+        self.user_id = int(user_id)
+        self.topic_id = int(topic_id)
+
+    def __repr__(self) -> str:
+        return f'TopicSubscription(\n' \
+               f'   id [PK]:        {self.id}\n' \
+               f'   user_id [FK]:   {self.user_id}\n' \
+               f'   topic_id [FK]:  {self.topic_id}\n' \
                f')'
 
 
@@ -53,7 +72,7 @@ class UserSubscription(db.Model):
         self.user_id = int(user_id)
         self.author_id = int(author_id)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'UserSubscription(\n' \
                f'   id [PK]:        {self.id}\n' \
                f'   user_id [FK]:   {self.user_id}\n' \

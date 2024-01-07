@@ -1,4 +1,3 @@
-import jinja2
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, current_user, login_required, login_user, logout_user
@@ -64,8 +63,15 @@ def create_app():
     from project.auth import User
 
     def user_loader(user_id: int) -> object:
-        return User.query.filter_by(id=user_id).first()
+        return User.query.get(user_id)
 
     app.jinja_env.filters['user_loader'] = user_loader
+
+    from project.main import Topic
+
+    def topic_loader(topic_id: int) -> object:
+        return Topic.query.get(topic_id)
+
+    app.jinja_env.filters['topic_loader'] = topic_loader
 
     return app

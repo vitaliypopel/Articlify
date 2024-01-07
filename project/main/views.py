@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, jsonify, send_from_directory, make_response
 from project.auth import User
 from project import db, current_user, login_required, ValidationError, datetime
-from .models import Feedback, Topic, UserSubscription
+from .models import Feedback, Topic, TopicSubscription, UserSubscription
 from .forms import FeedbackForm
 
 views = Blueprint('views', __name__)
@@ -15,6 +15,11 @@ def favicon():
 
 @views.route('/')
 def home():
+
+    if current_user.is_authenticated:
+        topic_subscriptions = TopicSubscription.query.filter_by(user_id=current_user.id).all()
+        return render_template('main/home.html', topic_subscriptions=topic_subscriptions)
+
     return render_template('main/home.html')
 
 
@@ -94,6 +99,37 @@ def feedback():
     return render_template('main/feedback.html', form=form)
 
 
+# != production by the moment
+@views.route('/articles')
+def articles():
+    ...
+
+
+@views.route('/articles/topics')
+def articles_topics():
+    topics = Topic.query.all()
+    response = make_response(render_template('main/topics.html', topics=topics))
+
+    return response
+
+
+@views.route('/articles/topics/<topic>')
+def articles_topic(topic: str):
+    topic = Topic.query.filter(Topic.topic.ilike(topic)).first()
+
+    if not topic:
+        flash('Категорії статей не знайдено', 'danger')
+        return redirect(url_for('views.articles_topics'))
+
+    subscriptions = TopicSubscription.query.filter_by(topic_id=topic.id).all()
+
+    if current_user.is_authenticated:
+        subscription = TopicSubscription.query.filter_by(user_id=current_user.id, topic_id=topic.id).first()
+        return render_template('main/topic.html', topic=topic, subscription=subscription, subscriptions=subscriptions)
+
+    return render_template('main/topic.html', topic=topic, subscriptions=subscriptions)
+
+
 @views.route('/@<username>')
 def profile(username: str):
     user = User.query.filter_by(username=username).first()
@@ -105,13 +141,16 @@ def profile(username: str):
     followers = UserSubscription.query.filter_by(author_id=user.id).all()
     followings = UserSubscription.query.filter_by(user_id=user.id).all()
 
-    if current_user.id != user.id:
-        subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=user.id).first()
-        return render_template(
-            'main/profile.html', user=user, subscription=subscription, followers=followers, followings=followings
-        )
+    if current_user.is_authenticated:
+        if current_user.id != user.id:
+            subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=user.id).first()
+            return render_template(
+                'main/profile.html', user=user, subscription=subscription, followers=followers, followings=followings
+            )
+        else:
+            return render_template('main/profile.html', user=current_user, followers=followers, followings=followings)
 
-    return render_template('main/profile.html', user=current_user, followers=followers, followings=followings)
+    return render_template('main/profile.html', user=user, followers=followers, followings=followings)
 
 
 @views.route('/@<username>/about')
@@ -125,13 +164,16 @@ def profile_about(username: str):
     followers = UserSubscription.query.filter_by(author_id=user.id).all()
     followings = UserSubscription.query.filter_by(user_id=user.id).all()
 
-    if current_user.id != user.id:
-        subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=user.id).first()
-        return render_template(
-            'main/profile_about.html', user=user, subscription=subscription, followers=followers, followings=followings
-        )
+    if current_user.is_authenticated:
+        if current_user.id != user.id:
+            subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=user.id).first()
+            return render_template('main/profile_about.html',
+                                   user=user, subscription=subscription, followers=followers, followings=followings)
+        else:
+            return render_template('main/profile_about.html',
+                                   user=current_user, followers=followers, followings=followings)
 
-    return render_template('main/profile_about.html', user=current_user, followers=followers, followings=followings)
+    return render_template('main/profile_about.html', user=user, followers=followers, followings=followings)
 
 
 @views.route('/settings')
