@@ -1,0 +1,13 @@
+{% extends 'layouts/profile_layout.html' %}
+
+{% block profile_title %}
+    Про користувача @{{ user.username }}
+{% endblock %}
+
+{% block profile_content %}
+    <div class="about mt-3 mb-3">
+        <h3>Про себе</h3>
+
+        <p class="pre">{{ user.bio }}</p>
+    </div>
+{% endblock %}

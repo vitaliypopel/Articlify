@@ -1,0 +1,31 @@
+{% extends 'layouts/settings_layout.html' %}
+
+{% block settings_title %}
+    Налаштування безпеки
+{% endblock %}
+
+{% block settings_content %}
+    <div class="title mt-3 mb-3" align="center">
+        <h1>Налаштування безпеки</h1>
+    </div>
+
+    <div class="settings mt-3 mb-3">
+
+        <div class="profile-picture mt-3 mb-3">
+
+            <div class="input-group w-100">
+
+                <span class="input-group-text border-end-0 bg-transparent flex-grow-1">
+                    Пароль
+                </span>
+
+                <a class="btn btn-outline-info border-start-0 border" href="{{ url_for('auth.change_password') }}">
+                    Змінити
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

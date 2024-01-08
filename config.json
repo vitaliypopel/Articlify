@@ -1,0 +1,15 @@
+{
+    "configuration": {
+        "SECRET_KEY": "this_is_my_secret_key",
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///database.db",
+        "TEMPLATES_FOLDER": "project/templates",
+        "STATIC_FOLDER": "project/static",
+        "MAIL_SERVER": "smtp.gmail.com",
+        "MAIL_PORT": 587,
+        "MAIL_USE_TLS": true,
+        "MAIL_USE_SSL": false,
+        "MAIL_DEFAULT_SENDER": "popelcompany@gmail.com",
+        "MAIL_USERNAME": "popelcompany@gmail.com",
+        "MAIL_PASSWORD": "xvcexfmxbgwcwhnz"
+    }
+}

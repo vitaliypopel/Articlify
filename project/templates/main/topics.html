@@ -1,0 +1,24 @@
+{% extends 'layouts/layout.html' %}
+
+{% block title %}
+    Категорії статей
+{% endblock %}
+
+{% block content %}
+    <div class="title mt-3 mb-3" align="center">
+        <h1>Категорії статей</h1>
+    </div>
+
+    <div class="topics mt-3 mb-3">
+        <div class="row">
+            {% for topic in topics %}
+                <div class="topic mt-2 mb-2 col-6 text-center">
+                    <a class="btn border w-100 fs-5" href="{{ url_for('views.articles_topic', topic=topic.topic.lower()) }}">
+                       {{ topic.topic }}
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}

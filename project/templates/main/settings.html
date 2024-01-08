@@ -1,0 +1,53 @@
+{% extends 'layouts/settings_layout.html' %}
+
+{% block settings_title %}
+    Загальні налаштування
+{% endblock %}
+
+{% block settings_content %}
+    <div class="title mt-3 mb-3" align="center">
+        <h1>Загальні налаштування</h1>
+    </div>
+
+    <div class="settings mt-3 mb-3">
+
+        <div class="theme mt-3 mb-3">
+
+            <div class="input-group w-100">
+                <span class="input-group-text border-end-0 bg-transparent flex-grow-1">Змінити тему</span>
+
+                <button class="btn btn-outline-info border border-start-0 text-end dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                    Тема
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end mt-2 w-25">
+                    <li>
+                        <button class="dropdown-item" onclick="setTheme('light')">
+                             
+                            <i class="fa-regular fa-sun"></i>
+                            Світла
+                        </button>
+                    </li>
+                    <li>
+                        <button class="dropdown-item" onclick="setTheme('dark')">
+                             
+                            <i class="fa-regular fa-moon"></i>
+                            Темна
+                        </button>
+                    </li>
+                    <li>
+                        <button class="dropdown-item" onclick="setTheme('auto')">
+                             
+                            <i class="fa-solid fa-circle-half-stroke"></i>
+                            Авто
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='scripts/customize/custom.js') }}"></script>
+{% endblock %}

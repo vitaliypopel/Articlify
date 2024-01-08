@@ -1,0 +1,16 @@
+@media (min-width: 700px) {
+    .container{
+        max-width: 700px !important;
+    }
+}
+
+.pfp {
+    width: 100px !important;
+    height: 100px !important;
+}
+
+.pre {
+    white-space: pre-wrap !important;
+    overflow-wrap: break-word !important;
+    word-wrap: break-word !important;
+}
