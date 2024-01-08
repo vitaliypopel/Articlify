@@ -2,8 +2,8 @@ from flask import Blueprint, make_response, render_template, request, flash, red
 from project import db, login_manager, login_required, login_user, logout_user, current_user, ValidationError
 from project import generate_password_hash, check_password_hash
 from project import mail, Message, datetime
-from .models import User, EmailConfirmation
-from .forms import SignUpForm, LogInForm, ChangePasswordForm
+from .models import User, EmailConfirmation, ResetPassword
+from .forms import SignUpForm, LogInForm, ChangePasswordForm, ResetPasswordForm, PasswordResettingForm
 
 auth = Blueprint('auth', __name__)
 
@@ -45,9 +45,19 @@ def sign_up():
             db.session.rollback()
             flash('Щось пішло не так! Спробуйте ще раз', 'danger')
             return redirect(url_for('auth.sign_up'))
-        else:
-            flash('Реєстрація пройшла успішно! Будь ласка увійдіть', 'success')
-            return redirect(url_for('auth.log_in'))
+
+        try:
+            new_confirmation = EmailConfirmation(new_user.id)
+            db.session.add(new_confirmation)
+            db.session.commit()
+
+            send_email_confirmation(new_user.email, new_user.id, new_confirmation.token)
+        except Exception:
+            db.session.rollback()
+            return redirect(url_for('auth.sign_up'))
+
+        flash('Реєстрація пройшла успішно! Будь ласка увійдіть', 'success')
+        return redirect(url_for('auth.log_in'))
 
     elif form.errors:
         form_errors = form.errors
@@ -131,6 +141,288 @@ def log_out():
     return response
 
 
+def send_email_confirmation(email: str, user_id: str, token: str) -> None:
+    url = url_for(
+        "auth.email_confirmation",
+        user_id=user_id,
+        token=token,
+        _external=True
+    )
+
+    recipient = email
+    subject = 'Articlify'
+    template = render_template('newsletter/email_confirmation.html', user_id=user_id, url=url)
+
+    message = Message(recipients=[recipient], subject=subject, html=template)
+    mail.send(message)
+
+
+def send_success_email_confirmation(email: str) -> None:
+    recipient = email
+    subject = 'Articlify'
+    template = render_template('newsletter/email_confirmed.html')
+
+    message = Message(recipients=[recipient], subject=subject, html=template)
+    mail.send(message)
+
+
+def send_reset_password(email: str, user_id: str, token: str) -> None:
+    url = url_for(
+        "auth.password_resetting",
+        user_id=user_id,
+        token=token,
+        _external=True
+    )
+
+    recipient = email
+    subject = 'Articlify'
+    template = render_template('newsletter/reset_password.html', url=url)
+
+    message = Message(recipients=[recipient], subject=subject, html=template)
+    mail.send(message)
+
+
+def send_success_reset_password(email: str) -> None:
+    recipient = email
+    subject = 'Articlify'
+    template = render_template('newsletter/password_reseted.html')
+
+    message = Message(recipients=[recipient], subject=subject, html=template)
+    mail.send(message)
+
+
+@auth.route('/confirm-email')
+@login_required
+def confirm_email():
+    response = make_response(redirect(url_for('views.account_settings')))
+
+    if current_user.email_status:
+        flash('Ви вже підтвердити свою електронну пошту', 'warning')
+        return response
+
+    try:
+        confirmations = EmailConfirmation.query.filter_by(user_id=current_user.id).all()
+        for conf in confirmations:
+            db.session.delete(conf)
+
+        new_confirmation = EmailConfirmation(current_user.id)
+        db.session.add(new_confirmation)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        flash('Щось пішло не так! Спробуйте ще раз', 'warning')
+        return response
+
+    try:
+        send_email_confirmation(current_user.email, current_user.id, new_confirmation.token)
+    except Exception:
+        flash('Повідомлення не надіслано! Спробуйте ще раз', 'danger')
+        return response
+    else:
+        flash(f'Повідомлення для підтвердження надіслано на {current_user.email}', 'success')
+
+    return response
+
+
+@auth.route('/confirm-email/<user_id>/<token>')
+def email_confirmation(user_id: str, token: str):
+    response = None
+
+    if current_user.is_authenticated:
+        if current_user.id == user_id:
+            response = make_response(redirect(url_for('views.account_settings')))
+        else:
+            flash('Ви не можете підтвердити чужу електронну пошту')
+            return redirect(url_for('views.home'))
+    else:
+        response = make_response(redirect(url_for('views.home')))
+
+    confirmation = EmailConfirmation.query.filter_by(token=token, user_id=user_id).first()
+
+    if not confirmation:
+        flash('Токен не знайдено', 'warning')
+        return response
+
+    user = User.query.get(user_id)
+    if not user:
+        flash('Користувача не знайдено', 'warning')
+        return response
+
+    if user.email_status:
+        flash('Ви вже підтвердили свою електронну пошту', 'warning')
+        return response
+
+    if confirmation.expiration_time < datetime.utcnow():
+        try:
+            db.session.delete(confirmation)
+
+            confirmations = EmailConfirmation.query.filter_by(user_id=user.id)
+            for conf in confirmations:
+                db.session.delete(conf)
+
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            flash('Щось пішло не так! Спробуйте ще раз', 'danger')
+        else:
+            flash('Час на підтвердження вийшов! Спробуйте надіслати підтвердження повторно', 'danger')
+
+        return response
+
+    try:
+        user.email_status = True
+        db.session.delete(confirmation)
+
+        confirmations = EmailConfirmation.query.filter_by(user_id=user.id).all()
+        for conf in confirmations:
+            db.session.delete(conf)
+
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        flash('Щось пішло не так! Спробуйте ще раз', 'danger')
+        return response
+    else:
+        flash(f'Ви успішно підтвердили електронну пошту {user.email}', 'success')
+
+    try:
+        send_success_email_confirmation(user.email)
+    except Exception:
+        return response
+
+    return response
+
+
+@auth.route('/reset-password', methods=['GET', 'POST'])
+def reset_password():
+    form = ResetPasswordForm()
+    response = make_response(render_template('auth/reset_password.html', form=form))
+    bad_response = make_response(redirect(url_for('auth.reset_password')))
+
+    if form.validate_on_submit():
+        data = form.data
+        username = data['username'].lower()
+
+        try:
+            form.validate_name(username)
+        except ValidationError as error:
+            flash(str(error), 'danger')
+            return bad_response
+
+        user = User.query.filter_by(username=username).first()
+        if not user.email_status:
+            flash('Ваша пошта не підтверджена! Будь ласка підтвердіть вашу пошту', 'warning')
+            try:
+                confirmations = EmailConfirmation.query.filter_by(user_id=user.id)
+                for conf in confirmations:
+                    db.session.delete(conf)
+
+                new_confirmation = EmailConfirmation(user.id)
+                db.session.add(new_confirmation)
+                db.session.commit()
+
+                send_email_confirmation(user.email, user.id, new_confirmation.token)
+            except Exception:
+                flash('Щось пішло не так! Спробуйте ще раз', 'danger')
+            else:
+                flash(f'Повідомлення для підтвердження надіслано на {user.email}', 'success')
+
+            return redirect(url_for('views.home'))
+
+        try:
+            reset_passwords = ResetPassword.query.filter_by(user_id=user.id).all()
+            for reset in reset_passwords:
+                db.session.delete(reset)
+
+            new_reset_password = ResetPassword(user.id)
+            db.session.add(new_reset_password)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            flash('Щось пішло не так! Спробуйте ще раз', 'danger')
+            return bad_response
+
+        try:
+            send_reset_password(user.email, user.id, new_reset_password.token)
+        except Exception:
+            flash('Повідомлення не надіслано! Спробуйте ще раз', 'danger')
+            return bad_response
+        else:
+            flash(f'Посилання для скидання паролю надіслано на {user.email}', 'success')
+
+        return redirect(url_for('views.home'))
+
+    elif form.errors:
+        form_errors = form.errors
+        for errors in form_errors.values():
+            for error in errors:
+                flash(str(error), 'danger')
+
+        return bad_response
+
+    return response
+
+
+@auth.route('/reset-password/<user_id>/<token>', methods=['GET', 'POST'])
+def password_resetting(user_id: str, token: str):
+    form = PasswordResettingForm()
+    response = make_response(render_template('auth/password_resetting.html', form=form))
+    bad_response = make_response(redirect(url_for('auth.password_resetting', user_id=user_id, token=token)))
+
+    reset = ResetPassword.query.filter_by(user_id=user_id, token=token).first()
+    if not reset:
+        flash('Токен не знайдено', 'warning')
+        return redirect(url_for('views.home'))
+
+    user = User.query.get(user_id)
+    if not user:
+        flash('Користувача не знайдено', 'warning')
+        return redirect(url_for('views.home'))
+
+    if form.validate_on_submit():
+        data = form.data
+
+        new_password = data['new_password']
+        confirm_new_password = data['confirm_new_password']
+
+        try:
+            form.password_confirmation(new_password, confirm_new_password)
+        except ValidationError as error:
+            flash(str(error), 'danger')
+            return bad_response
+
+        try:
+            reset_passwords = ResetPassword.query.filter_by(user_id=user.id).all()
+            for reset in reset_passwords:
+                db.session.delete(reset)
+
+            user.password = generate_password_hash(new_password)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            flash('Щось пішло не так! Спробуйте ще раз', 'danger')
+            return bad_response
+        else:
+            flash('Пароль успішно змінено', 'success')
+
+        try:
+            send_success_reset_password(user.email)
+        except Exception:
+            return redirect(url_for('auth.log_in'))
+
+        return redirect(url_for('auth.log_in'))
+
+    elif form.errors:
+        form_errors = form.errors
+        for errors in form_errors.values():
+            for error in errors:
+                flash(str(error), 'danger')
+
+        return bad_response
+
+    return response
+
+
 @auth.route('/change-password', methods=['GET', 'POST'])
 @login_required
 def change_password():
@@ -174,116 +466,4 @@ def change_password():
 
         return bad_response
 
-    return response
-
-
-@auth.route('/confirm-email')
-@login_required
-def confirm_email():
-    response = make_response(redirect(url_for('views.account_settings')))
-
-    if current_user.email_status:
-        flash('Ви вже підтвердили свою електронну пошту', 'warning')
-        return response
-
-    try:
-        confirmations = EmailConfirmation.query.filter_by(user_id=current_user.id)
-        for conf in confirmations:
-            db.session.delete(conf)
-
-        new_confirmation = EmailConfirmation(current_user.id)
-        db.session.add(new_confirmation)
-        db.session.commit()
-    except Exception:
-        db.session.rollback()
-        flash('Щось пішло не так! Спробуйте ще раз', 'warning')
-        return response
-
-    url = url_for(
-        "auth.email_confirmation",
-        username=current_user.username,
-        token=new_confirmation.token,
-        _external=True
-    )
-
-    recipient = current_user.email
-    subject = 'Articlify'
-    template = render_template('newsletter/email_confirmation.html', url=url)
-
-    try:
-        message = Message(recipients=[recipient], subject=subject, html=template)
-        mail.send(message)
-    except Exception:
-        flash('Повідомлення не надіслано! Спробуйте ще раз', 'danger')
-        return response
-    else:
-        flash(f'Повідомлення для підтвердження надіслано на {current_user.email}', 'success')
-
-    return response
-
-
-@auth.route('/confirm-email/<token>')
-@login_required
-def email_confirmation(token: str):
-    response = make_response(redirect(url_for('views.account_settings')))
-    confirmation = EmailConfirmation.query.filter_by(token=token, user_id=current_user.id).first()
-
-    if not confirmation:
-        flash('Токен не знайдено', 'warning')
-        return response
-
-    if current_user.email_status:
-        flash('Ви вже підтвердили свою електронну пошту', 'warning')
-        return response
-
-    if confirmation.expiration_time < datetime.utcnow():
-        try:
-            db.session.delete(confirmation)
-
-            confirmations = EmailConfirmation.query.filter_by(user_id=current_user.id)
-            for conf in confirmations:
-                db.session.delete(conf)
-
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-            flash('Щось пішло не так! Спробуйте ще раз', 'danger')
-        else:
-            flash('Час на підтвердження вийшов! Спробуйте надіслати підтвердження повторно', 'danger')
-
-        return response
-
-    try:
-        current_user.email_status = True
-        db.session.delete(confirmation)
-
-        confirmations = EmailConfirmation.query.filter_by(user_id=current_user.id)
-        for conf in confirmations:
-            db.session.delete(conf)
-
-        db.session.commit()
-    except Exception:
-        db.session.rollback()
-        flash('Щось пішло не так! Спробуйте ще раз', 'danger')
-        return response
-    else:
-        flash(f'Ви успішно підтвердили електронну пошту {current_user.email}', 'success')
-
-    recipient = current_user.email
-    subject = 'Articlify'
-    template = render_template('newsletter/email_confirmed.html')
-
-    try:
-        message = Message(recipients=[recipient], subject=subject, html=template)
-        mail.send(message)
-    except Exception:
-        return response
-
-    return response
-
-
-@auth.route('/reset-password', methods=['GET', 'POST'])
-@login_required
-def reset_password():
-    response = make_response(render_template('layout.html'))
     return response

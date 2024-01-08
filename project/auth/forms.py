@@ -139,7 +139,29 @@ class ChangePasswordForm(FlaskForm):
             raise ValidationError('Нові паролі не збігаються! Спробуйте ще раз')
 
 
-class ResetPassword(FlaskForm):
+class ResetPasswordForm(FlaskForm):
+
+    username = StringField(
+        label='Введіть ім\'я свого облікового запису',
+        validators=[
+            InputRequired(),
+            Length(min=2, max=20, message='Ім\'я повинне містити від 2 до 20 символів'),
+            Regexp(r'^[a-zA-Z0-9_]*$', message='Ім\'я повинне використовувати тільки латиницю, цифри та підкреслення')
+        ]
+    )
+
+    submit = SubmitField('Скинути пароль')
+
+    @staticmethod
+    def validate_name(username: str):
+        username = username.lower()
+        user = User.query.filter_by(username=username).first()
+
+        if not user:
+            raise ValidationError('Користувача не знайдено! Спробуйте ще раз')
+
+
+class PasswordResettingForm(FlaskForm):
 
     new_password = PasswordField(
         label='Новий пароль',
@@ -158,3 +180,8 @@ class ResetPassword(FlaskForm):
     )
 
     submit = SubmitField('Змінити пароль')
+
+    @staticmethod
+    def password_confirmation(new_password: str, confirm_new_password: str):
+        if new_password != confirm_new_password:
+            raise ValidationError('Нові паролі не збігаються! Спробуйте ще раз')

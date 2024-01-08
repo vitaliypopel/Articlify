@@ -47,7 +47,29 @@ class EmailConfirmation(db.Model):
     def __init__(self, user_id: int):
         self.user_id = int(user_id)
         self.token = token_urlsafe(30)
-        self.expiration_time = datetime.utcnow() + timedelta(hours=1)
+        self.expiration_time = datetime.utcnow() + timedelta(hours=24)
+
+    def __repr__(self) -> str:
+        return f'EmailConfirmation(\n' \
+               f'   id [PK]:            {self.id}\n' \
+               f'   token:              {self.token}\n' \
+               f'   expiration_time:    {self.expiration_time}\n' \
+               f'   user_id [FK]:       {self.user_id}\n' \
+               f')'
+
+
+class ResetPassword(db.Model):
+    __tablename__:str = 'reset_passwords'
+
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(100), nullable=False, unique=True)
+    expiration_time = db.Column(db.DateTime, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    def __init__(self, user_id: int):
+        self.user_id = int(user_id)
+        self.token = token_urlsafe(30)
+        self.expiration_time = datetime.utcnow() + timedelta(minutes=30)
 
     def __repr__(self) -> str:
         return f'EmailConfirmation(\n' \
