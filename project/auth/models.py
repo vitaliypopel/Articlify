@@ -59,7 +59,7 @@ class EmailConfirmation(db.Model):
 
 
 class ResetPassword(db.Model):
-    __tablename__:str = 'reset_passwords'
+    __tablename__: str = 'reset_passwords'
 
     id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(100), nullable=False, unique=True)
@@ -72,7 +72,7 @@ class ResetPassword(db.Model):
         self.expiration_time = datetime.utcnow() + timedelta(minutes=30)
 
     def __repr__(self) -> str:
-        return f'EmailConfirmation(\n' \
+        return f'ResetPassword(\n' \
                f'   id [PK]:            {self.id}\n' \
                f'   token:              {self.token}\n' \
                f'   expiration_time:    {self.expiration_time}\n' \
