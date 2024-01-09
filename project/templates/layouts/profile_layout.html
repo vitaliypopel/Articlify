@@ -156,9 +156,16 @@
             </ul>
         </div>
 
-        {% block profile_content %}
-
-        {% endblock %}
+        {% if current_user.id == user.id or user.profile_status %}
+            {% block profile_content %}
+            {% endblock %}
+        {% elif not user.profile_status %}
+            <div class="private mt-5 mb-5" align="center">
+                <p class="fs-5">
+                    <i class="fa-solid fa-lock"></i> Цей профіль приватний
+                </p>
+            </div>
+        {% endif %}
 
     </div>
 

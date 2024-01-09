@@ -7,27 +7,8 @@ from .forms import FeedbackForm
 views = Blueprint('views', __name__)
 
 
-@views.route('/favicon.ico')
-def favicon():
-
-    return send_from_directory('static', path='images/icon/icon.jpg')
-
-
-@views.route('/')
-def home():
-
-    if current_user.is_authenticated:
-        topic_subscriptions = TopicSubscription.query.filter_by(user_id=current_user.id).all()
-        return render_template('main/home.html', topic_subscriptions=topic_subscriptions)
-
-    return render_template('main/home.html')
-
-
-# != prod | admin
-@views.route('/topics-auto-complete')
-def topics_auto_complete():
-    response = dict()
-
+def before_first_request():
+    print('here')
     topics = [
         'Python', 'NodeJS', 'C',
         'C++', 'Rust', 'Java',
@@ -44,14 +25,26 @@ def topics_auto_complete():
             if not Topic.query.filter_by(topic=topic).first():
                 new_topic = Topic(topic)
                 db.session.add(new_topic)
-
-                response[topics.index(topic) + 1] = topic
-
         db.session.commit()
     except Exception:
         db.session.rollback()
+        raise Exception('Щось пішло не так!!!')
 
-    return jsonify(response)
+
+@views.route('/favicon.ico')
+def favicon():
+
+    return send_from_directory('static', path='images/icon/icon.jpg')
+
+
+@views.route('/')
+def home():
+
+    if current_user.is_authenticated:
+        topic_subscriptions = TopicSubscription.query.filter_by(user_id=current_user.id).all()
+        return render_template('main/home.html', topic_subscriptions=topic_subscriptions)
+
+    return render_template('main/home.html')
 
 
 @views.route('/feedback', methods=['GET', 'POST'])

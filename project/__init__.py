@@ -51,6 +51,9 @@ def create_app():
     with app.app_context():
         db.create_all()
 
+        from project.main import before_first_request
+        before_first_request()
+
     login_manager.init_app(app)
     login_manager.login_view = 'auth.log_in'
     login_manager.login_message = 'Будь ласка увійдіть, щоб отримати доступ до цієї сторінки'
@@ -73,5 +76,10 @@ def create_app():
         return Topic.query.get(topic_id)
 
     app.jinja_env.filters['topic_loader'] = topic_loader
+
+    def datetime_calculation(datetime_before: datetime) -> object:
+        return datetime.utcnow() - datetime_before
+
+    app.jinja_env.filters['datetime_calculation'] = datetime_calculation
 
     return app

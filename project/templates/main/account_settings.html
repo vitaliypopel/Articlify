@@ -11,6 +11,76 @@
 
     <div class="settings mt-3 mb-3">
 
+        <div class="registration mt-3 mb-3">
+            <div class="card w-100">
+                <div class="card-body text-center w-100">
+                    Акаунт зареєстровано {{ current_user.registration|datetime_calculation }} назад.
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-status ">
+
+            <div class="input-group w-100">
+
+                <span class="input-group-text border-end-0 bg-transparent flex-grow-1">
+                    Статус профілю
+                </span>
+
+                <span class="input-group-text border-start-0 border-end-0 bg-transparent text-end">
+                    {% if current_user.profile_status %}
+                        Публічний
+                    {% else %}
+                        Приватний
+                    {% endif %}
+                </span>
+
+                <button class="btn btn-outline-info border-start-0 border" type="button"
+                        data-bs-toggle="modal" data-bs-target="#changeProfileStatus">
+                    <i class="fa-regular fa-pen-to-square"></i>
+                </button>
+
+            </div>
+
+            <div class="modal fade" id="changeProfileStatus">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5">Зміна статусу профілю</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+
+                            <div class="input-group mb-3">
+
+                                <label class="input-group-text bg-transparent" for="profileStatus">Статус профілю</label>
+                                <select class="form-select" id="profileStatus">
+                                    {% if current_user.profile_status %}
+                                        <option value="public" selected>Публічний</option>
+                                        <option value="private">Приватний</option>
+                                    {% elif not current_user.profile_status %}
+                                        <option value="public">Публічний</option>
+                                        <option value="private" selected>Приватний</option>
+                                    {% endif %}
+                                </select>
+
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" id="changeProfileStatusButton" onclick="changeProfileStatus()">
+                                Змінити
+                            </button>
+                            <button type="button" class="btn btn-danger" id="cancelChangeProfileStatusButton" data-bs-dismiss="modal">
+                                Відхилити
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
         <div class="profile-picture mt-3 mb-3">
 
             <div class="input-group w-100">
