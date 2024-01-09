@@ -138,3 +138,39 @@ function changeBio() {
     });
 
 }
+
+function changeProfileStatus() {
+    let closeButton = document.getElementById('cancelChangeProfileStatusButton');
+    closeButton.click();
+
+    let newProfileStatus = document.getElementById('profileStatus').value;
+
+    req = {};
+
+    if (newProfileStatus === 'public') {
+        req.new_profile_status = true;
+    } else if (newProfileStatus === 'private') {
+        req.new_profile_status = false;
+    } else {
+        alert('Щось пішло не так! Спробуйте ще раз');
+        return 0;
+    }
+
+    fetch('/api/change-profile-status', {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(req)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    });
+
+}

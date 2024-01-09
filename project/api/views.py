@@ -129,7 +129,6 @@ def change_profile_picture():
         return response, 400
 
     flash('Фото профілю успішно змінено', 'success')
-
     return response, 200
 
 
@@ -155,7 +154,6 @@ def delete_profile_picture():
         return response, 400
 
     flash('Фото профілю успішно видалено', 'success')
-
     return response, 200
 
 
@@ -181,7 +179,27 @@ def change_bio():
         return response, 400
 
     flash('Біографію успішно змінено', 'success')
+    return response, 200
 
+
+@api.route('/change-profile-status', methods=['PATCH'])
+def change_profile_status():
+    response = make_response(jsonify({
+        'redirect': url_for('views.account_settings')
+    }))
+
+    req = request.get_json()
+
+    new_profile_status = req['new_profile_status']
+
+    try:
+        current_user.profile_status = new_profile_status
+        db.session.commit()
+    except Exception:
+        flash('Не вдалось змінити статус профілю! Спробуйте ще раз', 'danger')
+        return response, 400
+
+    flash('Статус профілю успішно змінено', 'success')
     return response, 200
 
 
