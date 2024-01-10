@@ -20,12 +20,22 @@
                     <span class="subscription subscription-user">
                         {% if subscription %}
                             <button class="btn btn-outline-danger" id="unfollowButton" type="button"
-                                    onclick="unfollow({{ user.id }}, 'user')">
+                                    onclick="unfollow({{ user.id }}, 'user', {% if not user.profile_status %}false{% endif %})">
                                 Відписатись
+                            </button>
+                        {% elif subscription_request %}
+                            <button class="btn btn-outline-warning" id="unfollowRequestButton" type="button"
+                                    onclick="unfollowRequest({{ user.id }}, 'user', {% if not user.profile_status %}false{% endif %})">
+                                Скасувати запит на підписку
+                            </button>
+                        {% elif not user.profile_status %}
+                            <button class="btn btn-outline-warning" id="followRequestButton" type="button"
+                                    onclick="followRequest({{ user.id }}, 'user', {% if not user.profile_status %}false{% endif %})">
+                                Надіслати запит на підписку
                             </button>
                         {% else %}
                             <button class="btn btn-outline-success" id="followButton" type="button"
-                                    onclick="follow({{ user.id }}, 'user')">
+                                    onclick="follow({{ user.id }}, 'user', {% if not user.profile_status %}false{% endif %})">
                                 Підписатись
                             </button>
                         {% endif %}
@@ -55,6 +65,18 @@
                             </button>
                         </th>
                     </tr>
+                    {% if current_user.id == user.id and not current_user.profile_status %}
+                        <tr align="center">
+                            <th colspan="2">
+                                <button class="btn border w-100" type="button"
+                                    data-bs-toggle="modal" data-bs-target="#followRequestsModal">
+                                    Запити на підписку
+                                    <br>
+                                    <span id="followRequests">{{ follow_requests|length }}</span>
+                                </button>
+                            </th>
+                        </tr>
+                    {% endif %}
                 </thead>
             </table>
 
@@ -66,29 +88,39 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
+                            {% if user.profile_status or current_user.id == user.id or subscription %}
+                                {% if followers %}
+                                    {% for person in followers %}
+                                        {% with person = person.user_id|user_loader %}
+                                            <div class="user-data mt-3 mb-3" id="follower_{{ person.id }}">
+                                                <div class="card">
+                                                    <div class="card-body">
 
-                            {% if followers %}
-                                {% for person in followers %}
-                                    {% with person = person.user_id|user_loader %}
-                                        <div class="user-data mt-3 mb-3">
-                                            <div class="card">
-                                                <div class="card-body">
+                                                        <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=person.username) }}">
+                                                            <img src="{{ url_for('static', filename=person.profile_picture_path) }}"
+                                                                 class="rounded" width="50px">
+                                                        </a>
+                                                        <a class="btn btn-lg fs-5" href="{{ url_for('views.profile', username=person.username) }}">
+                                                            @{{ person.username }}
+                                                        </a>
 
-                                                    <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=person.username) }}">
-                                                        <img src="{{ url_for('static', filename=person.profile_picture_path) }}"
-                                                             class="rounded" width="50px">
-                                                    </a>
-                                                    <a class="btn btn-lg fs-5" href="{{ url_for('views.profile', username=person.username) }}">
-                                                        @{{ person.username }}
-                                                    </a>
+                                                        {% if current_user.id == user.id %}
+                                                            <button class="btn btn-outline-danger" type="button"
+                                                                    onclick="deleteFollower({{ user.id }}, {{ person.id }})">
+                                                                Видалити
+                                                            </button>
+                                                        {% endif %}
 
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    {% endwith %}
-                                {% endfor %}
-                            {% else %}
-                                <p>Підписники відсутні</p>
+                                        {% endwith %}
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-warning">Підписники відсутні</p>
+                                {% endif %}
+                            {% elif not user.profile_status %}
+                                <p class="text-danger">Цей профіль приватний! Щоб отримати доступ, потрібно підписатись</p>
                             {% endif %}
 
                         </div>
@@ -105,36 +137,88 @@
                         </div>
                         <div class="modal-body">
 
-                            {% if followings %}
-                                {% for person in followings %}
-                                    {% with person = person.author_id|user_loader %}
-                                        <div class="user-data mt-3 mb-3">
-                                            <div class="card">
-                                                <div class="card-body">
+                            {% if user.profile_status or current_user.id == user.id or subscription %}
+                                {% if followings %}
+                                    {% for person in followings %}
+                                        {% with person = person.author_id|user_loader %}
+                                            <div class="user-data mt-3 mb-3">
+                                                <div class="card">
+                                                    <div class="card-body">
 
-                                                    <a class="btn m-0 p-0"
-                                                       href="{{ url_for('views.profile', username=person.username) }}">
-                                                        <img src="{{ url_for('static', filename=person.profile_picture_path) }}"
-                                                             class="rounded" width="50px">
-                                                    </a>
-                                                    <a class="btn btn-lg fs-5"
-                                                       href="{{ url_for('views.profile', username=person.username) }}">
-                                                        @{{ person.username }}
-                                                    </a>
+                                                        <a class="btn m-0 p-0"
+                                                           href="{{ url_for('views.profile', username=person.username) }}">
+                                                            <img src="{{ url_for('static', filename=person.profile_picture_path) }}"
+                                                                 class="rounded" width="50px">
+                                                        </a>
+                                                        <a class="btn btn-lg fs-5"
+                                                           href="{{ url_for('views.profile', username=person.username) }}">
+                                                            @{{ person.username }}
+                                                        </a>
 
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    {% endwith %}
-                                {% endfor %}
-                            {% else %}
-                                <p>Підписки відсутні</p>
+                                        {% endwith %}
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-warning">Підписки відсутні</p>
+                                {% endif %}
+                            {% elif not user.profile_status %}
+                                <p class="text-danger">Цей профіль приватний! Щоб отримати доступ, потрібно підписатись</p>
                             {% endif %}
 
                         </div>
                     </div>
                 </div>
             </div>
+
+            {% if current_user.id == user.id and not current_user.profile_status %}
+                <div class="modal fade" id="followRequestsModal">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5">Запити на підписку</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                {% if follow_requests %}
+                                    {% for person in follow_requests %}
+                                        {% with person = person.user_id|user_loader %}
+                                            <div class="user-data mt-3 mb-3" id="follow_request_{{ person.id }}">
+                                                <div class="card">
+                                                    <div class="card-body">
+
+                                                        <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=person.username) }}">
+                                                            <img src="{{ url_for('static', filename=person.profile_picture_path) }}"
+                                                                 class="rounded" width="50px">
+                                                        </a>
+                                                        <a class="btn btn-lg fs-5"
+                                                           href="{{ url_for('views.profile', username=person.username) }}">
+                                                            @{{ person.username }}
+                                                        </a>
+
+                                                        <button class="btn btn-outline-success" type="button"
+                                                                onclick="acceptFollowRequest({{ user.id }}, {{ person.id }})">
+                                                            Прийняти
+                                                        </button>
+                                                        <button class="btn btn-outline-danger" type="button"
+                                                                onclick="rejectFollowRequest({{ user.id }}, {{ person.id }})">
+                                                            Відхилити
+                                                        </button>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endwith %}
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-warning">Запити на підписку відсутні</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
 
         </div></div>
         </div>
@@ -156,7 +240,7 @@
             </ul>
         </div>
 
-        {% if current_user.id == user.id or user.profile_status %}
+        {% if current_user.id == user.id or user.profile_status or subscription %}
             {% block profile_content %}
             {% endblock %}
         {% elif not user.profile_status %}

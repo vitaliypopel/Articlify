@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, make_response, flash, redirect, url_for
 from project import app, db, current_user, login_required, validate_email, os, match, sub
 from project.auth import User
-from project.main import Topic, TopicSubscription, UserSubscription
+from project.main import Topic, TopicSubscription, UserSubscription, UserSubscriptionRequest
 
 api = Blueprint('api', __name__, url_prefix='/api')
 
@@ -183,6 +183,7 @@ def change_bio():
 
 
 @api.route('/change-profile-status', methods=['PATCH'])
+@login_required
 def change_profile_status():
     response = make_response(jsonify({
         'redirect': url_for('views.account_settings')
@@ -194,8 +195,18 @@ def change_profile_status():
 
     try:
         current_user.profile_status = new_profile_status
+
+        if current_user.profile_status:
+            follow_requests = UserSubscriptionRequest.query.filter_by(author_id=current_user.id).all()
+
+            for follow_request in follow_requests:
+                new_subscription = UserSubscription(follow_request.user_id, current_user.id)
+                db.session.add(new_subscription)
+                db.session.delete(follow_request)
+
         db.session.commit()
-    except Exception:
+    except Exception as error:
+        print(error)
         flash('Не вдалось змінити статус профілю! Спробуйте ще раз', 'danger')
         return response, 400
 
@@ -225,7 +236,7 @@ def follow_user(author_id: int):
     return response, 200
 
 
-@api.route('/unfollow/user/<author_id>', methods=['POST'])
+@api.route('/unfollow/user/<author_id>', methods=['DELETE'])
 @login_required
 def unfollow_user(author_id: int):
     response = make_response(jsonify())
@@ -246,7 +257,139 @@ def unfollow_user(author_id: int):
     return response, 200
 
 
-@api.route('follow/topic/<topic_id>', methods=['POST'])
+@api.route('/follow/request/user/<author_id>', methods=['POST'])
+@login_required
+def follow_request_user(author_id: int):
+    response = make_response(jsonify())
+
+    author = User.query.get(author_id)
+    if not author:
+        return response, 400
+
+    if author.profile_status:
+        return response, 400
+
+    subscription_request = UserSubscriptionRequest.query.filter_by(user_id=current_user.id, author_id=author.id).first()
+    if not subscription_request:
+        try:
+            new_subscription_request = UserSubscriptionRequest(current_user.id, author.id)
+            db.session.add(new_subscription_request)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            return response, 400
+
+    return response, 200
+
+
+@api.route('/unfollow/request/user/<author_id>', methods=['DELETE'])
+@login_required
+def unfollow_request_user(author_id: int):
+    response = make_response(jsonify())
+
+    author = User.query.get(author_id)
+    if not author:
+        return response, 400
+
+    if author.profile_status:
+        return response, 400
+
+    subscription_request = UserSubscriptionRequest.query.filter_by(user_id=current_user.id, author_id=author.id).first()
+    if subscription_request:
+        try:
+            db.session.delete(subscription_request)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            return response, 400
+
+    return response, 200
+
+
+@api.route('/follow/request/user/<author_id>/accept/<user_id>', methods=['POST'])
+@login_required
+def follow_request_accept(author_id: int, user_id: int):
+    response = make_response(jsonify())
+
+    user = User.query.get(user_id)
+    if not user:
+        return response, 400
+
+    author = User.query.get(author_id)
+    if author.id != current_user.id:
+        return response, 400
+
+    subscription_request = UserSubscriptionRequest.query.filter_by(user_id=user.id, author_id=current_user.id).first()
+    if not subscription_request:
+        return response, 400
+
+    try:
+        new_subscription = UserSubscription(user.id, current_user.id)
+        db.session.add(new_subscription)
+        db.session.delete(subscription_request)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return response, 400
+
+    return response, 200
+
+
+@api.route('/follow/request/user/<author_id>/reject/<user_id>', methods=['DELETE'])
+@login_required
+def follow_request_reject(author_id: int, user_id: int):
+    response = make_response(jsonify())
+
+    user = User.query.get(user_id)
+    if not user:
+        return response, 400
+
+    author = User.query.get(author_id)
+    if author.id != current_user.id:
+        return response, 400
+
+    subscription_request = UserSubscriptionRequest.query.filter_by(user_id=user.id, author_id=current_user.id).first()
+    if not subscription_request:
+        return response, 400
+
+    try:
+        db.session.delete(subscription_request)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return response, 400
+
+    return response, 200
+
+
+@api.route('/follow/user/<author_id>/delete/<user_id>', methods=['DELETE'])
+@login_required
+def delete_follower(author_id: int, user_id: int):
+    response = make_response(jsonify())
+
+    user = User.query.get(user_id)
+    if not user:
+        return response, 400
+
+    author = User.query.get(author_id)
+    if author.id != current_user.id:
+        return response, 400
+
+    subscription = UserSubscription.query.filter_by(user_id=user.id, author_id=current_user.id).first()
+    if not subscription:
+        return response, 400
+
+    try:
+        db.session.delete(subscription)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return response, 400
+
+    return response, 200
+
+
+@api.route('/follow/topic/<topic_id>', methods=['POST'])
 @login_required
 def follow_topic(topic_id: int):
     response = make_response(jsonify())
@@ -268,7 +411,8 @@ def follow_topic(topic_id: int):
     return response, 200
 
 
-@api.route('unfollow/topic/<topic_id>', methods=['POST'])
+@api.route('/unfollow/topic/<topic_id>', methods=['POST'])
+@login_required
 def unfollow_topic(topic_id: int):
     response = make_response(jsonify())
 
