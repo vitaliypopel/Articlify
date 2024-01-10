@@ -78,3 +78,23 @@ class UserSubscription(db.Model):
                f'   user_id [FK]:   {self.user_id}\n' \
                f'   author_id [FK]: {self.author_id}\n' \
                f')'
+
+
+class UserSubscriptionRequest(db.Model):
+    __tablename__: str = 'user_subscription_requests'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    def __init__(self, user_id: int, author_id: int):
+        self.user_id = int(user_id)
+        self.author_id = int(author_id)
+
+    def __repr__(self) -> str:
+        return f'UserSubscriptionRequest(\n' \
+               f'   id [PK]:        {self.id}\n' \
+               f'   user_id [FK]:   {self.user_id}\n' \
+               f'   author_id [FK]: {self.author_id}\n' \
+               f')'
+

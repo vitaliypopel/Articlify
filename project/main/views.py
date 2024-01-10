@@ -1,14 +1,13 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, jsonify, send_from_directory, make_response
 from project.auth import User
 from project import db, current_user, login_required, ValidationError, datetime
-from .models import Feedback, Topic, TopicSubscription, UserSubscription
+from .models import Feedback, Topic, TopicSubscription, UserSubscription, UserSubscriptionRequest
 from .forms import FeedbackForm
 
 views = Blueprint('views', __name__)
 
 
 def before_first_request():
-    print('here')
     topics = [
         'Python', 'NodeJS', 'C',
         'C++', 'Rust', 'Java',
@@ -137,11 +136,20 @@ def profile(username: str):
     if current_user.is_authenticated:
         if current_user.id != user.id:
             subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=user.id).first()
+            subscription_request = UserSubscriptionRequest.query.filter_by(user_id=current_user.id,
+                                                                           author_id=user.id).first()
             return render_template(
-                'main/profile.html', user=user, subscription=subscription, followers=followers, followings=followings
+                'main/profile.html', user=user,
+                subscription=subscription, subscription_request=subscription_request,
+                followers=followers, followings=followings
             )
         else:
-            return render_template('main/profile.html', user=current_user, followers=followers, followings=followings)
+            follow_requests = UserSubscriptionRequest.query.filter_by(author_id=current_user.id).all()
+            return render_template(
+                'main/profile.html', user=current_user,
+                followers=followers, followings=followings,
+                follow_requests=follow_requests
+            )
 
     return render_template('main/profile.html', user=user, followers=followers, followings=followings)
 
@@ -160,11 +168,20 @@ def profile_about(username: str):
     if current_user.is_authenticated:
         if current_user.id != user.id:
             subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=user.id).first()
-            return render_template('main/profile_about.html',
-                                   user=user, subscription=subscription, followers=followers, followings=followings)
+            subscription_request = UserSubscriptionRequest.query.filter_by(user_id=current_user.id,
+                                                                           author_id=user.id).first()
+            return render_template(
+                'main/profile_about.html', user=user,
+                subscription=subscription, subscription_request=subscription_request,
+                followers=followers, followings=followings
+            )
         else:
-            return render_template('main/profile_about.html',
-                                   user=current_user, followers=followers, followings=followings)
+            follow_requests = UserSubscriptionRequest.query.filter_by(author_id=current_user.id).all()
+            return render_template(
+                'main/profile_about.html', user=current_user,
+                followers=followers, followings=followings,
+                follow_requests=follow_requests
+            )
 
     return render_template('main/profile_about.html', user=user, followers=followers, followings=followings)
 
