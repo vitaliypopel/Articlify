@@ -1,0 +1,168 @@
+{% extends 'layouts/layout.html' %}
+
+{% block title %}
+    Конструктор статей
+{% endblock %}
+
+{% block content %}
+    <div class="title m-3 text-center">
+        <h1>Конструктор статей</h1>
+    </div>
+
+    <div class="builder mt-3 mb-3">
+<!--
+        <div class="container text-center mb-4">
+            <div class="row align-items-start">
+                <div class="col"></div>
+
+                <div class="col-2">
+                    <select class="form-select" id="articleType">
+                        <option value="true">Public</option>
+                        <option value="false">Private</option>
+                    </select>
+                </div>
+
+                <div class="col-1 d-grid gap-2">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        POST
+                    </button>
+
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-3" id="exampleModalLabel">Publishing to: @username</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+
+                                <div class="modal-body custom-left-align">
+                                    <h4>Please choose tags for your article.</h4>
+
+                                    <div class="tags">
+                                        <p class="fs-5">Your tags:</p>
+
+                                        <ul class="list-group mb-3" id="tagList">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                List Item 1
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="deleteElement(this.parentElement)">&times;</button>
+                                            </li>
+
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                List Item 2
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="deleteElement(this.parentElement)">&times;</button>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="tags-search">
+                                        <p class="fs-5">Create your tag:</p>
+
+                                        <div class="input-group mb-3">
+                                            <button class="btn btn-primary" type="button" onclick="createNewInputTag()">+</button>
+                                            <input type="text" aria-label="Title" class="form-control" id="inputTag">
+                                        </div>
+
+                                        <p class="fs-5">Or select existing ones:</p>
+
+                                        <div class="input-group mb-3">
+                                            <button class="btn btn-primary" type="button" onclick="createNewSelectedTag()">+</button>
+                                            <select class="form-select" id="selectTag">
+                                                {% for tag in tags %}
+                                                    <option value="{{ tag }}">{{ tag }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-success" onclick="postArticle()">POST</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+-->
+        <div class="article mt-3 mb-3 w-100">
+            <div class="article-title">
+                <div class="input-group input-group-lg mt-3 mb-5">
+                    <label class="input-group-text bg-transparent w-25" for="title">Заголовок</label>
+                    <input type="text" placeholder="Заголовок вашої статті" class="form-control" id="title">
+                </div>
+            </div>
+
+            <div class="text">
+                <div class="input-group mt-3 mb-3 w-100">
+                    <span class="w-25">
+                        <select class="text-type form-select rounded-start rounded-0">
+                            <option value="paragraph">Звичайний</option>
+                            <option value="bold">Товстий</option>
+                            <option value="italic">Курсив</option>
+                        </select>
+                    </span>
+
+                    <input type="text" class="form-control" placeholder="Рядок">
+
+                    <button class="btn btn-outline-danger border" type="button"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+
+            <div class="text-area">
+                <div class="input-group mt-3 mb-3 w-100">
+                    <span class="input-group w-25">
+                        <select class="text-type form-select rounded-start rounded-0">
+                            <option value="paragraph">Звичайний</option>
+                            <option value="bold">Товстий</option>
+                            <option value="italic">Курсив</option>
+                        </select>
+                    </span>
+
+                    <textarea class="form-control" placeholder="Абзац"></textarea>
+
+                    <button class="btn btn-outline-danger border" type="button"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+
+            <div class="file">
+                <div class="input-group mt-3 mb-3 w-100 d-flex">
+
+                    <div class="w-auto flex-grow-1">
+                        <div class="input-group w-100">
+                            <input type="file" class="form-control rounded-0 rounded-top rounded-end-0 border-bottom-0">
+                        </div>
+
+                        <div class="input-group w-100">
+                            <span class="input-group-text bg-transparent w-25 rounded-end-0 rounded-top-0">Опис</span>
+                            <input type="text" class="form-control rounded-0" placeholder="Опис фотографії">
+                        </div>
+                    </div>
+
+
+                    <button class="btn btn-outline-danger border" type="button"><i class="fa-solid fa-xmark"></i></button>
+
+
+                </div>
+            </div>
+
+            <br><br><br>
+
+            <div class="input-group mb-3 container fixed-bottom">
+                <button class="btn btn-outline-success border " type="button"><i class="fa-solid fa-plus"></i></button>
+                <select class="textType form-select" id="select">
+                    <option value="text">Рядок</option>
+                    <option value="textarea">Абзац</option>
+                    <option value="file">Файл</option>
+                </select>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}

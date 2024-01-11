@@ -68,7 +68,6 @@ def feedback():
 
         try:
             new_feedback = Feedback(sender_email, category, body)
-            print(new_feedback)
             db.session.add(new_feedback)
             db.session.commit()
         except Exception:
@@ -203,3 +202,11 @@ def account_settings():
 @login_required
 def security_settings():
     return render_template('main/security_settings.html')
+
+
+@views.route('/articles/builder')
+@login_required
+def articles_builder():
+    response = make_response(render_template('main/articles_builder.html'))
+
+    return response

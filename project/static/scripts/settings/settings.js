@@ -7,7 +7,7 @@ function changeUsername() {
 
     req = {'new_username': newUsername};
     
-    fetch('/api/change-username', {
+    fetch('/api/change/username', {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json'
@@ -34,7 +34,7 @@ function changeEmail() {
 
     req = {'new_email': newEmail};
     
-    fetch('/api/change-email', {
+    fetch('/api/change/email', {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json'
@@ -77,7 +77,7 @@ function changeProfilePicture() {
     formData.append('new_profile_picture', profilePictureFile);
 
 
-    fetch('/api/change-profile-picture', {
+    fetch('/api/change/profile-picture', {
         method: 'PATCH',
         body: formData
     })
@@ -97,7 +97,7 @@ function deleteProfilePicture() {
     let closeButton = document.getElementById('cancelChangeProfilePictureButton');
     closeButton.click();
 
-    fetch('/api/delete-profile-picture', {
+    fetch('/api/delete/profile-picture', {
         method: 'DELETE'
     })
     .then(response => response.json())
@@ -120,7 +120,7 @@ function changeBio() {
     
     req = {'new_bio': newBio};
 
-    fetch('/api/change-bio', {
+    fetch('/api/change/bio', {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json'
@@ -156,7 +156,7 @@ function changeProfileStatus() {
         return 0;
     }
 
-    fetch('/api/change-profile-status', {
+    fetch('/api/change/profile-status', {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json'

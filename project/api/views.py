@@ -6,7 +6,7 @@ from project.main import Topic, TopicSubscription, UserSubscription, UserSubscri
 api = Blueprint('api', __name__, url_prefix='/api')
 
 
-@api.route('/change-theme', methods=['PATCH'])
+@api.route('/change/theme', methods=['PATCH'])
 def change_theme():
     response = make_response(jsonify())
     req = request.get_json()
@@ -20,7 +20,7 @@ def change_theme():
     return response, 200
 
 
-@api.route('/change-username', methods=['PATCH'])
+@api.route('/change/username', methods=['PATCH'])
 @login_required
 def change_username():
     response = make_response(jsonify({
@@ -57,7 +57,7 @@ def change_username():
     return response, 200
 
 
-@api.route('/change-email', methods=['PATCH'])
+@api.route('/change/email', methods=['PATCH'])
 @login_required
 def change_email():
     response = make_response(jsonify({
@@ -97,7 +97,7 @@ def change_email():
     return response, 200
 
 
-@api.route('/change-profile-picture', methods=['PATCH'])
+@api.route('/change/profile-picture', methods=['PATCH'])
 @login_required
 def change_profile_picture():
     response = make_response(jsonify({
@@ -113,15 +113,14 @@ def change_profile_picture():
     new_profile_picture.filename = filename
 
     try:
-        old_path = os.path.join(app.root_path, *profile_pictures_path.split('/'), current_user.profile_picture_name)
-        if os.path.exists(old_path) and current_user.profile_picture_name != 'default_pfp.svg':
+        old_path = os.path.join(app.root_path, *profile_pictures_path.split('/'), current_user.profile_picture)
+        if os.path.exists(old_path) and current_user.profile_picture != 'default_pfp.svg':
             os.remove(old_path)
 
         path = os.path.join(app.root_path, *profile_pictures_path.split('/'), filename)
         new_profile_picture.save(path)
 
-        current_user.profile_picture_path = f'images/user_pictures/{filename}'
-        current_user.profile_picture_name = filename
+        current_user.profile_picture = filename
         db.session.commit()
     except Exception:
         db.session.rollback()
@@ -132,7 +131,7 @@ def change_profile_picture():
     return response, 200
 
 
-@api.route('/delete-profile-picture', methods=['DELETE'])
+@api.route('/delete/profile-picture', methods=['DELETE'])
 @login_required
 def delete_profile_picture():
     response = make_response(jsonify({
@@ -140,13 +139,11 @@ def delete_profile_picture():
     }))
 
     try:
-        old_path = os.path.join(app.root_path, 'static', *current_user.profile_picture_path.split('/'))
+        old_path = os.path.join(app.root_path, 'static/images/user_pictures', current_user.profile_picture)
         if os.path.exists(old_path):
             os.remove(old_path)
 
-        current_user.profile_picture_path = 'images/user_pictures/default_pfp.svg'
-        current_user.profile_picture_name = 'default_pfp.svg'
-
+        current_user.profile_picture = 'default_pfp.svg'
         db.session.commit()
     except Exception:
         db.session.rollback()
@@ -157,7 +154,7 @@ def delete_profile_picture():
     return response, 200
 
 
-@api.route('/change-bio', methods=['PATCH'])
+@api.route('/change/bio', methods=['PATCH'])
 @login_required
 def change_bio():
     response = make_response(jsonify({
@@ -182,7 +179,7 @@ def change_bio():
     return response, 200
 
 
-@api.route('/change-profile-status', methods=['PATCH'])
+@api.route('/change/profile-status', methods=['PATCH'])
 @login_required
 def change_profile_status():
     response = make_response(jsonify({
