@@ -229,7 +229,7 @@ def email_confirmation(user_id: str, token: str):
     response = None
 
     if current_user.is_authenticated:
-        if current_user.id == user_id:
+        if current_user.id == int(user_id):
             response = make_response(redirect(url_for('views.account_settings')))
         else:
             flash('Ви не можете підтвердити чужу електронну пошту')

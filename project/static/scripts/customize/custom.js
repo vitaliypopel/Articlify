@@ -23,7 +23,7 @@ function setTheme(theme) {
 
 
 function setCookieTheme(theme) {
-    fetch('/api/change-theme', {
+    fetch('/api/change/theme', {
         method: "PATCH",
         headers: {
             'Content-Type': 'application/json'

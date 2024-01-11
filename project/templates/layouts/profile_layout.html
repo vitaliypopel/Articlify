@@ -11,7 +11,8 @@
             <div class="card"><div class="card-body p-2">
 
             <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=user.username) }}">
-                <img src="{{ url_for('static', filename=user.profile_picture_path) }}" class="pfp rounded">
+                <img src="{{ url_for('static', filename='images/user_pictures/' + user.profile_picture) }}"
+                     class="pfp rounded">
             </a>
             <a class="btn btn-lg fs-3" href="{{ url_for('views.profile', username=user.username) }}">@{{ user.username }}</a>
 
@@ -90,23 +91,23 @@
                         <div class="modal-body">
                             {% if user.profile_status or current_user.id == user.id or subscription %}
                                 {% if followers %}
-                                    {% for person in followers %}
-                                        {% with person = person.user_id|user_loader %}
-                                            <div class="user-data mt-3 mb-3" id="follower_{{ person.id }}">
+                                    {% for follower in followers %}
+                                        {% with follower = follower.user_id|user_loader %}
+                                            <div class="user-data mt-3 mb-3" id="follower_{{ follower.id }}">
                                                 <div class="card">
                                                     <div class="card-body">
 
-                                                        <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=person.username) }}">
-                                                            <img src="{{ url_for('static', filename=person.profile_picture_path) }}"
+                                                        <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=follower.username) }}">
+                                                            <img src="{{ url_for('static', filename='images/user_pictures/' + follower.profile_picture) }}"
                                                                  class="rounded" width="50px">
                                                         </a>
-                                                        <a class="btn btn-lg fs-5" href="{{ url_for('views.profile', username=person.username) }}">
-                                                            @{{ person.username }}
+                                                        <a class="btn btn-lg fs-5" href="{{ url_for('views.profile', username=follower.username) }}">
+                                                            @{{ follower.username }}
                                                         </a>
 
                                                         {% if current_user.id == user.id %}
                                                             <button class="btn btn-outline-danger" type="button"
-                                                                    onclick="deleteFollower({{ user.id }}, {{ person.id }})">
+                                                                    onclick="deleteFollower({{ user.id }}, {{ follower.id }})">
                                                                 Видалити
                                                             </button>
                                                         {% endif %}
@@ -139,20 +140,20 @@
 
                             {% if user.profile_status or current_user.id == user.id or subscription %}
                                 {% if followings %}
-                                    {% for person in followings %}
-                                        {% with person = person.author_id|user_loader %}
+                                    {% for following in followings %}
+                                        {% with following = following.author_id|user_loader %}
                                             <div class="user-data mt-3 mb-3">
                                                 <div class="card">
                                                     <div class="card-body">
 
                                                         <a class="btn m-0 p-0"
-                                                           href="{{ url_for('views.profile', username=person.username) }}">
-                                                            <img src="{{ url_for('static', filename=person.profile_picture_path) }}"
+                                                           href="{{ url_for('views.profile', username=following.username) }}">
+                                                            <img src="{{ url_for('static', filename='images/user_pictures/' + following.profile_picture) }}"
                                                                  class="rounded" width="50px">
                                                         </a>
                                                         <a class="btn btn-lg fs-5"
-                                                           href="{{ url_for('views.profile', username=person.username) }}">
-                                                            @{{ person.username }}
+                                                           href="{{ url_for('views.profile', username=following.username) }}">
+                                                            @{{ following.username }}
                                                         </a>
 
                                                     </div>
@@ -182,27 +183,27 @@
                             </div>
                             <div class="modal-body">
                                 {% if follow_requests %}
-                                    {% for person in follow_requests %}
-                                        {% with person = person.user_id|user_loader %}
-                                            <div class="user-data mt-3 mb-3" id="follow_request_{{ person.id }}">
+                                    {% for follower_request in follow_requests %}
+                                        {% with follower = follower_request.user_id|user_loader %}
+                                            <div class="user-data mt-3 mb-3" id="follow_request_{{ follower.id }}">
                                                 <div class="card">
                                                     <div class="card-body">
 
-                                                        <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=person.username) }}">
-                                                            <img src="{{ url_for('static', filename=person.profile_picture_path) }}"
+                                                        <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=follower.username) }}">
+                                                            <img src="{{ url_for('static', filename='images/user_pictures/' + follower.profile_picture) }}"
                                                                  class="rounded" width="50px">
                                                         </a>
                                                         <a class="btn btn-lg fs-5"
-                                                           href="{{ url_for('views.profile', username=person.username) }}">
-                                                            @{{ person.username }}
+                                                           href="{{ url_for('views.profile', username=follower.username) }}">
+                                                            @{{ follower.username }}
                                                         </a>
 
                                                         <button class="btn btn-outline-success" type="button"
-                                                                onclick="acceptFollowRequest({{ user.id }}, {{ person.id }})">
+                                                                onclick="acceptFollowRequest({{ user.id }}, {{ follower.id }})">
                                                             Прийняти
                                                         </button>
                                                         <button class="btn btn-outline-danger" type="button"
-                                                                onclick="rejectFollowRequest({{ user.id }}, {{ person.id }})">
+                                                                onclick="rejectFollowRequest({{ user.id }}, {{ follower.id }})">
                                                             Відхилити
                                                         </button>
 
