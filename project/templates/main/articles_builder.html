@@ -93,15 +93,27 @@
         <div class="article mt-3 mb-3 w-100">
             <div class="article-title">
                 <div class="input-group input-group-lg mt-3 mb-5">
-                    <label class="input-group-text bg-transparent w-25" for="title">Заголовок</label>
+                    <label class="input-group-text bg-body-tertiary w-25" for="title">Заголовок</label>
                     <input type="text" placeholder="Заголовок вашої статті" class="form-control" id="title">
+                </div>
+            </div>
+
+            <div class="subtitle">
+                <div class="input-group mt-3 mb-3 w-100">
+                    <span class="input-group-text bg-body-tertiary w-25">
+                        Підзаголовок
+                    </span>
+
+                    <input type="text" class="form-control" placeholder="Підзаголовок">
+
+                    <button class="btn btn-outline-danger border bg-body-tertiary" type="button"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             </div>
 
             <div class="text">
                 <div class="input-group mt-3 mb-3 w-100">
                     <span class="w-25">
-                        <select class="text-type form-select rounded-start rounded-0">
+                        <select class="text-type form-select bg-body-tertiary rounded-start rounded-0">
                             <option value="paragraph">Звичайний</option>
                             <option value="bold">Товстий</option>
                             <option value="italic">Курсив</option>
@@ -110,14 +122,14 @@
 
                     <input type="text" class="form-control" placeholder="Рядок">
 
-                    <button class="btn btn-outline-danger border" type="button"><i class="fa-solid fa-xmark"></i></button>
+                    <button class="btn btn-outline-danger border bg-body-tertiary" type="button"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             </div>
 
             <div class="text-area">
                 <div class="input-group mt-3 mb-3 w-100">
                     <span class="input-group w-25">
-                        <select class="text-type form-select rounded-start rounded-0">
+                        <select class="text-type form-select bg-body-tertiary rounded-start rounded-0">
                             <option value="paragraph">Звичайний</option>
                             <option value="bold">Товстий</option>
                             <option value="italic">Курсив</option>
@@ -126,7 +138,7 @@
 
                     <textarea class="form-control" placeholder="Абзац"></textarea>
 
-                    <button class="btn btn-outline-danger border" type="button"><i class="fa-solid fa-xmark"></i></button>
+                    <button class="btn btn-outline-danger border bg-body-tertiary" type="button"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             </div>
 
@@ -135,30 +147,75 @@
 
                     <div class="w-auto flex-grow-1">
                         <div class="input-group w-100">
-                            <input type="file" class="form-control rounded-0 rounded-top rounded-end-0 border-bottom-0">
+                            <span class="input-group-text bg-body-tertiary w-25 rounded-0 rounded-top rounded-end-0 border-bottom-0">
+                                Фото
+                            </span>
+                            <input type="file" class="form-control rounded-0 border-bottom-0">
                         </div>
 
                         <div class="input-group w-100">
-                            <span class="input-group-text bg-transparent w-25 rounded-end-0 rounded-top-0">Опис</span>
+                            <span class="input-group-text bg-body-tertiary w-25 rounded-end-0 rounded-top-0">
+                                Опис
+                            </span>
                             <input type="text" class="form-control rounded-0" placeholder="Опис фотографії">
                         </div>
                     </div>
 
-
-                    <button class="btn btn-outline-danger border" type="button"><i class="fa-solid fa-xmark"></i></button>
-
+                    <button class="btn btn-outline-danger border bg-body-tertiary" type="button"><i class="fa-solid fa-xmark"></i></button>
 
                 </div>
             </div>
 
+            <div class="pass">
+                <div class="input-group mt-3 mb-3 w-100">
+                    <span class="input-group-text bg-body-tertiary flex-grow-1 justify-content-center">
+                        <i class="fa-solid fa-ellipsis"></i>
+                    </span>
+                    <button class="btn btn-outline-danger border bg-body-tertiary" type="button"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+
+            <div class="code">
+                <div class="input-group mt-3 mb-3 w-100">
+                    <span class="input-group w-25">
+                        <select class="language form-select bg-body-tertiary rounded-start rounded-0">
+                            <option value="">Python</option>
+                            <option value="">C</option>
+                            <option value="">C++</option>
+                            <option value="">Rust</option>
+                            <option value="">Java</option>
+                            <option value="">C#</option>
+                            <option value="">Ruby</option>
+                            <option value="">Go</option>
+                            <option value="">HTML</option>
+                            <option value="">CSS</option>
+                            <option value="">JavaScript</option>
+                            <option value="">TypeScript</option>
+                            <option value="">SQL</option>
+                            <option value="">Swift</option>
+                            <option value="">Kotlin</option>
+                            <option value="">Flutter</option>
+                        </select>
+                    </span>
+
+                    <textarea class="form-control" placeholder="Код"></textarea>
+
+                    <button class="btn btn-outline-danger border bg-body-tertiary" type="button"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+
+
             <br><br><br>
 
             <div class="input-group mb-3 container fixed-bottom">
-                <button class="btn btn-outline-success border " type="button"><i class="fa-solid fa-plus"></i></button>
-                <select class="textType form-select" id="select">
+                <button class="btn btn-outline-success border bg-body-tertiary" type="button"><i class="fa-solid fa-plus"></i></button>
+                <select class="textType form-select bg-body-tertiary" id="#">
+                    <option value="subtitle">Підзаголовок</option>
                     <option value="text">Рядок</option>
                     <option value="textarea">Абзац</option>
-                    <option value="file">Файл</option>
+                    <option value="photo">Фото</option>
+                    <option value="code">Код</option>
+                    <option value="pass">Пропуск</option>
                 </select>
             </div>
 
