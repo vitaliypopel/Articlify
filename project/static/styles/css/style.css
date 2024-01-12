@@ -14,3 +14,7 @@
     overflow-wrap: break-word !important;
     word-wrap: break-word !important;
 }
+
+.underline-offset {
+    text-underline-offset: 3px;
+}
