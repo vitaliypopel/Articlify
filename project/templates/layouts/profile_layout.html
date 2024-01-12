@@ -8,7 +8,6 @@
 {% block content %}
     <div class="profile mt-5 mb-5">
         <div class="user-data mt-3 mb-3">
-            <div class="card"><div class="card-body p-2">
 
             <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=user.username) }}">
                 <img src="{{ url_for('static', filename='images/user_pictures/' + user.profile_picture) }}"
@@ -221,7 +220,6 @@
                 </div>
             {% endif %}
 
-        </div></div>
         </div>
 
         <div class="navigation mt-3 mb-3">
