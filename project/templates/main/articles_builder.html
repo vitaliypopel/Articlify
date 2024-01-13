@@ -30,7 +30,7 @@
 
                     <div class="modal-body">
                         <p class="fs-5">
-                            Перед написанням статті ознайомтесь з блоками статті та
+                            Перед написанням статті ознайомтесь з основними блоками та
                             з можливістю інтеграції HTML тегів для кастомізації тексту.
                         </p>
                         <p class="fs-5 text-info mb-0">
@@ -42,33 +42,46 @@
                         <ul>
                             <li>
                                 <u class="underline-offset">Заголовок</u> -
-                                обов'язковий блок, для вводу заголовку статті.
+                                обов'язковий блок, для вводу заголовку статті. <br>
+                                Мінімальна довжина - 1 символ, максимальна - 100 символів.
                             </li>
                             <li>
                                 <u class="underline-offset">Підзаголовок</u> -
                                 це блок, що слугує для розбиття статті на певні підтеми,
-                                згідно з якими автоматично буде створюватись зміст статті.
+                                згідно з якими автоматично буде створюватись зміст статті. <br>
+                                Мінімальна довжина - 1 символ, максимальна - 100 символів.
                             </li>
                             <li>
                                 <u class="underline-offset">Рядок</u> -
                                 це блок, в якому вводиться звичайний рядок,
                                 в якому може міститись до прикладу одне речення.
-                                В ньому можна обирати який текст буде: звичайний, товстий чи курсив.
+                                В ньому можна обирати який текст буде: звичайний, товстий чи курсив. <br>
+                                Мінімальна довжина - 1 символ, максимальна - 100 символів.
+                            </li>
+                            <li>
+                                <u class="underline-offset">Гіперпосилання</u> -
+                                це блок, який перетворюється в гіперпосилання з підписом,
+                                в якому потребується ввід посилання та підпису. <br>
+                                Мінімальна довжина посилання - 1 символ, максимальна - 200 символів. <br>
+                                Мінімальна довжина підпису - 1 символ, максимальна - 100 символів.
                             </li>
                             <li>
                                 <u class="underline-offset">Абзац</u> -
                                 це блок, в якому вводиться багато речення та безліч рядків.
-                                В ньому також можна обирати який текст буде: звичайний, товстий чи курсив.
+                                В ньому також можна обирати який текст буде: звичайний, товстий чи курсив. <br>
+                                Мінімальна довжина - 1 символ, максимальна - 5000 символів.
                             </li>
                             <li>
                                 <u class="underline-offset">Фото</u> -
-                                це блок, в якому можна вставити фотографію та додати до неї опис(не обов'язково).
+                                це блок, в якому можна вставити фотографію та додати до неї опис(не обов'язково). <br>
+                                Мінімальна довжина опису - 0 символ, максимальна - 250 символів.
                             </li>
                             <li>
                                 <u class="underline-offset">Код</u> -
                                 це блок, в який можна вставляти код з безлічі рядків.
                                 Обов'язковим параметром є вибір мови програмування,
-                                для стилізації синтаксису при читанні статті.
+                                для стилізації синтаксису при читанні статті. <br>
+                                Мінімальна довжина - 1 символ, максимальна - 15000 символів.
                             </li>
                             <li>
                                 <u class="underline-offset">Пропуск</u> -
@@ -83,13 +96,13 @@
                         <ul>
                             <li>
                                 <u class="underline-offset">Заголовок</u> -
-                                використання тегів цьому блоці заборонене.
+                                використання тегів в цьому блоці заборонене.
                                 Якщо ввести будь який тег, то він не спрацює.
                                 Заголовок автоматично товстий та не змінний.
                             </li>
                             <li>
                                 <u class="underline-offset">Підзаголовок</u> -
-                                використання тегів цьому блоці заборонене.
+                                використання тегів в цьому блоці заборонене.
                                 Якщо ввести будь який тег, то він не спрацює.
                                 Підзаголовок автоматично товстий та не змінний.
                             </li>
@@ -98,6 +111,12 @@
                                 дозволено використовувати теги: b, i, a,
                                 де b - товстий, i - курсив, a - гіперпосилання
                                 з обов'язковим параметром href="http://www.example.com".
+                            </li>
+                            <li>
+                                <u class="underline-offset">Гіперпосилання</u> -
+                                використання тегів в цьому блоці заборонене.
+                                Якщо ввести будь який тег, то він не спрацює.
+                                Гіперпосилання автоматично перетворюється в гіперпосилання як окремий блок.
                             </li>
                             <li>
                                 <u class="underline-offset">Абзац</u> -
@@ -186,7 +205,20 @@
                     </div>
 
                     <div class="modal-body">
-                        <p>Публікація</p>
+                        <p>Додайте до своєї статті категорії:</p>
+
+                        <div class="input-group mt-3 mb-3">
+                            <button class="btn btn-outline-success border" type="button">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                            <select class="form-select">
+                                {% for topic in topics %}
+                                    <option value="{{ topic.id }}">{{ topic.topic }}</option>
+                                {% endfor %}
+                            </select>
+
+                        </div>
+
                     </div>
 
                     <div class="modal-footer">
@@ -205,131 +237,29 @@
             <div class="article-title">
                 <div class="input-group input-group-lg mt-3 mb-5">
                     <label class="input-group-text bg-transparent w-25" for="title">Заголовок</label>
-                    <input type="text" placeholder="Заголовок вашої статті" class="form-control" id="title">
+                    <input type="text" placeholder="Заголовок вашої статті"
+                           class="form-control" id="title" minlength="1" maxlength="100">
                 </div>
             </div>
-
-            <div class="subtitle">
-                <div class="input-group mt-3 mb-3 w-100">
-                    <span class="input-group-text bg-transparent w-25">
-                        Підзаголовок
-                    </span>
-
-                    <input type="text" class="form-control" placeholder="Підзаголовок">
-
-                    <button class="btn btn-outline-danger border" type="button"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-            </div>
-
-            <div class="text">
-                <div class="input-group mt-3 mb-3 w-100">
-                    <span class="w-25">
-                        <select class="text-type form-select rounded-start rounded-0">
-                            <option value="paragraph">Звичайний</option>
-                            <option value="bold">Товстий</option>
-                            <option value="italic">Курсив</option>
-                        </select>
-                    </span>
-
-                    <input type="text" class="form-control" placeholder="Рядок">
-
-                    <button class="btn btn-outline-danger border" type="button"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-            </div>
-
-            <div class="text-area">
-                <div class="input-group mt-3 mb-3 w-100">
-                    <span class="input-group w-25">
-                        <select class="text-type form-select rounded-start rounded-0">
-                            <option value="paragraph">Звичайний</option>
-                            <option value="bold">Товстий</option>
-                            <option value="italic">Курсив</option>
-                        </select>
-                    </span>
-
-                    <textarea class="form-control" placeholder="Абзац"></textarea>
-
-                    <button class="btn btn-outline-danger border" type="button"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-            </div>
-
-            <div class="photo">
-                <div class="input-group mt-3 mb-3 w-100 d-flex flex-nowrap">
-
-                    <div class="w-auto flex-grow-1">
-                        <div class="input-group w-100">
-                            <span class="input-group-text bg-transparent w-25 rounded-0 rounded-top rounded-end-0 border-bottom-0">
-                                Фото
-                            </span>
-                            <input type="file" class="form-control rounded-0 border-bottom-0">
-                        </div>
-
-                        <div class="input-group w-100">
-                            <span class="input-group-text bg-transparent w-25 rounded-end-0 rounded-top-0">
-                                Опис
-                            </span>
-                            <input type="text" class="form-control rounded-0" placeholder="Опис фотографії">
-                        </div>
-                    </div>
-
-                    <button class="btn btn-outline-danger border border-start-0" type="button"><i class="fa-solid fa-xmark"></i></button>
-
-                </div>
-            </div>
-
-            <div class="pass">
-                <div class="input-group mt-3 mb-3 w-100">
-                    <span class="input-group-text bg-transparent flex-grow-1 justify-content-center">
-                        <i class="fa-solid fa-ellipsis"></i>
-                    </span>
-                    <button class="btn btn-outline-danger border" type="button"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-            </div>
-
-            <div class="code">
-                <div class="input-group mt-3 mb-3 w-100">
-                    <span class="input-group w-25">
-                        <select class="language form-select rounded-start rounded-0">
-                            <option value="">Python</option>
-                            <option value="">C</option>
-                            <option value="">C++</option>
-                            <option value="">Rust</option>
-                            <option value="">Java</option>
-                            <option value="">C#</option>
-                            <option value="">Ruby</option>
-                            <option value="">Go</option>
-                            <option value="">HTML</option>
-                            <option value="">CSS</option>
-                            <option value="">JavaScript</option>
-                            <option value="">TypeScript</option>
-                            <option value="">SQL</option>
-                            <option value="">Swift</option>
-                            <option value="">Kotlin</option>
-                            <option value="">Flutter</option>
-                        </select>
-                    </span>
-
-                    <textarea class="form-control" placeholder="Код"></textarea>
-
-                    <button class="btn btn-outline-danger border" type="button"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-            </div>
-
-            <br><br><br>
-
-            <div class="input-group mb-3 container fixed-bottom">
-                <button class="btn btn-outline-success border bg-body-tertiary" type="button"><i class="fa-solid fa-plus"></i></button>
-                <select class="textType form-select bg-body-tertiary" id="#">
-                    <option value="subtitle">Підзаголовок</option>
-                    <option value="text">Рядок</option>
-                    <option value="textarea">Абзац</option>
-                    <option value="photo">Фото</option>
-                    <option value="code">Код</option>
-                    <option value="pass">Пропуск</option>
-                </select>
-            </div>
-
         </div>
+
+        <br><br><br>
+
+        <div class="input-group mb-3 container fixed-bottom">
+            <button class="btn btn-outline-success border bg-body-tertiary" type="button" onclick="addElement()">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+            <select class="elementType form-select bg-body-tertiary" id="elementType">
+                <option value="subtitle">Підзаголовок</option>
+                <option value="text">Рядок</option>
+                <option value="hyperlink">Гіперпосилання</option>
+                <option value="textarea">Абзац</option>
+                <option value="photo">Фото</option>
+                <option value="code">Код</option>
+                <option value="pass">Пропуск</option>
+            </select>
+        </div>
+
     </div>
 
     <script src="{{ url_for('static', filename='scripts/articles_builder/articles_builder.js') }}"></script>
