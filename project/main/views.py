@@ -207,6 +207,7 @@ def security_settings():
 @views.route('/articles/builder')
 @login_required
 def articles_builder():
-    response = make_response(render_template('main/articles_builder.html'))
+    topics = Topic.query.all()
+    response = make_response(render_template('main/articles_builder.html', topics=topics))
 
     return response
