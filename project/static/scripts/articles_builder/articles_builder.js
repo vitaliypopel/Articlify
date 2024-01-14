@@ -13,7 +13,6 @@ function deleteElement(elementInputGroup) {
 
     let container = elementInputGroup.parentElement;
     container.remove();
-
 }
 
 function addElement() {
@@ -425,4 +424,77 @@ function addPass() {
     container.appendChild(elementInputGroup);
     console.log(container);
     return container;
+}
+
+function setTitlePreview() {
+    const title = document.getElementById('title').value;
+
+    let articleTitlePreview = document.getElementById('articleTitlePreview');
+
+    if (title) {
+        articleTitlePreview.innerHTML = title;
+    } else {
+        articleTitlePreview.innerHTML = 'Відсутній';
+    }
+}
+
+function addTopic() {
+    let container = document.getElementById('articleTopics');
+    let topicSelect = document.getElementById('articleTopicSelect');
+    let topicOptions = topicSelect.options;
+
+    if (!topicSelect.value) {
+        return 0;
+    }
+
+    let topicId = topicSelect.value;
+    let topicName;
+
+    for (var element in topicOptions) {
+        if (topicOptions[element].value === topicId) {
+            topicName = topicOptions[element].innerHTML;
+            topicOptions[element].remove();
+            break;
+        }
+    }
+
+    let topicContainer = document.createElement('li');
+    topicContainer.className = 'list-group-item d-flex pt-0 pb-0 pe-0';
+    topicContainer.id = topicId;
+    
+    let topicSpan = document.createElement('span');
+    topicSpan.className = 'flex-grow-1 d-flex align-items-center';
+    topicSpan.innerHTML = topicName;
+
+    let topicDeleteButton = document.createElement('button');
+    topicDeleteButton.className = 'btn btn-outline-danger border-0 border-start rounded-start-0';
+    topicDeleteButton.type = 'button';
+    topicDeleteButton.addEventListener('click', foo => deleteTopic(topicContainer, topicId, topicName));
+    
+    let topicButtonIcon = document.createElement('i');
+    topicButtonIcon.className = 'fa-solid fa-xmark';
+
+    topicDeleteButton.appendChild(topicButtonIcon);
+
+    topicContainer.appendChild(topicSpan);
+    topicContainer.appendChild(topicDeleteButton);
+    
+    container.appendChild(topicContainer);
+}
+
+function deleteTopic(topicContainer, topicId, topicName) {
+    if (!topicContainer) {
+        alert('Щось пішло не так! Спробуйте ще раз');
+        return 0;
+    }
+
+    let topicSelect = document.getElementById('articleTopicSelect');
+
+    let topicOption = document.createElement('option');
+    topicOption.value = topicId;
+    topicOption.innerHTML = topicName;
+
+    topicSelect.appendChild(topicOption);
+
+    topicContainer.remove();
 }

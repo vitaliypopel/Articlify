@@ -6,7 +6,7 @@
 
 {% block content %}
     <div class="title m-3 text-center">
-        <h1>Конструктор статей</h1>
+        <h1><i class="fa-solid fa-file-pen"></i> Конструктор статей</h1>
     </div>
 
     <div class="publication mt-3 mb-3 d-flex justify-content-end">
@@ -16,7 +16,7 @@
         </button>
 
         <button class="btn btn-outline-success m-2 me-0" type="button"
-                data-bs-toggle="modal" data-bs-target="#publicationModal">
+                data-bs-toggle="modal" data-bs-target="#publicationModal" onclick="setTitlePreview()">
             Опублікувати
         </button>
 
@@ -197,7 +197,7 @@
         </div>
 
         <div class="modal fade" id="publicationModal">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Нова публікація на сторінку @{{ current_user.username }}</h5>
@@ -205,20 +205,43 @@
                     </div>
 
                     <div class="modal-body">
-                        <p>Додайте до своєї статті категорії:</p>
+                        <div class="article-title-preview">
+                            <div class="input-group mb-3">
+                                <span class="input-group-text bg-transparent w-25">
+                                    Заголовок
+                                </span>
+                                <span class="input-group-text bg-transparent w-75 pre text-start"
+                                      id="articleTitlePreview"></span>
+                            </div>
+                        </div>
+
+                        <div class="article-status">
+                            <div class="input-group mb-3">
+                                <span class="input-group-text bg-transparent w-25">
+                                    Публікація
+                                </span>
+                                <select class="form-select" id="articleStatus">
+                                    <option value="true">Публічна</option>
+                                    <option value="false">Приватна</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="article-topics">
+                            <p>Додайте до своєї статті категорії:</p>
+                            <ul class="list-group" id="articleTopics"></ul>
+                        </div>
 
                         <div class="input-group mt-3 mb-3">
-                            <button class="btn btn-outline-success border" type="button">
+                            <button class="btn btn-outline-success border" type="button" onclick="addTopic()">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
-                            <select class="form-select">
+                            <select class="form-select" id="articleTopicSelect">
                                 {% for topic in topics %}
                                     <option value="{{ topic.id }}">{{ topic.topic }}</option>
                                 {% endfor %}
                             </select>
-
                         </div>
-
                     </div>
 
                     <div class="modal-footer">
