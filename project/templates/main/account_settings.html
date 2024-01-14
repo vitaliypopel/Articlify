@@ -14,7 +14,9 @@
         <div class="registration mt-3 mb-3">
             <div class="card w-100">
                 <div class="card-body text-center w-100">
-                    Акаунт зареєстровано {{ current_user.registration|datetime_calculation }} назад.
+                    <span>
+                        Акаунт зареєстровано {{ current_user.registration|datetime_calculation }} назад.
+                    </span>
                 </div>
             </div>
         </div>
