@@ -68,7 +68,7 @@ function addSubtitle() {
     elementSpan.innerHTML = 'Підзаголовок';
 
     let elementInput = document.createElement('input');
-    elementInput.className = 'form-control';
+    elementInput.className = 'content form-control';
     elementInput.type = 'text';
     elementInput.placeholder = 'Підзаголовок';
     elementInput.minLength = '1';
@@ -104,10 +104,10 @@ function addText() {
     elementSpan.className = 'w-25';
 
     let elementSelect = document.createElement('select');
-    elementSelect.className = 'form-select rounded-start rounded-0';
+    elementSelect.className = 'text-type form-select rounded-start rounded-0';
     
     let options = [
-        {'value': 'paragraph', 'text': 'Звичайний'},
+        {'value': 'normal', 'text': 'Звичайний'},
         {'value': 'bold', 'text': 'Товстий'},
         {'value': 'italic', 'text': 'Курсив'}
     ]
@@ -122,7 +122,7 @@ function addText() {
     elementSpan.appendChild(elementSelect);
 
     let elementInput = document.createElement('input');
-    elementInput.className = 'form-control';
+    elementInput.className = 'content form-control';
     elementInput.type = 'text';
     elementInput.placeholder = 'Рядок';
     elementInput.minLength = '1';
@@ -165,7 +165,7 @@ function addHyperlink() {
     elementLinkSpan.innerHTML = 'Посилання';
 
     let elementLinkInput = document.createElement('input');
-    elementLinkInput.className = 'form-control rounded-0 border-bottom-0';
+    elementLinkInput.className = 'link form-control rounded-0 border-bottom-0';
     elementLinkInput.type = 'text';
     elementLinkInput.placeholder = 'Посилання';
     elementLinkInput.minLength = '1';
@@ -182,7 +182,7 @@ function addHyperlink() {
     elementSignSpan.innerHTML = 'Підпис';
 
     let elementSignInput = document.createElement('input');
-    elementSignInput.className = 'form-control rounded-0';
+    elementSignInput.className = 'content form-control rounded-0';
     elementSignInput.type = 'text';
     elementSignInput.placeholder = 'Підпис';
     elementSignInput.minLength = '1';
@@ -223,10 +223,10 @@ function addTextarea() {
     elementSpan.className = 'input-group w-25';
 
     let elementSelect = document.createElement('select');
-    elementSelect.className = 'form-select rounded-start rounded-0';
+    elementSelect.className = 'text-type form-select rounded-start rounded-0';
     
     let options = [
-        {'value': 'paragraph', 'text': 'Звичайний'},
+        {'value': 'normal', 'text': 'Звичайний'},
         {'value': 'bold', 'text': 'Товстий'},
         {'value': 'italic', 'text': 'Курсив'}
     ]
@@ -241,7 +241,7 @@ function addTextarea() {
     elementSpan.appendChild(elementSelect);
 
     let elementTextarea = document.createElement('textarea');
-    elementTextarea.className = 'form-control';
+    elementTextarea.className = 'content form-control';
     elementTextarea.placeholder = 'Абзац';
     elementTextarea.minLength = '1';
     elementTextarea.maxLength = '5000';
@@ -283,7 +283,7 @@ function addPhoto() {
     elementPhotoSpan.innerHTML = 'Фото';
 
     let elementPhotoInput = document.createElement('input');
-    elementPhotoInput.className = 'form-control rounded-0 border-bottom-0';
+    elementPhotoInput.className = 'photo-file form-control rounded-0 border-bottom-0';
     elementPhotoInput.type = 'file';
 
     elementPhotoGroup.appendChild(elementPhotoSpan);
@@ -297,7 +297,7 @@ function addPhoto() {
     elementDescriptionSpan.innerHTML = 'Опис';
 
     let elementDescriptionInput = document.createElement('input');
-    elementDescriptionInput.className = 'form-control rounded-0';
+    elementDescriptionInput.className = 'content form-control rounded-0';
     elementDescriptionInput.type = 'text';
     elementDescriptionInput.placeholder = 'Опис фотографії';
     elementDescriptionInput.minLength = '1';
@@ -338,7 +338,7 @@ function addCode() {
     elementSpan.className = 'input-group w-25';
 
     let elementSelect = document.createElement('select');
-    elementSelect.className = 'form-select rounded-start rounded-0';
+    elementSelect.className = 'language form-select rounded-start rounded-0';
     
     let options = [
         {'value': '', 'text': 'Python'},
@@ -369,7 +369,7 @@ function addCode() {
     elementSpan.appendChild(elementSelect);
 
     let elementTextarea = document.createElement('textarea');
-    elementTextarea.className = 'form-control';
+    elementTextarea.className = 'content form-control';
     elementTextarea.placeholder = 'Код';
     elementTextarea.minLength = '1';
     elementTextarea.maxLength = '15000';
@@ -422,20 +422,8 @@ function addPass() {
     elementInputGroup.appendChild(elementDeleteButton);
 
     container.appendChild(elementInputGroup);
-    console.log(container);
+
     return container;
-}
-
-function setTitlePreview() {
-    const title = document.getElementById('title').value;
-
-    let articleTitlePreview = document.getElementById('articleTitlePreview');
-
-    if (title) {
-        articleTitlePreview.innerHTML = title;
-    } else {
-        articleTitlePreview.innerHTML = 'Відсутній';
-    }
 }
 
 function addTopic() {
@@ -459,7 +447,7 @@ function addTopic() {
     }
 
     let topicContainer = document.createElement('li');
-    topicContainer.className = 'list-group-item d-flex pt-0 pb-0 pe-0';
+    topicContainer.className = 'topic list-group-item d-flex pt-0 pb-0 pe-0';
     topicContainer.id = topicId;
     
     let topicSpan = document.createElement('span');
@@ -498,3 +486,305 @@ function deleteTopic(topicContainer, topicId, topicName) {
 
     topicContainer.remove();
 }
+
+function setTitlePreview() {
+    const title = document.getElementById('title').value;
+
+    let articleTitlePreview = document.getElementById('articleTitlePreview');
+
+    if (title) {
+        if (articleTitlePreview.classList.contains('text-danger')) {
+            articleTitlePreview.classList.remove('text-danger');
+        }
+
+        articleTitlePreview.innerHTML = title;
+
+    } else {
+        if (!articleTitlePreview.classList.contains('text-danger')) {
+            articleTitlePreview.classList.add('text-danger');
+        }
+
+        articleTitlePreview.innerHTML = 'Будь ласка введіть заголовок в конструкторі';
+    }
+}
+
+function postPublication() {
+    const title = document.getElementById('title').value;
+    const articleStatus = document.getElementById('articleStatus').value;
+    const public = (articleStatus === 'true') ? true : false;
+
+    if (!title) {
+        let closeButtom = document.getElementById('closeButton');
+        closeButtom.click();
+        alert('Заголовок відсутній! Будь ласка введіть заголовок статті');
+        return 0;
+    }
+
+    let photos = [];
+
+    let article = {
+        'title': title,
+        'public': public,
+        'content': [],
+        'photos': [],
+        'body': []
+    }
+
+    let photoID = 1;
+    let subtitleID = 1;
+
+    let articleElements = document.getElementsByClassName('article')[0].children;
+
+    if (articleElements.length <= 1) {
+        alert('Стаття не може бути пустою! Будь ласка заповніть її');
+        let closeButtom = document.getElementById('closeButton');
+        closeButtom.click();
+        return 0;
+    }
+    
+    for (let articleElement of articleElements) {
+        const type = articleElement.className;
+
+        if (type === 'article-title') {
+            continue;
+        }
+
+        let elementBody;
+        switch (type) {
+            case 'subtitle':
+                elementBody = getSubtitle(articleElement.children[0], subtitleID);
+                break;
+            case 'text':
+                elementBody = getText(articleElement.children[0]);
+                break;
+            case 'hyperlink':
+                elementBody = getHyperlink(articleElement.children[0]);
+                break;
+            case 'textarea':
+                elementBody = getTextarea(articleElement.children[0]);
+                break;
+            case 'photo':
+                photoBody = getPhoto(articleElement.children[0], photoID);
+                elementBody = photoBody[0];
+                photoFile = photoBody[1];
+                break;
+            case 'code':
+                elementBody = getCode(articleElement.children[0]);
+                break;
+            case 'pass':
+                elementBody = getPass();
+                break;
+            default:
+                alert('Щось пішло не так! Спробуйте ще раз');
+                return 0;
+        }
+
+        if (!elementBody) {
+            let closeButtom = document.getElementById('closeButton');
+            closeButtom.click();
+            return 0;
+        }
+
+        if (elementBody.type === 'subtitle') {
+            let subtitle = {
+                'id': subtitleID,
+                'content': elementBody.content
+            }
+            article.content.push(subtitle);
+            subtitleID += 1;
+
+        } else if (elementBody.type === 'photo') {
+            if (!photoFile) {
+                alert('Під час обробки фото файлів щось пішло не так! Спробуйте ще раз');
+                return 0;
+            }
+
+            let photo = {
+                'id': photoID,
+                'photo_name': elementBody.photo_name
+            }
+            article.photos.push(photo);
+
+            photos.push(photoFile);
+            photoID += 1;
+        }
+
+        article.body.push(elementBody);
+    }
+
+    let topicsContainer = document.getElementById('articleTopics').children;
+
+    let topics = [];
+    
+    for (let topicContainer of topicsContainer) {
+        let topic = Number(topicContainer.id);
+        topics.push(topic);
+    }
+
+    let request = {
+        'article': article,
+        'photos': photos,
+        'topics': topics
+    }
+
+    fetch('/articles/builder', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(request)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.bad) {
+            alert(data.bad);
+            return 0;
+        }
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    });
+}
+
+function getSubtitle(articleElement, subtitleID) {
+    let content = articleElement.getElementsByClassName('content')[0].value;
+
+    if (!content) {
+        alert('Один підзаголовок пустий! Будь ласка заповніть його');
+        return 0;
+    }
+
+    let element = {
+        'type': 'subtitle',
+        'text_type': 'bold',
+        'subtitle_id': subtitleID,
+        'content': content
+    }
+
+    return element;
+}
+
+function getText(articleElement) {
+    let textType = articleElement.getElementsByClassName('text-type')[0].value;
+    let content = articleElement.getElementsByClassName('content')[0].value;
+
+    if (!textType || !content) {
+        alert('Один рядок пустий! Будь ласка заповніть його');
+        return 0;
+    }
+
+    let element = {
+        'type': 'text',
+        'text_type': textType,
+        'content': content
+    }
+
+    return element;
+}
+
+function getHyperlink(articleElement) {
+    let link = articleElement.getElementsByClassName('link')[0].value;
+    let content = articleElement.getElementsByClassName('content')[0].value;
+
+    if (!link || !content) {
+        alert('Одне гіперпосилання пусте! Будь ласка заповніть його');
+        return 0;
+    }
+
+    let element = {
+        'type': 'hyperlink',
+        'text_type': 'link',
+        'link': link,
+        'content': content
+    }
+
+    return element;
+}
+
+function getTextarea(articleElement) {
+    let textType = articleElement.getElementsByClassName('text-type')[0].value;
+    let content = articleElement.getElementsByClassName('content')[0].value;
+
+    if (!textType || !content) {
+        alert('Один абзац пустий! Будь ласка заповніть його');
+        return 0;
+    }
+
+    let element = {
+        'type': 'textarea',
+        'text_type': textType,
+        'content': content
+    }
+
+    return element;
+}
+
+function getPhoto(articleElement, photoID) {
+    let photoElement = articleElement.getElementsByClassName('photo-file')[0];
+    let photoFile = photoElement.files[0];
+
+    if (!photoFile) {
+        alert('Файл одного фото відсутній! Будь ласка заповніть його');
+        return 0;
+    }
+
+    let types = ['image/png', 'image/jpg', 'image/jpeg'];
+
+    if (!types.includes(photoFile.type)) {
+        alert('Фото профілю повинне бути розширення .png або .jpg');
+        return 0;
+    }
+
+    if (photoFile.size > 1000 * 1024) {
+        alert('Розмір файлу повинен бути не більше ніж 1 мегабайт');
+        return 0;
+    }
+
+    let photoName = `photo_${photoID}.${photoFile.type.replace(/image\//g, '')}`;
+
+    let photoData = new FormData();
+    photoData.append(photoName, photoFile);
+
+    let content = articleElement.getElementsByClassName('content')[0].value;
+
+    let element = {
+        'type': 'photo',
+        'text_type': 'italic',
+        'photo_name': photoName,
+        'content': content
+    }
+
+    return [element, photoData];
+}
+
+function getCode(articleElement) {
+    let language = articleElement.getElementsByClassName('language')[0].value;
+    let content = articleElement.getElementsByClassName('content')[0].value;
+
+    if (!language || !content) {
+        alert('Одне поле з кодом пусте! Будь ласка заповніть його');
+        return 0;
+    }
+    
+    let element = {
+        'type': 'code',
+        'text_type': 'pre',
+        'language': language,
+        'content': content
+    }
+
+    return element;
+}
+
+function getPass() {
+    let element = {
+        'type': 'pass',
+        'text_type': 'icon'
+    }
+
+    return element;
+}
+
