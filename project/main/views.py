@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, jsonify, send_from_directory, make_response
+from flask import Blueprint
+from flask import render_template, flash, redirect, url_for, request, send_from_directory, make_response, jsonify
 from project.auth import User
 from project import db, current_user, login_required, ValidationError, datetime
 from .models import Feedback, Topic, TopicSubscription, UserSubscription, UserSubscriptionRequest
@@ -204,10 +205,27 @@ def security_settings():
     return render_template('main/security_settings.html')
 
 
-@views.route('/articles/builder')
+@views.route('/articles/builder', methods=['GET', 'POST'])
 @login_required
 def articles_builder():
     topics = Topic.query.all()
     response = make_response(render_template('main/articles_builder.html', topics=topics))
+
+    if request.method == 'POST':
+        data = request.get_json()
+        article = {
+            'id': 1,
+            'link': 'secret_link_lol',
+            'article': data['article'],
+            'created_at': str(datetime.utcnow()),
+            'updated_at': None
+        }
+
+        with open('article_test.json', 'w', encoding='utf-8') as file:
+            from json import dumps
+            article_test = dumps(article, indent=4, ensure_ascii=False)
+            file.write(article_test)
+
+        return jsonify({})
 
     return response
