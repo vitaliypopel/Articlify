@@ -95,16 +95,25 @@ function addSubtitle() {
 
 function addText() {
     let container = document.createElement('div');
-    container.className = 'text';
+    container.className = 'text sortable-item';
 
     let elementInputGroup = document.createElement('div');
     elementInputGroup.className = 'input-group mt-3 mb-3 w-100';
+
+    // let elementGrab = document.createElement('span');
+    // elementGrab.className = 'input-group-text bg-transparent drag-handle';
+
+    // let elementGrabIcon = document.createElement('i');
+    // elementGrabIcon.className = 'fa-solid fa-bars';
+
+    // elementGrab.appendChild(elementGrabIcon);
 
     let elementSpan = document.createElement('span');
     elementSpan.className = 'w-25';
 
     let elementSelect = document.createElement('select');
     elementSelect.className = 'text-type form-select rounded-start rounded-0';
+    // elementSelect.className = 'text-type form-select rounded-0';
     
     let options = [
         {'value': 'normal', 'text': 'Звичайний'},
@@ -138,6 +147,7 @@ function addText() {
 
     elementDeleteButton.appendChild(elementButtonIcon);
 
+    // elementInputGroup.appendChild(elementGrab);
     elementInputGroup.appendChild(elementSpan);
     elementInputGroup.appendChild(elementInput);
     elementInputGroup.appendChild(elementDeleteButton);
@@ -543,7 +553,7 @@ function postPublication() {
     }
     
     for (let articleElement of articleElements) {
-        const type = articleElement.className;
+        const type = articleElement.classList[0];
 
         if (type === 'article-title') {
             continue;
