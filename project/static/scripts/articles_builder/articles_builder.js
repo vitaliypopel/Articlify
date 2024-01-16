@@ -95,7 +95,8 @@ function addSubtitle() {
 
 function addText() {
     let container = document.createElement('div');
-    container.className = 'text sortable-item';
+    container.className = 'text';
+    // container.className = 'text sortable-item';
 
     let elementInputGroup = document.createElement('div');
     elementInputGroup.className = 'input-group mt-3 mb-3 w-100';
