@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_mongoengine import MongoEngine
 from flask_login import LoginManager, UserMixin, current_user, login_required, login_user, logout_user
 from flask_mail import Mail, Message
 from flask_bootstrap import Bootstrap5
@@ -11,12 +12,14 @@ from wtforms.validators import InputRequired, Length, ValidationError, Regexp
 from email_validator import validate_email
 from datetime import datetime, timedelta
 from secrets import token_urlsafe
+from hashlib import sha256
 from re import match, sub
 import os
 
 
 app = Flask(__name__)
 db = SQLAlchemy()
+mongo_db = MongoEngine()
 login_manager = LoginManager()
 mail = Mail()
 bootstrap = Bootstrap5()
@@ -27,6 +30,7 @@ def create_app():
 
     app.config['SECRET_KEY'] = config.get('SECRET_KEY')
     app.config['SQLALCHEMY_DATABASE_URI'] = config.get('SQLALCHEMY_DATABASE_URI')
+    app.config['MONGODB_SETTINGS'] = config.get('MONGODB_SETTINGS')
     app.config['TEMPLATES_FOLDER'] = config.get('TEMPLATES_FOLDER')
     app.config['STATIC_FOLDER'] = config.get('STATIC_FOLDER')
     app.config['MAIL_SERVER'] = config.get('MAIL_SERVER')
@@ -53,6 +57,8 @@ def create_app():
 
         from project.main import before_first_request
         before_first_request()
+
+    mongo_db.init_app(app)
 
     login_manager.init_app(app)
     login_manager.login_view = 'auth.log_in'

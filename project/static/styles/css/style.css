@@ -18,3 +18,15 @@
 .underline-offset {
     text-underline-offset: 3px;
 }
+
+.sortable-item {
+    display: flex !important;
+}
+
+.drag-handle {
+    cursor: grab !important;
+}
+
+.drag-handle:hover {
+    cursor: grab !important;
+}

@@ -4,6 +4,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 );
 
+$(document).ready(
+    function () {
+        $(".sortable-list").sortable({
+            handle: ".drag-handle",
+            axis: "y",
+        });
+    }
+);
 
 function deleteElement(elementInputGroup) {
     if (!elementInputGroup) {
@@ -58,10 +66,18 @@ function addElement() {
 
 function addSubtitle() {
     let container = document.createElement('div');
-    container.className = 'subtitle';
+    container.className = 'subtitle scrolable-item mt-3 mb-3';
 
     let elementInputGroup = document.createElement('div');
-    elementInputGroup.className = 'input-group mt-3 mb-3 w-100';
+    elementInputGroup.className = 'input-group w-100 d-flex flex-nowrap';
+
+    let elementGrab = document.createElement('span');
+    elementGrab.className = 'input-group-text bg-transparent drag-handle border-end-0';
+
+    let elementGrabIcon = document.createElement('i');
+    elementGrabIcon.className = 'fa-solid fa-bars';
+
+    elementGrab.appendChild(elementGrabIcon);
 
     let elementSpan = document.createElement('span');
     elementSpan.className = 'input-group-text bg-transparent w-25';
@@ -84,6 +100,7 @@ function addSubtitle() {
 
     elementDeleteButton.appendChild(elementButtonIcon);
 
+    elementInputGroup.appendChild(elementGrab);
     elementInputGroup.appendChild(elementSpan);
     elementInputGroup.appendChild(elementInput);
     elementInputGroup.appendChild(elementDeleteButton);
@@ -95,26 +112,24 @@ function addSubtitle() {
 
 function addText() {
     let container = document.createElement('div');
-    container.className = 'text';
-    // container.className = 'text sortable-item';
+    container.className = 'text sortable-item mt-3 mb-3';
 
     let elementInputGroup = document.createElement('div');
-    elementInputGroup.className = 'input-group mt-3 mb-3 w-100';
+    elementInputGroup.className = 'input-group w-100 d-flex flex-nowrap';
 
-    // let elementGrab = document.createElement('span');
-    // elementGrab.className = 'input-group-text bg-transparent drag-handle';
+    let elementGrab = document.createElement('span');
+    elementGrab.className = 'input-group-text bg-transparent drag-handle border-end-0';
 
-    // let elementGrabIcon = document.createElement('i');
-    // elementGrabIcon.className = 'fa-solid fa-bars';
+    let elementGrabIcon = document.createElement('i');
+    elementGrabIcon.className = 'fa-solid fa-bars';
 
-    // elementGrab.appendChild(elementGrabIcon);
+    elementGrab.appendChild(elementGrabIcon);
 
     let elementSpan = document.createElement('span');
     elementSpan.className = 'w-25';
 
     let elementSelect = document.createElement('select');
-    elementSelect.className = 'text-type form-select rounded-start rounded-0';
-    // elementSelect.className = 'text-type form-select rounded-0';
+    elementSelect.className = 'text-type form-select rounded-0';
     
     let options = [
         {'value': 'normal', 'text': 'Звичайний'},
@@ -148,7 +163,7 @@ function addText() {
 
     elementDeleteButton.appendChild(elementButtonIcon);
 
-    // elementInputGroup.appendChild(elementGrab);
+    elementInputGroup.appendChild(elementGrab);
     elementInputGroup.appendChild(elementSpan);
     elementInputGroup.appendChild(elementInput);
     elementInputGroup.appendChild(elementDeleteButton);
@@ -160,10 +175,18 @@ function addText() {
 
 function addHyperlink() {
     let container = document.createElement('div');
-    container.className = 'hyperlink';
+    container.className = 'hyperlink sortable-item mt-3 mb-3';
 
     let elementInputGroup = document.createElement('div');
-    elementInputGroup.className = 'input-group mt-3 mb-3 w-100 d-flex flex-nowrap';
+    elementInputGroup.className = 'input-group w-100 d-flex flex-nowrap';
+
+    let elementGrab = document.createElement('span');
+    elementGrab.className = 'input-group-text bg-transparent drag-handle border-end-0';
+
+    let elementGrabIcon = document.createElement('i');
+    elementGrabIcon.className = 'fa-solid fa-bars';
+
+    elementGrab.appendChild(elementGrabIcon);    
 
     let elementGroup = document.createElement('div');
     elementGroup.className = 'w-auto flex-grow-1';
@@ -172,7 +195,7 @@ function addHyperlink() {
     elementLinkGroup.className = 'input-group w-100';
 
     let elementLinkSpan = document.createElement('span');
-    elementLinkSpan.className = 'input-group-text bg-transparent w-25 rounded-0 rounded-top rounded-end-0 border-bottom-0';
+    elementLinkSpan.className = 'input-group-text bg-transparent w-25 rounded-0 border-bottom-0';
     elementLinkSpan.innerHTML = 'Посилання';
 
     let elementLinkInput = document.createElement('input');
@@ -189,7 +212,7 @@ function addHyperlink() {
     elementSignGroup.className = 'input-group w-100';
 
     let elementSignSpan = document.createElement('span');
-    elementSignSpan.className = 'input-group-text bg-transparent w-25 rounded-end-0 rounded-top-0';
+    elementSignSpan.className = 'input-group-text bg-transparent w-25 rounded-0';
     elementSignSpan.innerHTML = 'Підпис';
 
     let elementSignInput = document.createElement('input');
@@ -215,6 +238,7 @@ function addHyperlink() {
 
     elementDeleteButton.appendChild(elementButtonIcon);
 
+    elementInputGroup.appendChild(elementGrab);
     elementInputGroup.appendChild(elementGroup);
     elementInputGroup.appendChild(elementDeleteButton);
 
@@ -225,16 +249,24 @@ function addHyperlink() {
 
 function addTextarea() {
     let container = document.createElement('div');
-    container.className = 'textarea';
+    container.className = 'textarea sortable-item mt-3 mb-3';
 
     let elementInputGroup = document.createElement('div');
-    elementInputGroup.className = 'input-group mt-3 mb-3 w-100';
+    elementInputGroup.className = 'input-group w-100 d-flex flex-nowrap';
+
+    let elementGrab = document.createElement('span');
+    elementGrab.className = 'input-group-text bg-transparent drag-handle border-end-0';
+
+    let elementGrabIcon = document.createElement('i');
+    elementGrabIcon.className = 'fa-solid fa-bars';
+
+    elementGrab.appendChild(elementGrabIcon);
 
     let elementSpan = document.createElement('span');
     elementSpan.className = 'input-group w-25';
 
     let elementSelect = document.createElement('select');
-    elementSelect.className = 'text-type form-select rounded-start rounded-0';
+    elementSelect.className = 'text-type form-select rounded-0';
     
     let options = [
         {'value': 'normal', 'text': 'Звичайний'},
@@ -267,6 +299,7 @@ function addTextarea() {
 
     elementDeleteButton.appendChild(elementButtonIcon);
 
+    elementInputGroup.appendChild(elementGrab);
     elementInputGroup.appendChild(elementSpan);
     elementInputGroup.appendChild(elementTextarea);
     elementInputGroup.appendChild(elementDeleteButton);
@@ -278,10 +311,18 @@ function addTextarea() {
 
 function addPhoto() {
     let container = document.createElement('div');
-    container.className = 'photo';
+    container.className = 'photo sortable-item mt-3 mb-3';
 
     let elementInputGroup = document.createElement('div');
-    elementInputGroup.className = 'input-group mt-3 mb-3 w-100 d-flex flex-nowrap';
+    elementInputGroup.className = 'input-group w-100 d-flex flex-nowrap';
+
+    let elementGrab = document.createElement('span');
+    elementGrab.className = 'input-group-text bg-transparent drag-handle border-end-0';
+
+    let elementGrabIcon = document.createElement('i');
+    elementGrabIcon.className = 'fa-solid fa-bars';
+
+    elementGrab.appendChild(elementGrabIcon);
 
     let elementGroup = document.createElement('div');
     elementGroup.className = 'w-auto flex-grow-1';
@@ -290,7 +331,7 @@ function addPhoto() {
     elementPhotoGroup.className = 'input-group w-100';
 
     let elementPhotoSpan = document.createElement('span');
-    elementPhotoSpan.className = 'input-group-text bg-transparent w-25 rounded-0 rounded-top rounded-end-0 border-bottom-0';
+    elementPhotoSpan.className = 'input-group-text bg-transparent w-25 rounded-0 border-bottom-0';
     elementPhotoSpan.innerHTML = 'Фото';
 
     let elementPhotoInput = document.createElement('input');
@@ -304,7 +345,7 @@ function addPhoto() {
     elementDescriptionGroup.className = 'input-group w-100';
 
     let elementDescriptionSpan = document.createElement('span');
-    elementDescriptionSpan.className = 'input-group-text bg-transparent w-25 rounded-end-0 rounded-top-0';
+    elementDescriptionSpan.className = 'input-group-text bg-transparent w-25 rounded-0';
     elementDescriptionSpan.innerHTML = 'Опис';
 
     let elementDescriptionInput = document.createElement('input');
@@ -330,6 +371,7 @@ function addPhoto() {
 
     elementDeleteButton.appendChild(elementButtonIcon);
 
+    elementInputGroup.appendChild(elementGrab);
     elementInputGroup.appendChild(elementGroup);
     elementInputGroup.appendChild(elementDeleteButton);
 
@@ -340,34 +382,49 @@ function addPhoto() {
 
 function addCode() {
     let container = document.createElement('div');
-    container.className = 'code';
+    container.className = 'code sortable-item mt-3 mb-3';
 
     let elementInputGroup = document.createElement('div');
-    elementInputGroup.className = 'input-group mt-3 mb-3 w-100';
+    elementInputGroup.className = 'input-group w-100 d-flex flex-nowrap';
+
+    let elementGrab = document.createElement('span');
+    elementGrab.className = 'input-group-text bg-transparent drag-handle border-end-0';
+
+    let elementGrabIcon = document.createElement('i');
+    elementGrabIcon.className = 'fa-solid fa-bars';
+
+    elementGrab.appendChild(elementGrabIcon);
 
     let elementSpan = document.createElement('span');
     elementSpan.className = 'input-group w-25';
 
     let elementSelect = document.createElement('select');
-    elementSelect.className = 'language form-select rounded-start rounded-0';
+    elementSelect.className = 'language form-select rounded-0';
     
     let options = [
-        {'value': '', 'text': 'Python'},
-        {'value': '', 'text': 'C'},
-        {'value': '', 'text': 'C++'},
-        {'value': '', 'text': 'Rust'},
-        {'value': '', 'text': 'Java'},
-        {'value': '', 'text': 'C#'},
-        {'value': '', 'text': 'Ruby'},
-        {'value': '', 'text': 'Go'},
-        {'value': '', 'text': 'HTML'},
-        {'value': '', 'text': 'CSS'},
-        {'value': '', 'text': 'JavaScript'},
-        {'value': '', 'text': 'TypeScript'},
-        {'value': '', 'text': 'SQL'},
-        {'value': '', 'text': 'Swift'},
-        {'value': '', 'text': 'Kotlin'},
-        {'value': '', 'text': 'Flutter'}
+        {'value': 'py', 'text': 'Python'},
+        {'value': 'c', 'text': 'C'},
+        {'value': 'cpp', 'text': 'C++'},
+        {'value': 'rust', 'text': 'Rust'},
+        {'value': 'java', 'text': 'Java'},
+        {'value': 'cs', 'text': 'C#'},
+        {'value': 'rb', 'text': 'Ruby'},
+        {'value': 'go', 'text': 'Go'},
+        {'value': 'html', 'text': 'HTML'},
+        {'value': 'css', 'text': 'CSS'},
+        {'value': 'js', 'text': 'JavaScript'},
+        {'value': 'ts', 'text': 'TypeScript'},
+        {'value': 'php', 'text': 'PHP'},
+        {'value': 'swift', 'text': 'Swift'},
+        {'value': 'kt', 'text': 'Kotlin'},
+        {'value': 'dart', 'text': 'Dart'},
+        {'value': 'sql', 'text': 'SQL'},
+        {'value': 'plsql', 'text': 'PL/SQL'},
+        {'value': 'json', 'text': 'JSON'},
+        {'value': 'xml-doc', 'text': 'XML'},
+        {'value': 'yaml', 'text': 'YAML'},
+        {'value': 'http', 'text': 'HTTP'},
+        {'value': 'sh', 'text': 'BashShell'},
     ]
 
     for (var element of options) {
@@ -395,6 +452,7 @@ function addCode() {
 
     elementDeleteButton.appendChild(elementButtonIcon);
 
+    elementInputGroup.appendChild(elementGrab);
     elementInputGroup.appendChild(elementSpan);
     elementInputGroup.appendChild(elementTextarea);
     elementInputGroup.appendChild(elementDeleteButton);
@@ -406,10 +464,18 @@ function addCode() {
 
 function addPass() {
     let container = document.createElement('div');
-    container.className = 'pass';
+    container.className = 'pass sortable-item mt-3 mb-3';
 
     let elementInputGroup = document.createElement('div');
-    elementInputGroup.className = 'input-group mt-3 mb-3 w-100';
+    elementInputGroup.className = 'input-group w-100 d-flex flex-nowrap';
+
+    let elementGrab = document.createElement('span');
+    elementGrab.className = 'input-group-text bg-transparent drag-handle border-end-0';
+
+    let elementGrabIcon = document.createElement('i');
+    elementGrabIcon.className = 'fa-solid fa-bars';
+
+    elementGrab.appendChild(elementGrabIcon);
 
     let elementSpan = document.createElement('span');
     elementSpan.className = 'input-group-text bg-transparent flex-grow-1 justify-content-center';
@@ -429,6 +495,7 @@ function addPass() {
 
     elementDeleteButton.appendChild(elementButtonIcon);
 
+    elementInputGroup.appendChild(elementGrab);
     elementInputGroup.appendChild(elementSpan);
     elementInputGroup.appendChild(elementDeleteButton);
 
@@ -546,7 +613,7 @@ function postPublication() {
 
     let articleElements = document.getElementsByClassName('article')[0].children;
 
-    if (articleElements.length <= 1) {
+    if (articleElements.length < 1) {
         alert('Стаття не може бути пустою! Будь ласка заповніть її');
         let closeButtom = document.getElementById('closeButton');
         closeButtom.click();
