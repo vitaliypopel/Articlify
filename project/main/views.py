@@ -1,8 +1,13 @@
 from flask import Blueprint
 from flask import render_template, flash, redirect, url_for, request, send_from_directory, make_response, jsonify
 from project.auth import User
-from project import db, current_user, login_required, ValidationError, datetime
-from .models import Feedback, Topic, TopicSubscription, UserSubscription, UserSubscriptionRequest
+from project import db, mongo_db, current_user, login_required, ValidationError, sha256, datetime
+from .models import (
+    Feedback,
+    Topic, TopicSubscription,
+    UserSubscription, UserSubscriptionRequest,
+    Article, ArticleTopic, ArticleDocument
+)
 from .forms import FeedbackForm
 
 views = Blueprint('views', __name__)
@@ -14,10 +19,11 @@ def before_first_request():
         'C++', 'Rust', 'Java',
         'C#', 'Ruby', 'Go',
         'HTML', 'CSS', 'JavaScript',
-        'TypeScript', 'SQL', 'Swift',
-        'Kotlin', 'Flutter', 'GIT',
-        'Linux', 'Networking', 'Security',
-        'Clouds', 'DevOps', 'QA', 'Other'
+        'TypeScript', 'PHP', 'SQL',
+        'Swift', 'Kotlin', 'Flutter',
+        'GIT', 'Linux', 'Networking',
+        'Security', 'Clouds', 'DevOps',
+        'QA', 'Other'
     ]
 
     try:
@@ -31,15 +37,18 @@ def before_first_request():
         raise Exception('Щось пішло не так!!!')
 
 
+def secret_link(user_id: int, article_id: int) -> str:
+    link = f'{user_id}_{article_id}'
+    return sha256(link.encode()).hexdigest()
+
+
 @views.route('/favicon.ico')
 def favicon():
-
     return send_from_directory('static', path='images/icon/icon.jpg')
 
 
 @views.route('/')
 def home():
-
     if current_user.is_authenticated:
         topic_subscriptions = TopicSubscription.query.filter_by(user_id=current_user.id).all()
         return render_template('main/home.html', topic_subscriptions=topic_subscriptions)
@@ -133,6 +142,8 @@ def profile(username: str):
     followers = UserSubscription.query.filter_by(author_id=user.id).all()
     followings = UserSubscription.query.filter_by(user_id=user.id).all()
 
+    user_articles = Article.query.filter_by(user_id=current_user.id).order_by(Article.id.desc()).all()
+
     if current_user.is_authenticated:
         if current_user.id != user.id:
             subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=user.id).first()
@@ -141,17 +152,18 @@ def profile(username: str):
             return render_template(
                 'main/profile.html', user=user,
                 subscription=subscription, subscription_request=subscription_request,
-                followers=followers, followings=followings
+                followers=followers, followings=followings, articles=user_articles
             )
         else:
             follow_requests = UserSubscriptionRequest.query.filter_by(author_id=current_user.id).all()
             return render_template(
                 'main/profile.html', user=current_user,
                 followers=followers, followings=followings,
-                follow_requests=follow_requests
+                follow_requests=follow_requests, articles=user_articles
             )
 
-    return render_template('main/profile.html', user=user, followers=followers, followings=followings)
+    return render_template('main/profile.html',
+                           user=user, followers=followers, followings=followings, articles=user_articles)
 
 
 @views.route('/@<username>/about')
@@ -213,19 +225,49 @@ def articles_builder():
 
     if request.method == 'POST':
         data = request.get_json()
-        article = {
-            'id': 1,
-            'link': 'secret_link_lol',
-            'article': data['article'],
-            'created_at': str(datetime.utcnow()),
-            'updated_at': None
-        }
 
-        with open('article_test.json', 'w', encoding='utf-8') as file:
-            from json import dumps
-            article_test = dumps(article, indent=4, ensure_ascii=False)
-            file.write(article_test)
+        article = data['article']
+        topics = data['topics']
+        photos = data['photos']
 
-        return jsonify({})
+        last_article = Article.query.order_by(Article.id.desc()).first()
+        new_article_id = 1
+        if last_article:
+            new_article_id = last_article.id + 1
+
+        link = secret_link(current_user.id, new_article_id)
+
+        title = article['title']
+        public = article['public']
+        created_at = datetime.utcnow()
+
+        try:
+            new_article = Article(link, title, public, created_at, current_user.id)
+            db.session.add(new_article)
+
+            for topic in topics:
+                new_topic = ArticleTopic(new_article_id, int(topic))
+                db.session.add(new_topic)
+
+            new_article_document = ArticleDocument(link, current_user.id, article, str(created_at))
+            new_article_document.save()
+
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
+            article_document = ArticleDocument.objects(link=link).first()
+            if article_document:
+                article_document.delete()
+
+            return jsonify(
+                {'bad': 'Щось пішло не так! Спробуйте ще раз'}
+            )
+
+        flash('Стаття успішно опублікована', 'success')
+
+        return jsonify(
+            {'redirect': f'/@{current_user.username}'}
+        )
 
     return response

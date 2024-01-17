@@ -1,4 +1,5 @@
-from project import db, datetime
+from project import db, mongo_db, datetime
+from typing import Any
 
 
 class Feedback(db.Model):
@@ -109,19 +110,19 @@ class Article(db.Model):
     __tablename__: str = 'articles'
 
     id = db.Column(db.Integer, primary_key=True)
+    link = db.Column(db.String, unique=True, nullable=False)
     title = db.Column(db.String(100), nullable=False)
-    link = db.Column(db.String(80), nullable=False)
     public = db.Column(db.Boolean, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False)
-    updated_at = db.Column(db.DateTime, default=None, nullable=False)
+    updated_at = db.Column(db.DateTime, default=None)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-    def __init__(self, title: str, link: str, public: bool, user_id: int):
-        self.title = title
+    def __init__(self, link: str, title: str, public: bool, created_at: datetime, user_id: int):
         self.link = link
+        self.title = title
         self.public = bool(public)
+        self.created_at = created_at
         self.user_id = int(user_id)
-        self.created_at = datetime.utcnow()
 
     def __repr__(self) -> str:
         return f'Article(\n' \
@@ -220,4 +221,32 @@ class ArticleTopic(db.Model):
                f'   id [PK]:            {self.id}\n' \
                f'   article_id [FK]:    {self.article_id}\n' \
                f'   topic_id [FK]:      {self.topic_id}\n' \
+               f')'
+
+
+class ArticleDocument(mongo_db.Document):
+    id = mongo_db.SequenceField(primary_key=True)
+    link = mongo_db.StringField(required=True)
+    user_id = mongo_db.IntField(required=True)
+    article = mongo_db.DictField(required=True)
+    created_at = mongo_db.StringField(required=True)
+    updated_at = mongo_db.StringField()
+
+    def __init__(self, link: str, user_id: int, article: dict[Any], created_at: str, updated_at: str = None,
+                 *args, **kwargs):
+        super(ArticleDocument, self).__init__(*args, **kwargs)
+        self.link = link
+        self.user_id = int(user_id)
+        self.article = article
+        self.created_at = created_at
+        self.updated_at = updated_at
+
+    def __str__(self) -> str:
+        return f'ArticleDocument(\n' \
+               f'   id:         {self.id}\n' \
+               f'   link:       {self.link}\n' \
+               f'   user_id:    {self.user_id}\n' \
+               f'   article:    {self.article}\n' \
+               f'   created_at: {self.created_at}\n' \
+               f'   updated_at: {self.updated_at}\n' \
                f')'
