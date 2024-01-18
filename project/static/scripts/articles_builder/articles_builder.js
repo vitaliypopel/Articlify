@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
-      var helpModalButton = document.getElementById('helpModalButton');
-      helpModalButton.click();
+        var helpModalButton = document.getElementById('helpModalButton');
+        helpModalButton.click();
     }
 );
 
@@ -587,14 +587,14 @@ function setTitlePreview() {
 }
 
 function postPublication() {
-    const title = document.getElementById('title').value;
+    const title = document.getElementById('title').value.trim();
     const articleStatus = document.getElementById('articleStatus').value;
     const public = (articleStatus === 'true') ? true : false;
 
     if (!title) {
         let closeButtom = document.getElementById('closeButton');
         closeButtom.click();
-        alert('Заголовок відсутній! Будь ласка введіть заголовок статті');
+        alert('Заголовок повинен містити щонайменше одну букву! Будь ласка введіть заголовок статті');
         return 0;
     }
 
@@ -627,7 +627,7 @@ function postPublication() {
             continue;
         }
 
-        let elementBody;
+        let elementBody, photoFile;
         switch (type) {
             case 'subtitle':
                 elementBody = getSubtitle(articleElement.children[0], subtitleID);
@@ -642,7 +642,7 @@ function postPublication() {
                 elementBody = getTextarea(articleElement.children[0]);
                 break;
             case 'photo':
-                photoBody = getPhoto(articleElement.children[0], photoID);
+                let photoBody = getPhoto(articleElement.children[0], photoID);
                 elementBody = photoBody[0];
                 photoFile = photoBody[1];
                 break;
@@ -701,16 +701,22 @@ function postPublication() {
 
     let request = {
         'article': article,
-        'photos': photos,
         'topics': topics
     }
 
+    const combinedArticleContent = new FormData();
+
+    for (let i = 0; i < photos.length; i++) {
+        photos[i].forEach((value, key) => {
+            combinedArticleContent.append(key, value);
+        });
+    }
+
+    combinedArticleContent.append('json', new Blob([JSON.stringify(request)], { type: 'application/json' }));
+
     fetch('/articles/builder', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(request)
+        body: combinedArticleContent
     })
     .then(response => response.json())
     .then(data => {
