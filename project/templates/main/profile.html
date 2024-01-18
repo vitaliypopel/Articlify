@@ -7,80 +7,32 @@
 {% block profile_content %}
 
     <div class="articles mt-3 mb-3">
-        {% for article in articles %}
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">{{ article.title }}</h5>
-                    <p class="card-text">link: {{ article.link }}</p>
-                </div>
-            </div>
-        {% endfor %}
-
-<!--
-        <div class="card mb-3">
-            <div class="row g-0">
-                <div class="col-md-4">
-
-                </div>
-
-                <div class="col-md-8">
+        {% if articles %}
+            {% for article in articles %}
+                <div class="card mb-3">
                     <div class="card-body">
-                        <h5 class="card-title">Стаття 2</h5>
-                        <p class="card-text">Бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла  бла бла бла бла бла бла</p>
-                        <p class="card-text"><small class="text-body-secondary">Востаннє оновлено 5 хв. назад</small></p>
+                        <h5 class="card-title">
+                            <a class="link-underline link-underline-opacity-0"
+                               href="{{ url_for('views.article', username=user.username, article_link=article.link) }}">
+                                {{ article.title }}
+                            </a>
+                        </h5>
+                        <p class="card-text">link: {{ article.link }}</p>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="card mb-3">
-            <div class="row g-0">
-                <div class="col-md-4">
-
-                </div>
-
-                <div class="col-md-8">
-                    <div class="card-body">
-                        <h5 class="card-title">Стаття 1</h5>
-                        <p class="card-text">Бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла  бла бла бла бла бла бла</p>
-                        <p class="card-text"><small class="text-body-secondary">Востаннє оновлено 5 хв. назад</small></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card mb-3">
-            <div class="row g-0">
-                <div class="col-md-4">
-
-                </div>
-
-                <div class="col-md-8">
-                    <div class="card-body">
-                        <h5 class="card-title">Стаття 4</h5>
-                        <p class="card-text">Бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла  бла бла бла бла бла бла</p>
-                        <p class="card-text"><small class="text-body-secondary">Востаннє оновлено 5 хв. назад</small></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card mb-3">
-            <div class="row g-0">
-                <div class="col-md-4">
-
-                </div>
-
-                <div class="col-md-8">
-                    <div class="card-body">
-                        <h5 class="card-title">Стаття 3</h5>
-                        <p class="card-text">Бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла бла  бла бла бла бла бла бла</p>
-                        <p class="card-text"><small class="text-body-secondary">Востаннє оновлено 5 хв. назад</small></p>
-                    </div>
-                </div>
-            </div>
-        </div>
--->
+            {% endfor %}
+        {% else %}
+            <p class="fs-5 text-center mt-3 mb-1">
+                Публікації відстуні
+            </p>
+            {% if current_user.id == user.id %}
+                <p class="fs-5 text-center">
+                    <a class="link-underline link-underline-opacity-0" href="{{ url_for('views.articles_builder') }}">
+                        <i class="fa-regular fa-pen-to-square"></i> Написати зараз
+                    </a>
+                </p>
+            {% endif %}
+        {% endif %}
     </div>
 
 {% endblock %}
