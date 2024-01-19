@@ -1,9 +1,3 @@
-document.addEventListener('DOMContentLoaded', function () {
-        var helpModalButton = document.getElementById('helpModalButton');
-        helpModalButton.click();
-    }
-);
-
 $(document).ready(
     function () {
         $(".sortable-list").sortable({

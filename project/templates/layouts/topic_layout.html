@@ -12,7 +12,9 @@
 
     <div class="topic-data mt-3 mb-3" align="center">
         <p>
-            Категорія • Читачі: <span id="followers">{{ subscriptions|length }}</span> • Статті: <span id="articles-count">100</span>
+            Категорія •
+            Читачі: <span id="followers">{{ subscriptions|length }}</span> •
+            Статті: <span id="articles-count">{{ articles_with_topic|length }}</span>
         </p>
 
         {% if current_user.is_authenticated %}

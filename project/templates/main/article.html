@@ -5,14 +5,182 @@
 {% endblock %}
 
 {% block content %}
-    <div class="title mt-3 mb-3 text-center">
+    <div class="title mt-3 mb-3">
         <h1>{{ article.title }}</h1>
     </div>
 
-    <!-- Дані -->
+    <div class="user-data mt-4 mb-4">
+        <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=user.username) }}">
+                <img src="{{ url_for('static', filename='images/user_pictures/' + user.profile_picture) }}"
+                     class="article-pfp rounded">
+            </a>
+            <a class="btn btn-lg fs-4" href="{{ url_for('views.profile', username=user.username) }}">@{{ user.username }}</a>
 
-    <div class="article mt-3 mb-3">
+            {% if current_user.is_authenticated %}
+                {% if current_user.id != user.id %}
+                    <span class="subscription subscription-user">
+                        {% if subscription %}
+                            <button class="btn btn-outline-danger" id="unfollowButton" type="button"
+                                    onclick="unfollow({{ user.id }}, 'user', {% if not user.profile_status %}false{% endif %})">
+                                Відписатись
+                            </button>
+                        {% else %}
+                            <button class="btn btn-outline-success" id="followButton" type="button"
+                                    onclick="follow({{ user.id }}, 'user', {% if not user.profile_status %}false{% endif %})">
+                                Підписатись
+                            </button>
+                        {% endif %}
+                    </span>
+                {% endif %}
+            {% endif %}
+    </div>
+
+    <div class="article-data mt-3 mb-3">
+        <div class="text-success">
+            <hr class="mt-1 mb-1">
+        </div>
+
+        <div>
+            <table class="table table-borderless mb-0 ms-2 me-2">
+                <tbody>
+                <tr>
+                    <td class="col-2">
+                        <i class="fa-regular fa-heart"></i>
+                        <span class="likes">{{ likes|length }}</span>
+                    </td>
+                    <td class="col-2">
+                        <i class="fa-regular fa-comment"></i>
+                        <span class="comments">{{ comments|length }}</span>
+                    </td>
+                    <td class="col-2">
+                        <i class="fa-regular fa-eye"></i>
+                        <span class="views">{{ views|length }}</span>
+                    </td>
+                    <td class="col-4"></td>
+                    <td class="col-1">
+                        <i class="fa-regular fa-bookmark"></i>
+                    </td>
+                    <td class="col-1">
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-success">
+            <hr class="mt-1 mb-1">
+        </div>
+    </div>
+
+    <div class="article mt-3 mb-3 ms-2 me-2">
+        {% if article_document.content | length %}
+            <div class="article-content mb-3">
+                <h4 class="fw-bold">Зміст</h4>
+                <ul>
+                    {% for element in article_document.content %}
+                    <li>
+                        <a class="link-body-emphasis link-underline link-underline-opacity-0 fs-5"
+                           href="#{{ element.id }}">
+                            {{ element.content }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        {% if article_document.body | length %}
+            {% for element in article_document.body %}
+                {% if element.type == 'subtitle' %}
+                    <div class="{{ element.type }}">
+                        <h4 class="fw-{{ element.text_type }} pre mt-5 mb-4"
+                            id="{{ element.subtitle_id }}">{{ element.content }}</h4>
+                    </div>
+                {% elif element.type == 'text' %}
+                    <div class="{{ element.type }}">
+                        {% if element.text_type in ('normal', 'bold') %}
+                            <p class="fs-5 fw-{{ element.text_type }} pre mb-3">{{ element.content }}</p>
+                        {% else %}
+                            <p class="fs-5 fst-{{ element.text_type }} pre mb-3">{{ element.content }}</p>
+                        {% endif %}
+                    </div>
+                {% elif element.type == 'hyperlink' %}
+                    <div class="{{ element.type }}">
+                        <p class="mb-3">
+                            <a class="fs-5 link-body-emphasis underline-offset pre"
+                               href="{{ element.link }}">{{ element.content }}</a></p>
+                    </div>
+                {% elif element.type == 'textarea' %}
+                    <div class="{{ element.type }}">
+                        {% if element.text_type in ('normal', 'bold') %}
+                            <p class="fs-5 fw-{{ element.text_type }} pre mb-3">{{ element.content }}</p>
+                        {% else %}
+                            <p class="fs-5 fst-{{ element.text_type }} pre mb-3">{{ element.content }}</p>
+                        {% endif %}
+                    </div>
+                {% elif element.type == 'photo' %}
+                    <div class="{{ element.type }} text-center">
+                        <img src="{{ url_for('static',
+                        filename='images/article_pictures/' + article.link + '/' + element.photo_name) }}"
+                        class="w-100" align="middle">
+
+                        <p class="fs-5 fst-{{ element.text_type }} pre mb-3">{{ element.content }}</p>
+                    </div>
+                {% elif element.type == 'code' %}
+                    <div class="{{ element.type }}">
+                        <pre class="mb-3"><code class="language-{{ element.language }}">{{ element.content }}</code></pre>
+                    </div>
+                {% elif element.type == 'pass' %}
+                    <div class="{{ element.type }}">
+                        <p class="fs-3 text-center mb-3">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </p>
+                    </div>
+                {% endif %}
+
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="article-data mt-3 mb-3">
+        <div class="text-success">
+            <hr class="mt-1 mb-1">
+        </div>
+
+        <div>
+            <table class="table table-borderless mb-0 ms-2 me-2">
+                <tbody>
+                <tr>
+                    <td class="col-2">
+                        <i class="fa-regular fa-heart"></i>
+                        <span class="likes">{{ likes|length }}</span>
+                    </td>
+                    <td class="col-2">
+                        <i class="fa-regular fa-comment"></i>
+                        <span class="comments">{{ comments|length }}</span>
+                    </td>
+                    <td class="col-2">
+                        <i class="fa-regular fa-eye"></i>
+                        <span class="views">{{ views|length }}</span>
+                    </td>
+                    <td class="col-4"></td>
+                    <td class="col-1">
+                        <i class="fa-regular fa-bookmark"></i>
+                    </td>
+                    <td class="col-1">
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-success">
+            <hr class="mt-1 mb-1">
+        </div>
 
     </div>
 
+    <script src="{{ url_for('static', filename='scripts/subscriptions/subscriptions.js') }}"></script>
 {% endblock %}
