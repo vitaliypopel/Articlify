@@ -63,7 +63,7 @@ def feedback():
     form = FeedbackForm()
     response = redirect(url_for('views.feedback'))
 
-    if current_user.is_authenticated:
+    if current_user.is_authenticated and current_user.email_status:
         form.sender_email.data = current_user.email
 
     if form.validate_on_submit():
@@ -112,7 +112,12 @@ def articles():
 @login_required
 def articles_builder():
     topics = Topic.query.all()
-    response = make_response(render_template('main/articles_builder.html', topics=topics))
+
+    article_exist = False
+    if Article.query.filter_by(user_id=current_user.id).first():
+        article_exist = True
+
+    response = make_response(render_template('main/articles_builder.html', topics=topics, article_exist=article_exist))
 
     if request.method == 'POST':
         files = request.files
@@ -124,7 +129,7 @@ def articles_builder():
             if data_type != 'json':
                 photos[data_type] = file
 
-        article = data['article']
+        article_document = data['article']
         topics = data['topics']
 
         last_article = Article.query.order_by(Article.id.desc()).first()
@@ -153,8 +158,8 @@ def articles_builder():
                 {'bad': 'Під час збереження фотографій щось пішло не так! Спробуйте ще раз'}
             )
 
-        title = article['title']
-        public = article['public']
+        title = article_document['title']
+        public = article_document['public']
         created_at = datetime.utcnow()
 
         try:
@@ -165,16 +170,16 @@ def articles_builder():
                 new_topic = ArticleTopic(new_article_id, int(topic))
                 db.session.add(new_topic)
 
-            new_article_document = ArticleDocument(link, current_user.id, article, str(created_at))
+            new_article_document = ArticleDocument(link, current_user.id, article_document, str(created_at))
             new_article_document.save()
 
             db.session.commit()
         except Exception:
             db.session.rollback()
 
-            article_document = ArticleDocument.objects(link=link).first()
-            if article_document:
-                article_document.delete()
+            _article_document = ArticleDocument.objects(link=link).first()
+            if _article_document:
+                _article_document.delete()
 
             return jsonify(
                 {'bad': 'Щось пішло не так! Спробуйте ще раз'}
@@ -205,13 +210,18 @@ def articles_topic(topic: str):
         flash('Категорії статей не знайдено', 'danger')
         return redirect(url_for('views.articles_topics'))
 
+    articles_with_topic = ArticleTopic.query.filter_by(topic_id=topic.id).all()
+
     subscriptions = TopicSubscription.query.filter_by(topic_id=topic.id).all()
 
     if current_user.is_authenticated:
         subscription = TopicSubscription.query.filter_by(user_id=current_user.id, topic_id=topic.id).first()
-        return render_template('main/topic.html', topic=topic, subscription=subscription, subscriptions=subscriptions)
+        return render_template('main/topic.html',
+                               topic=topic, subscription=subscription,
+                               subscriptions=subscriptions, articles_with_topic=articles_with_topic)
 
-    return render_template('main/topic.html', topic=topic, subscriptions=subscriptions)
+    return render_template('main/topic.html',
+                           topic=topic, subscriptions=subscriptions, articles_with_topic=articles_with_topic)
 
 
 @views.route('/@<username>')
@@ -291,12 +301,17 @@ def article(username: str, article_link: str):
         flash('Користувача не знайдено', 'warning')
         return bad_response
 
+    subscription = None
+
     if current_user.is_authenticated:
-        if current_user.id != user.id and not user.profile_status:
-            following = UserSubscription.query.filter_by(user_id=current_user.id, author_id=user.id).first()
-            if not following:
+
+        if current_user.id != user.id:
+            subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=user.id).first()
+
+            if not subscription and not user.profile_status:
                 flash('Профіль власника закритий! Щоб отримати доступ потрібно підписатись', 'warning')
                 return redirect(url_for('views.profile', username=user.username))
+
     elif not user.profile_status:
         flash('Профіль власника закритий! Щоб отримати доступ потрібно авторизуватись та підписатись', 'warning')
         return redirect(url_for('views.profile', username=user.username))
@@ -337,8 +352,10 @@ def article(username: str, article_link: str):
 
     return render_template(
         'main/article.html',
+        user=user,
+        subscription=subscription,
         article=article_data,
-        article_document=article_document,
+        article_document=article_document.article,
         views=article_views,
         likes=article_likes,
         comments=article_comments

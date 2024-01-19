@@ -9,6 +9,11 @@
     height: 100px !important;
 }
 
+.article-pfp {
+    width: 60px !important;
+    height: 60px !important;
+}
+
 .pre {
     white-space: pre-wrap !important;
     overflow-wrap: break-word !important;
@@ -16,7 +21,7 @@
 }
 
 .underline-offset {
-    text-underline-offset: 3px;
+    text-underline-offset: 5px;
 }
 
 .sortable-item {

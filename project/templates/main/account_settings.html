@@ -115,7 +115,7 @@
                             <img src="{{ url_for('static', filename='images/user_pictures/' + current_user.profile_picture) }}"
                                  class="pfp rounded mb-3">
 
-                            {% if current_user.profile_picture != 'default_pfp.svg' %}
+                            {% if current_user.profile_picture != 'default_pfp.png' %}
                                 <br>
                                 <button type="button" class="btn btn-outline-danger border mb-3" onclick="deleteProfilePicture()">
                                     Видалити фото

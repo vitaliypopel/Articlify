@@ -114,7 +114,7 @@ def change_profile_picture():
 
     try:
         old_path = os.path.join(app.root_path, *profile_pictures_path.split('/'), current_user.profile_picture)
-        if os.path.exists(old_path) and current_user.profile_picture != 'default_pfp.svg':
+        if os.path.exists(old_path) and current_user.profile_picture != 'default_pfp.png':
             os.remove(old_path)
 
         path = os.path.join(app.root_path, *profile_pictures_path.split('/'), filename)
@@ -143,7 +143,7 @@ def delete_profile_picture():
         if os.path.exists(old_path):
             os.remove(old_path)
 
-        current_user.profile_picture = 'default_pfp.svg'
+        current_user.profile_picture = 'default_pfp.png'
         db.session.commit()
     except Exception:
         db.session.rollback()
@@ -408,7 +408,7 @@ def follow_topic(topic_id: int):
     return response, 200
 
 
-@api.route('/unfollow/topic/<topic_id>', methods=['POST'])
+@api.route('/unfollow/topic/<topic_id>', methods=['DELETE'])
 @login_required
 def unfollow_topic(topic_id: int):
     response = make_response(jsonify())

@@ -9,7 +9,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
     bio = db.Column(db.String(1000), nullable=False, default='')
-    profile_picture = db.Column(db.String(100), nullable=False, default='default_pfp.svg')
+    profile_picture = db.Column(db.String(100), nullable=False, default='default_pfp.png')
     profile_status = db.Column(db.Boolean, nullable=False, default=True)
     email_status = db.Column(db.Boolean, nullable=False, default=False)
     registration = db.Column(db.DateTime, nullable=False)
@@ -27,9 +27,8 @@ class User(db.Model, UserMixin):
                f'   password:               {self.password}\n' \
                f'   email:                  {self.email}\n' \
                f'   bio:                    {self.bio}\n' \
-               f'   profile_picture_name:   {self.profile_picture_name}\n' \
-               f'   profile_picture_path:   {self.profile_picture_path}\n' \
-               f'   profile_status:         {self.public_profile}\n' \
+               f'   profile_picture:        {self.profile_picture}\n' \
+               f'   profile_status:         {self.profile_status}\n' \
                f'   email_status:           {self.email_status}\n' \
                f'   registration:           {self.registration}\n' \
                f')'
