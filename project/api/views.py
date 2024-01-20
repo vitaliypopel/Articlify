@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, make_response, flash, redirect, url_for
 from project import app, db, current_user, login_required, validate_email, os, match, sub
 from project.auth import User
-from project.main import Topic, TopicSubscription, UserSubscription, UserSubscriptionRequest
+from project.main import Topic, TopicSubscription, UserSubscription, UserSubscriptionRequest, Article, ArticleLike
 
 api = Blueprint('api', __name__, url_prefix='/api')
 
@@ -427,3 +427,46 @@ def unfollow_topic(topic_id: int):
             return response, 400
 
     return response, 200
+
+
+@api.route('/articles/<article_id>/like', methods=['POST', 'DELETE'])
+@login_required
+def article_likes(article_id: int):
+    article_data = Article.query.filter_by(id=article_id).first()
+    if not article_data:
+        return jsonify(
+            {'bad': 'Статтю не знайдено! Щось пішло не так'}
+        )
+
+    old_like = ArticleLike.query.filter_by(article_id=article_data.id, user_id=current_user.id).first()
+
+    if request.method == 'POST':
+        if old_like:
+            return jsonify(
+                {'bad': 'Лайк вже стоїть! Оновіть сторінку'}
+            )
+
+        try:
+            new_like = ArticleLike(article_data.id, current_user.id)
+            db.session.add(new_like)
+            db.session.commit()
+        except Exception:
+            return jsonify(
+                {'bad': 'Щось пішло не так! Спробуйте ще раз'}
+            )
+
+    if request.method == 'DELETE':
+        if not old_like:
+            return jsonify(
+                {'bad': 'Лайк не знайдено! Оновіть сторінку'}
+            )
+
+        try:
+            db.session.delete(old_like)
+            db.session.commit()
+        except Exception:
+            return jsonify(
+                {'bad': 'Щось пішло не так! Спробуйте ще раз'}
+            )
+
+    return jsonify({})
