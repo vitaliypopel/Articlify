@@ -350,10 +350,15 @@ def article(username: str, article_link: str):
     article_likes = ArticleLike.query.filter_by(article_id=article_data.id).all()
     article_comments = ArticleComment.query.filter_by(article_id=article_data.id).all()
 
+    user_like = None
+    if current_user.is_authenticated:
+        user_like = ArticleLike.query.filter_by(article_id=article_data.id, user_id=current_user.id).first()
+
     return render_template(
         'main/article.html',
         user=user,
         subscription=subscription,
+        user_like=user_like,
         article=article_data,
         article_document=article_document.article,
         views=article_views,

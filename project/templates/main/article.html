@@ -43,27 +43,57 @@
         <div>
             <table class="table table-borderless mb-0 ms-2 me-2">
                 <tbody>
-                <tr>
-                    <td class="col-2">
-                        <i class="fa-regular fa-heart"></i>
-                        <span class="likes">{{ likes|length }}</span>
-                    </td>
-                    <td class="col-2">
-                        <i class="fa-regular fa-comment"></i>
-                        <span class="comments">{{ comments|length }}</span>
-                    </td>
-                    <td class="col-2">
-                        <i class="fa-regular fa-eye"></i>
-                        <span class="views">{{ views|length }}</span>
-                    </td>
-                    <td class="col-4"></td>
-                    <td class="col-1">
-                        <i class="fa-regular fa-bookmark"></i>
-                    </td>
-                    <td class="col-1">
-                        <i class="fa-solid fa-ellipsis-vertical"></i>
-                    </td>
-                </tr>
+                    <tr>
+                        <td class="col-2 like-article-container">
+                            {% if current_user.is_authenticated %}
+                                {% if user_like %}
+                                    <button class="like-article btn p-1" type="button"
+                                            onclick="removeLike({{ article.id }})">
+                                        <i class="fa-solid fa-heart"></i>
+                                    </button>
+                                {% else %}
+                                    <button class="like-article btn p-1" type="button"
+                                            onclick="putLike({{ article.id }})">
+                                        <i class="fa-regular fa-heart"></i>
+                                    </button>
+                                {% endif %}
+                            {% else %}
+                                <button class="like-article btn p-1" type="button">
+                                    <i class="fa-regular fa-heart"></i>
+                                </button>
+                            {% endif %}
+                            <button class="btn p-1" type="button">
+                                <span class="likes">{{ likes|length }}</span>
+                            </button>
+                        </td>
+                        <td class="col-2">
+                            <button class="btn p-1" type="button">
+                                <i class="fa-regular fa-comment"></i>
+                            </button>
+                            <button class="btn p-1" type="button">
+                                <span class="comments">{{ comments|length }}</span>
+                            </button>
+                        </td>
+                        <td class="col-2">
+                            <button class="btn p-1" type="button">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                            <button class="btn p-1" type="button">
+                                <span class="views">{{ views|length }}</span>
+                            </button>
+                        </td>
+                        <td class="col-4"></td>
+                        <td class="col-1">
+                            <button class="btn p-1" type="button">
+                                <i class="fa-regular fa-bookmark"></i>
+                            </button>
+                        </td>
+                        <td class="col-1">
+                            <button class="btn p-1" type="button">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </button>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -151,27 +181,57 @@
         <div>
             <table class="table table-borderless mb-0 ms-2 me-2">
                 <tbody>
-                <tr>
-                    <td class="col-2">
-                        <i class="fa-regular fa-heart"></i>
-                        <span class="likes">{{ likes|length }}</span>
-                    </td>
-                    <td class="col-2">
-                        <i class="fa-regular fa-comment"></i>
-                        <span class="comments">{{ comments|length }}</span>
-                    </td>
-                    <td class="col-2">
-                        <i class="fa-regular fa-eye"></i>
-                        <span class="views">{{ views|length }}</span>
-                    </td>
-                    <td class="col-4"></td>
-                    <td class="col-1">
-                        <i class="fa-regular fa-bookmark"></i>
-                    </td>
-                    <td class="col-1">
-                        <i class="fa-solid fa-ellipsis-vertical"></i>
-                    </td>
-                </tr>
+                    <tr>
+                        <td class="col-2 like-article-container">
+                            {% if current_user.is_authenticated %}
+                                {% if user_like %}
+                                    <button class="like-article btn p-1" type="button"
+                                            onclick="removeLike({{ article.id }})">
+                                        <i class="fa-solid fa-heart"></i>
+                                    </button>
+                                {% else %}
+                                    <button class="like-article btn p-1" type="button"
+                                            onclick="putLike({{ article.id }})">
+                                        <i class="fa-regular fa-heart"></i>
+                                    </button>
+                                {% endif %}
+                            {% else %}
+                                <button class="like-article btn p-1" type="button">
+                                    <i class="fa-regular fa-heart"></i>
+                                </button>
+                            {% endif %}
+                            <button class="btn p-1" type="button">
+                                <span class="likes">{{ likes|length }}</span>
+                            </button>
+                        </td>
+                        <td class="col-2">
+                            <button class="btn p-1" type="button">
+                                <i class="fa-regular fa-comment"></i>
+                            </button>
+                            <button class="btn p-1" type="button">
+                                <span class="comments">{{ comments|length }}</span>
+                            </button>
+                        </td>
+                        <td class="col-2">
+                            <button class="btn p-1" type="button">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                            <button class="btn p-1" type="button">
+                                <span class="views">{{ views|length }}</span>
+                            </button>
+                        </td>
+                        <td class="col-4"></td>
+                        <td class="col-1">
+                            <button class="btn p-1" type="button">
+                                <i class="fa-regular fa-bookmark"></i>
+                            </button>
+                        </td>
+                        <td class="col-1">
+                            <button class="btn p-1" type="button">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </button>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -182,5 +242,6 @@
 
     </div>
 
+    <script src="{{ url_for('static', filename='scripts/article/article.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/subscriptions/subscriptions.js') }}"></script>
 {% endblock %}

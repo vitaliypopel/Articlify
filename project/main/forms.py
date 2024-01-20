@@ -22,9 +22,9 @@ class FeedbackForm(FlaskForm):
     )
 
     body = TextAreaField(
-        label='Тіло',
+        label='Повідомлення',
         validators=[
-            Length(min=0, max=1000, message='Тіло зворотнього зв\'язку повинне містити до 1000 символів')
+            Length(min=0, max=1000, message='Повідомлення зворотнього зв\'язку повинне містити до 1000 символів')
         ]
     )
 
