@@ -67,18 +67,14 @@
                             </button>
                         </td>
                         <td class="col-2">
-                            <button class="btn p-1" type="button">
+                            <a class="btn p-1" type="button" href="#comments">
                                 <i class="fa-regular fa-comment"></i>
-                            </button>
-                            <button class="btn p-1" type="button">
                                 <span class="comments">{{ comments|length }}</span>
-                            </button>
+                            </a>
                         </td>
                         <td class="col-2">
                             <button class="btn p-1" type="button">
                                 <i class="fa-regular fa-eye"></i>
-                            </button>
-                            <button class="btn p-1" type="button">
                                 <span class="views">{{ views|length }}</span>
                             </button>
                         </td>
@@ -89,9 +85,25 @@
                             </button>
                         </td>
                         <td class="col-1">
-                            <button class="btn p-1" type="button">
-                                <i class="fa-solid fa-ellipsis-vertical"></i>
-                            </button>
+                            <div class="dropdown">
+                                <button class="btn p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end mt-2">
+                                    {% if current_user.is_authenticated and current_user.id == user.id %}
+                                        <li>
+                                            <a class="dropdown-item" href="#">
+                                                <i class="fa-regular fa-pen-to-square"></i> Редагувати
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    <li>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fa-regular fa-share-from-square"></i> Поділитись
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -205,18 +217,14 @@
                             </button>
                         </td>
                         <td class="col-2">
-                            <button class="btn p-1" type="button">
+                            <a class="btn p-1" type="button" href="#comments">
                                 <i class="fa-regular fa-comment"></i>
-                            </button>
-                            <button class="btn p-1" type="button">
                                 <span class="comments">{{ comments|length }}</span>
-                            </button>
+                            </a>
                         </td>
                         <td class="col-2">
                             <button class="btn p-1" type="button">
                                 <i class="fa-regular fa-eye"></i>
-                            </button>
-                            <button class="btn p-1" type="button">
                                 <span class="views">{{ views|length }}</span>
                             </button>
                         </td>
@@ -227,9 +235,25 @@
                             </button>
                         </td>
                         <td class="col-1">
-                            <button class="btn p-1" type="button">
-                                <i class="fa-solid fa-ellipsis-vertical"></i>
-                            </button>
+                            <div class="dropdown">
+                                <button class="btn p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end mt-2">
+                                    {% if current_user.is_authenticated and current_user.id == user.id %}
+                                        <li>
+                                            <a class="dropdown-item" href="#">
+                                                <i class="fa-regular fa-pen-to-square"></i> Редагувати
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    <li>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fa-regular fa-share-from-square"></i> Поділитись
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -239,6 +263,10 @@
         <div class="text-success">
             <hr class="mt-1 mb-1">
         </div>
+
+    </div>
+
+    <div id="comments">
 
     </div>
 

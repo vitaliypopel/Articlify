@@ -434,39 +434,29 @@ def unfollow_topic(topic_id: int):
 def article_likes(article_id: int):
     article_data = Article.query.filter_by(id=article_id).first()
     if not article_data:
-        return jsonify(
-            {'bad': 'Статтю не знайдено! Щось пішло не так'}
-        )
+        return jsonify({'bad': 'Статтю не знайдено! Щось пішло не так'}), 400
 
     old_like = ArticleLike.query.filter_by(article_id=article_data.id, user_id=current_user.id).first()
 
     if request.method == 'POST':
         if old_like:
-            return jsonify(
-                {'bad': 'Лайк вже стоїть! Оновіть сторінку'}
-            )
+            return jsonify({'bad': 'Лайк вже стоїть! Оновіть сторінку'}), 400
 
         try:
             new_like = ArticleLike(article_data.id, current_user.id)
             db.session.add(new_like)
             db.session.commit()
         except Exception:
-            return jsonify(
-                {'bad': 'Щось пішло не так! Спробуйте ще раз'}
-            )
+            return jsonify({'bad': 'Щось пішло не так! Спробуйте ще раз'}), 400
 
     if request.method == 'DELETE':
         if not old_like:
-            return jsonify(
-                {'bad': 'Лайк не знайдено! Оновіть сторінку'}
-            )
+            return jsonify({'bad': 'Лайк не знайдено! Оновіть сторінку'}), 400
 
         try:
             db.session.delete(old_like)
             db.session.commit()
         except Exception:
-            return jsonify(
-                {'bad': 'Щось пішло не так! Спробуйте ще раз'}
-            )
+            return jsonify({'bad': 'Щось пішло не так! Спробуйте ще раз'}), 400
 
-    return jsonify({})
+    return jsonify({}), 200
