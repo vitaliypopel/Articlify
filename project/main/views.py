@@ -303,16 +303,13 @@ def article(username: str, article_link: str):
 
     subscription = None
 
-    if current_user.is_authenticated:
+    if current_user.is_authenticated and current_user.id != user.id:
+        subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=user.id).first()
 
-        if current_user.id != user.id:
-            subscription = UserSubscription.query.filter_by(user_id=current_user.id, author_id=user.id).first()
-
-            if not subscription and not user.profile_status:
-                flash('Профіль власника закритий! Щоб отримати доступ потрібно підписатись', 'warning')
-                return redirect(url_for('views.profile', username=user.username))
-
-    elif not user.profile_status:
+        if not subscription and not user.profile_status:
+            flash('Профіль власника закритий! Щоб отримати доступ потрібно підписатись', 'warning')
+            return redirect(url_for('views.profile', username=user.username))
+    elif not current_user.is_authenticated and not user.profile_status:
         flash('Профіль власника закритий! Щоб отримати доступ потрібно авторизуватись та підписатись', 'warning')
         return redirect(url_for('views.profile', username=user.username))
 
@@ -326,10 +323,9 @@ def article(username: str, article_link: str):
         flash('Документ статті не знайдено', 'danger')
         return bad_response
 
-    if current_user.is_authenticated:
-        if current_user.id != user.id and not article_data.public:
-            flash('Ця стаття приватна', 'danger')
-            return bad_response
+    if current_user.is_authenticated and current_user.id != user.id and not article_data.public:
+        flash('Ця стаття приватна', 'danger')
+        return bad_response
     elif not article_data.public:
         flash('Ця стаття приватна', 'danger')
         return bad_response
