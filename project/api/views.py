@@ -429,34 +429,52 @@ def unfollow_topic(topic_id: int):
     return response, 200
 
 
-@api.route('/articles/<article_id>/like', methods=['POST', 'DELETE'])
+@api.route('/articles/<article_id>/like/put', methods=['POST'])
 @login_required
-def article_likes(article_id: int):
+def put_article_like(article_id: int):
+    response = make_response(jsonify({}))
+
     article_data = Article.query.filter_by(id=article_id).first()
     if not article_data:
-        return jsonify({'bad': 'Статтю не знайдено! Щось пішло не так'}), 400
+        flash('Статтю не знайдено! Щось пішло не так', 'danger')
+        return {'redirect': url_for('views.home')}, 400
 
-    old_like = ArticleLike.query.filter_by(article_id=article_data.id, user_id=current_user.id).first()
+    like = ArticleLike.query.filter_by(article_id=article_data.id, user_id=current_user.id).first()
+    if like:
+        flash('Лайк вже стоїть', 'warning')
+        return response, 400
 
-    if request.method == 'POST':
-        if old_like:
-            return jsonify({'bad': 'Лайк вже стоїть! Оновіть сторінку'}), 400
+    try:
+        new_like = ArticleLike(article_data.id, current_user.id)
+        db.session.add(new_like)
+        db.session.commit()
+    except Exception:
+        flash('Щось пішло не так! Спробуйте ще раз', 'danger')
+        return response, 400
 
-        try:
-            new_like = ArticleLike(article_data.id, current_user.id)
-            db.session.add(new_like)
-            db.session.commit()
-        except Exception:
-            return jsonify({'bad': 'Щось пішло не так! Спробуйте ще раз'}), 400
+    return response, 200
 
-    if request.method == 'DELETE':
-        if not old_like:
-            return jsonify({'bad': 'Лайк не знайдено! Оновіть сторінку'}), 400
 
-        try:
-            db.session.delete(old_like)
-            db.session.commit()
-        except Exception:
-            return jsonify({'bad': 'Щось пішло не так! Спробуйте ще раз'}), 400
+@api.route('/articles/<article_id>/like/remove', methods=['DELETE'])
+@login_required
+def remove_article_like(article_id: int):
+    response = make_response(jsonify({}))
 
-    return jsonify({}), 200
+    article_data = Article.query.filter_by(id=article_id).first()
+    if not article_data:
+        flash('Статтю не знайдено! Щось пішло не так', 'danger')
+        return {'redirect': url_for('views.home')}, 400
+
+    like = ArticleLike.query.filter_by(article_id=article_data.id, user_id=current_user.id).first()
+    if not like:
+        flash('Лайк не знайдено', 'warning')
+        return response, 400
+
+    try:
+        db.session.delete(like)
+        db.session.commit()
+    except Exception:
+        flash('Щось пішло не так! Спробуйте ще раз', 'danger')
+        return response, 400
+
+    return response, 200
