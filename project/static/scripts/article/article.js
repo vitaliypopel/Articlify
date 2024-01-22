@@ -1,16 +1,23 @@
 
 function putLike(articleID) {
 
-    fetch(`/api/articles/${articleID}/like`, {
+    fetch(`/api/articles/${articleID}/like/put`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (response.ok) {
+            response.json()
+        } else {
+            window.location.href = window.location.href;
+            return 0;
+        }
+    })
     .then(data => {
-        if (data.bad) {
-            alert(data.bad);
+        if (data.redirect) {
+            window.location.href = data.redirect;
             return 0;
         }
     })
@@ -46,16 +53,23 @@ function putLike(articleID) {
 
 function removeLike(articleID) {
 
-    fetch(`/api/articles/${articleID}/like`, {
+    fetch(`/api/articles/${articleID}/like/remove`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (response.ok) {
+            response.json()
+        } else {
+            window.location.href = window.location.href;
+            return 0;
+        }
+    })
     .then(data => {
-        if (data.bad) {
-            alert(data.bad);
+        if (data.redirect) {
+            window.location.href = data.redirect;
             return 0;
         }
     })

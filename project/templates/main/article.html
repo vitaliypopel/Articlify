@@ -267,7 +267,10 @@
     </div>
 
     <div id="comments">
-
+        {% if current_user.is_authenticated %}
+            <textarea class="form-control mb-3" placeholder="Ваш коментар" minlength="1" maxlength="300"></textarea>
+            <button class="btn btn-outline-success mt-1 mb-3" type="button">Опублікувати</button>
+        {% endif %}
     </div>
 
     <script src="{{ url_for('static', filename='scripts/article/article.js') }}"></script>
