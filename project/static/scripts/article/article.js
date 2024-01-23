@@ -1,24 +1,16 @@
 
-function putLike(articleID) {
+function putLike(articleLink) {
 
-    fetch(`/api/articles/${articleID}/like/put`, {
+    fetch(`/api/articles/${articleLink}/like/put`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         }
     })
-    .then(response => {
-        if (response.ok) {
-            response.json()
-        } else {
-            window.location.href = window.location.href;
-            return 0;
-        }
-    })
+    .then(response => response.json())
     .then(data => {
         if (data.redirect) {
             window.location.href = data.redirect;
-            return 0;
         }
     })
     .catch(error => {
@@ -41,7 +33,7 @@ function putLike(articleID) {
         let likeButton = document.createElement('button');
         likeButton.type = 'button';
         likeButton.className = 'like-article btn p-1';
-        likeButton.addEventListener('click', foo => removeLike(articleID));
+        likeButton.addEventListener('click', foo => removeLike(articleLink));
         
         let icon = document.createElement('i');
         icon.className = 'fa-solid fa-heart';
@@ -51,26 +43,18 @@ function putLike(articleID) {
     }
 }
 
-function removeLike(articleID) {
+function removeLike(articleLink) {
 
-    fetch(`/api/articles/${articleID}/like/remove`, {
+    fetch(`/api/articles/${articleLink}/like/remove`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json'
         }
     })
-    .then(response => {
-        if (response.ok) {
-            response.json()
-        } else {
-            window.location.href = window.location.href;
-            return 0;
-        }
-    })
+    .then(response => response.json())
     .then(data => {
         if (data.redirect) {
             window.location.href = data.redirect;
-            return 0;
         }
     })
     .catch(error => {
@@ -93,7 +77,7 @@ function removeLike(articleID) {
         let likeButton = document.createElement('button');
         likeButton.type = 'button';
         likeButton.className = 'like-article btn p-1';
-        likeButton.addEventListener('click', foo => putLike(articleID));
+        likeButton.addEventListener('click', foo => putLike(articleLink));
         
         let icon = document.createElement('i');
         icon.className = 'fa-regular fa-heart';
@@ -101,4 +85,84 @@ function removeLike(articleID) {
 
         container.insertBefore(likeButton, container.firstChild);
     }
+}
+
+function postComment(articleLink) {
+    let newComment = document.getElementById('comment').value;
+    
+    let request = {
+        'new_comment': newComment
+    };
+
+    fetch(`/api/articles/${articleLink}/comment/write`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(request)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
+    })
+    .catch(error => {
+        console.log(error);
+        return 0;
+    });
+}
+
+function patchComment(articleLink, commentID) {
+    let newComment = document.getElementById('comment').value;
+    
+    let request = {
+        'comment_id': commentID,
+        'new_comment': newComment
+    };
+
+    fetch(`/api/articles/${articleLink}/comment/edit`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(request)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
+    })
+    .catch(error => {
+        console.log(error);
+        return 0;
+    });
+}
+
+function deleteComment(articleLink, commentID) {
+    let newComment = document.getElementById('comment').value;
+    
+    let request = {
+        'comment_id': commentID,
+        'new_comment': newComment
+    };
+
+    fetch(`/api/articles/${articleLink}/comment/delete`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(request)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
+    })
+    .catch(error => {
+        console.log(error);
+        return 0;
+    });
 }

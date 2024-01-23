@@ -326,7 +326,7 @@ def article(username: str, article_link: str):
     if current_user.is_authenticated and current_user.id != user.id and not article_data.public:
         flash('Ця стаття приватна', 'danger')
         return bad_response
-    elif not article_data.public:
+    elif not current_user.is_authenticated and not article_data.public:
         flash('Ця стаття приватна', 'danger')
         return bad_response
 
@@ -344,7 +344,8 @@ def article(username: str, article_link: str):
 
     article_views = ArticleView.query.filter_by(article_id=article_data.id).all()
     article_likes = ArticleLike.query.filter_by(article_id=article_data.id).all()
-    article_comments = ArticleComment.query.filter_by(article_id=article_data.id).all()
+    article_comments = ArticleComment.query.order_by(ArticleComment.id.desc()).filter_by(
+                                                                                article_id=article_data.id).all()
 
     user_like = None
     if current_user.is_authenticated:
