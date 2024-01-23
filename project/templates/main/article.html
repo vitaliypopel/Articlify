@@ -11,28 +11,28 @@
 
     <div class="user-data mt-4 mb-4">
         <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=user.username) }}">
-                <img src="{{ url_for('static', filename='images/user_pictures/' + user.profile_picture) }}"
-                     class="article-pfp rounded">
-            </a>
-            <a class="btn btn-lg fs-4" href="{{ url_for('views.profile', username=user.username) }}">@{{ user.username }}</a>
+            <img src="{{ url_for('static', filename='images/user_pictures/' + user.profile_picture) }}"
+                 class="article-pfp rounded">
+        </a>
+        <a class="btn btn-lg fs-4" href="{{ url_for('views.profile', username=user.username) }}">@{{ user.username }}</a>
 
-            {% if current_user.is_authenticated %}
-                {% if current_user.id != user.id %}
-                    <span class="subscription subscription-user">
-                        {% if subscription %}
-                            <button class="btn btn-outline-danger" id="unfollowButton" type="button"
-                                    onclick="unfollow({{ user.id }}, 'user', {% if not user.profile_status %}false{% endif %})">
-                                Відписатись
-                            </button>
-                        {% else %}
-                            <button class="btn btn-outline-success" id="followButton" type="button"
-                                    onclick="follow({{ user.id }}, 'user', {% if not user.profile_status %}false{% endif %})">
-                                Підписатись
-                            </button>
-                        {% endif %}
-                    </span>
-                {% endif %}
+        {% if current_user.is_authenticated %}
+            {% if current_user.id != user.id %}
+                <span class="subscription subscription-user">
+                    {% if subscription %}
+                        <button class="btn btn-outline-danger" id="unfollowButton" type="button"
+                                onclick="unfollow({{ user.id }}, 'user', {% if not user.profile_status %}false{% endif %})">
+                            Відписатись
+                        </button>
+                    {% else %}
+                        <button class="btn btn-outline-success" id="followButton" type="button"
+                                onclick="follow({{ user.id }}, 'user', {% if not user.profile_status %}false{% endif %})">
+                            Підписатись
+                        </button>
+                    {% endif %}
+                </span>
             {% endif %}
+        {% endif %}
     </div>
 
     <div class="article-data mt-3 mb-3">
@@ -48,12 +48,12 @@
                             {% if current_user.is_authenticated %}
                                 {% if user_like %}
                                     <button class="like-article btn p-1" type="button"
-                                            onclick="removeLike({{ article.id }})">
+                                            onclick="removeLike('{{ article.link }}')">
                                         <i class="fa-solid fa-heart"></i>
                                     </button>
                                 {% else %}
                                     <button class="like-article btn p-1" type="button"
-                                            onclick="putLike({{ article.id }})">
+                                            onclick="putLike('{{ article.link }}')">
                                         <i class="fa-regular fa-heart"></i>
                                     </button>
                                 {% endif %}
@@ -67,7 +67,7 @@
                             </button>
                         </td>
                         <td class="col-2">
-                            <a class="btn p-1" type="button" href="#comments">
+                            <a class="btn p-1" type="button" href="#comments-section">
                                 <i class="fa-regular fa-comment"></i>
                                 <span class="comments">{{ comments|length }}</span>
                             </a>
@@ -123,7 +123,7 @@
                     {% for element in article_document.content %}
                     <li>
                         <a class="link-body-emphasis link-underline link-underline-opacity-0 fs-5"
-                           href="#{{ element.id }}">
+                           href="#subtitle-{{ element.id }}">
                             {{ element.content }}
                         </a>
                     </li>
@@ -137,7 +137,7 @@
                 {% if element.type == 'subtitle' %}
                     <div class="{{ element.type }}">
                         <h4 class="fw-{{ element.text_type }} pre mt-5 mb-4"
-                            id="{{ element.subtitle_id }}">{{ element.content }}</h4>
+                            id="subtitle-{{ element.subtitle_id }}">{{ element.content }}</h4>
                     </div>
                 {% elif element.type == 'text' %}
                     <div class="{{ element.type }}">
@@ -198,12 +198,12 @@
                             {% if current_user.is_authenticated %}
                                 {% if user_like %}
                                     <button class="like-article btn p-1" type="button"
-                                            onclick="removeLike({{ article.id }})">
+                                            onclick="removeLike('{{ article.link }}')">
                                         <i class="fa-solid fa-heart"></i>
                                     </button>
                                 {% else %}
                                     <button class="like-article btn p-1" type="button"
-                                            onclick="putLike({{ article.id }})">
+                                            onclick="putLike('{{ article.link }}')">
                                         <i class="fa-regular fa-heart"></i>
                                     </button>
                                 {% endif %}
@@ -217,7 +217,7 @@
                             </button>
                         </td>
                         <td class="col-2">
-                            <a class="btn p-1" type="button" href="#comments">
+                            <a class="btn p-1" type="button" href="#comments-section">
                                 <i class="fa-regular fa-comment"></i>
                                 <span class="comments">{{ comments|length }}</span>
                             </a>
@@ -266,11 +266,47 @@
 
     </div>
 
-    <div id="comments">
+    <div id="comments-section">
+        <div class="comments-section-title mt-3 mb-3">
+            <h5>Коментарі</h5>
+        </div>
+
         {% if current_user.is_authenticated %}
-            <textarea class="form-control mb-3" placeholder="Ваш коментар" minlength="1" maxlength="300"></textarea>
-            <button class="btn btn-outline-success mt-1 mb-3" type="button">Опублікувати</button>
+            <div class="comment-publication">
+                <textarea class="form-control mb-2" id="comment" placeholder="Ваш коментар"
+                          minlength="1" maxlength="300"></textarea>
+                <button class="btn btn-outline-success mt-2 mb-3" type="button"
+                        onclick="postComment('{{ article.link }}')">Опублікувати</button>
+            </div>
         {% endif %}
+
+        <div class="all-comments">
+            {% if comments %}
+                {% for comment in comments %}
+                    {% with commentator = comment.user_id|user_loader %}
+                        <div class="card mt-3 mb-3" id="{{ comment.id }}">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <a class="link-body-emphasis link-underline link-underline-opacity-0"
+                                       href="{{ url_for('views.profile', username=commentator.username) }}">
+                                        @{{ commentator.username }}
+                                    </a>
+                                    {% if commentator.id == article.user_id %}
+                                        <span class="text-warning">Автор</span>
+                                    {% endif %}
+                                </h5>
+                                <p class="card-text pre">{{ comment.comment }}</p>
+                            </div>
+                        </div>
+
+                    {% endwith %}
+                {% endfor %}
+            {% else %}
+                <h5 class="mt-3 mb-3 text-center">
+                    Коментарі відсутні
+                </h5>
+            {% endif %}
+        </div>
     </div>
 
     <script src="{{ url_for('static', filename='scripts/article/article.js') }}"></script>
