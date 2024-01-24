@@ -1,6 +1,5 @@
 
 function putLike(articleLink) {
-
     fetch(`/api/articles/${articleLink}/like/put`, {
         method: 'POST',
         headers: {
@@ -44,7 +43,6 @@ function putLike(articleLink) {
 }
 
 function removeLike(articleLink) {
-
     fetch(`/api/articles/${articleLink}/like/remove`, {
         method: 'DELETE',
         headers: {
@@ -94,7 +92,7 @@ function postComment(articleLink) {
         'new_comment': newComment
     };
 
-    fetch(`/api/articles/${articleLink}/comment/write`, {
+    fetch(`/api/articles/${articleLink}/comment/post`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -108,44 +106,14 @@ function postComment(articleLink) {
         }
     })
     .catch(error => {
-        console.log(error);
-        return 0;
-    });
-}
-
-function patchComment(articleLink, commentID) {
-    let newComment = document.getElementById('comment').value;
-    
-    let request = {
-        'comment_id': commentID,
-        'new_comment': newComment
-    };
-
-    fetch(`/api/articles/${articleLink}/comment/edit`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(request)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.redirect) {
-            window.location.href = data.redirect;
-        }
-    })
-    .catch(error => {
-        console.log(error);
+        console.error(error);
         return 0;
     });
 }
 
 function deleteComment(articleLink, commentID) {
-    let newComment = document.getElementById('comment').value;
-    
     let request = {
-        'comment_id': commentID,
-        'new_comment': newComment
+        'comment_id': commentID
     };
 
     fetch(`/api/articles/${articleLink}/comment/delete`, {
@@ -157,6 +125,7 @@ function deleteComment(articleLink, commentID) {
     })
     .then(response => response.json())
     .then(data => {
+        console.log(data);
         if (data.redirect) {
             window.location.href = data.redirect;
         }
@@ -164,5 +133,93 @@ function deleteComment(articleLink, commentID) {
     .catch(error => {
         console.log(error);
         return 0;
+    });
+}
+
+function addSavedArticle(articleLink) {
+    fetch(`/api/articles/${articleLink}/saved/add`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
+    })
+    .catch(error => {
+        console.log(error);
+        return 0;
+    });
+
+    let savedArticleButtons = document.getElementsByClassName('saved-article');
+    for (var i = 0; i < 2; i++) {
+        savedArticleButtons[0].remove();
+    }
+
+    let savedArticleContainer = document.getElementsByClassName('saved-article-container');
+    for (let container of savedArticleContainer) {
+        let savedArticleButton = document.createElement('button');
+        savedArticleButton.type = 'button';
+        savedArticleButton.className = 'saved-article btn p-1';
+        savedArticleButton.addEventListener('click', foo => deleteSavedArticle(articleLink));
+        
+        let icon = document.createElement('i');
+        icon.className = 'fa-solid fa-bookmark';
+        savedArticleButton.appendChild(icon);
+
+        container.appendChild(savedArticleButton);
+    }
+}
+
+function deleteSavedArticle(articleLink) {
+    fetch(`/api/articles/${articleLink}/saved/delete`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
+    })
+    .catch(error => {
+        console.log(error);
+        return 0;
+    });
+
+    let savedArticleButtons = document.getElementsByClassName('saved-article');
+    for (var i = 0; i < 2; i++) {
+        savedArticleButtons[0].remove();
+    }
+
+    let savedArticleContainer = document.getElementsByClassName('saved-article-container');
+    for (let container of savedArticleContainer) {
+        let savedArticleButton = document.createElement('button');
+        savedArticleButton.type = 'button';
+        savedArticleButton.className = 'saved-article btn p-1';
+        savedArticleButton.addEventListener('click', foo => addSavedArticle(articleLink));
+        
+        let icon = document.createElement('i');
+        icon.className = 'fa-regular fa-bookmark';
+        savedArticleButton.appendChild(icon);
+
+        container.appendChild(savedArticleButton);
+    }
+}
+
+function copyLink(link) {
+    let clipboard = navigator.clipboard;
+
+    clipboard.writeText(link)
+    .then(function() {
+        alert('Посилання скопійоване!');
+    })
+    .catch(error => {
+        console.error(error);
     });
 }

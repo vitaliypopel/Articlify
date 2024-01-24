@@ -1,10 +1,10 @@
-from flask import Blueprint, request, jsonify, make_response, flash, redirect, url_for
+from flask import Blueprint, request, jsonify, make_response, flash, url_for
 from project import app, db, current_user, login_required, validate_email, os, match, sub
 from project.auth import User
 from project.main import (
     Topic, TopicSubscription,
     UserSubscription, UserSubscriptionRequest,
-    Article, ArticleLike, ArticleComment
+    Article, ArticleLike, ArticleComment, SavedArticle
 )
 
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -492,14 +492,15 @@ def remove_article_like(article_link: str):
     return jsonify({}), 200
 
 
-@api.route('/articles/<article_link>/comment/write', methods=['POST'])
+@api.route('/articles/<article_link>/comment/post', methods=['POST'])
+@login_required
 def write_article_comment(article_link: str):
     article_data = Article.query.filter_by(link=article_link).first()
     if not article_data:
         flash('Статтю не знайдено! Щось пішло не так', 'danger')
         return jsonify({'redirect': url_for('views.home')}), 400
 
-    bad_response = make_response(jsonify(
+    response = make_response(jsonify(
         {'redirect': url_for('views.article',
                              username=User.query.filter_by(id=article_data.user_id).first().username,
                              article_link=article_data.link)}
@@ -510,7 +511,7 @@ def write_article_comment(article_link: str):
     comment = req['new_comment']
     if 1 > len(comment) < 300:
         flash('Коментар повинен містити від 1 до 300 символів', 'danger')
-        return bad_response, 400
+        return response, 400
 
     try:
         new_article_comment = ArticleComment(comment, article_data.id, current_user.id)
@@ -519,58 +520,21 @@ def write_article_comment(article_link: str):
     except Exception:
         db.session.rollback()
         flash('Щось пішло не так! Спробуйте ще раз', 'danger')
-        return bad_response, 400
+        return response, 400
 
     flash('Коментар успішно опубліковано', 'success')
-    return jsonify({}), 200
+    return response, 200
 
 
-@api.route('/articles/<article_link>/comment/edit', methods=['PATCH'])
-def edit_article_comment(article_link: str):
-    article_data = Article.query.filter_by(link=article_link).first()
-    if not article_data:
-        flash('Статтю не знайдено! Щось пішло не так', 'danger')
-        return jsonify({'redirect': url_for('views.home')}), 400
-
-    bad_response = make_response(jsonify(
-        {'redirect': url_for('views.article',
-                             username=User.query.filter_by(id=article_data.user_id).first().username,
-                             article_link=article_data.link)}
-    ))
-
-    req = request.get_json()
-    article_comment_id = int(req['comment_id'])
-
-    article_comment = ArticleComment.query.filter_by(id=article_comment_id).first()
-    if not article_comment:
-        flash('Коментар не знайдено', 'danger')
-        return bad_response, 400
-
-    new_comment = req['new_comment']
-    if 1 > len(new_comment) < 300:
-        flash('Коментар повинен містити від 1 до 300 символів', 'danger')
-        return bad_response, 400
-
-    try:
-        article_comment.comment = new_comment
-        db.session.commit()
-    except Exception:
-        db.session.rollback()
-        flash('Щось пішло не так! Спробуйте ще раз', 'danger')
-        return bad_response, 400
-
-    flash('Коментар успішно оновлено', 'success')
-    return jsonify({}), 200
-
-
-@api.route('/articles/<article_link>/comment/<comment_id>/delete', methods=['DELETE'])
+@api.route('/articles/<article_link>/comment/delete', methods=['DELETE'])
+@login_required
 def delete_article_comment(article_link: str):
     article_data = Article.query.filter_by(link=article_link).first()
     if not article_data:
         flash('Статтю не знайдено! Щось пішло не так', 'danger')
         return jsonify({'redirect': url_for('views.home')}), 400
 
-    bad_response = make_response(jsonify(
+    response = make_response(jsonify(
         {'redirect': url_for('views.article',
                              username=User.query.filter_by(id=article_data.user_id).first().username,
                              article_link=article_data.link)}
@@ -582,7 +546,7 @@ def delete_article_comment(article_link: str):
     article_comment = ArticleComment.query.filter_by(id=article_comment_id).first()
     if not article_comment:
         flash('Коментар не знайдено', 'danger')
-        return bad_response, 400
+        return response, 400
 
     try:
         db.session.delete(article_comment)
@@ -590,7 +554,68 @@ def delete_article_comment(article_link: str):
     except Exception:
         db.session.rollback()
         flash('Щось пішло не так! Спробуйте ще раз', 'danger')
-        return bad_response, 400
+        return response, 400
 
     flash('Коментар успішно видалено', 'success')
+    return response, 200
+
+
+@api.route('/articles/<article_link>/saved/add', methods=['POST'])
+@login_required
+def add_saved_article(article_link: str):
+    article_data = Article.query.filter_by(link=article_link).first()
+    if not article_data:
+        flash('Статтю не знайдено! Щось пішло не так', 'danger')
+        return jsonify({'redirect': url_for('views.home')}), 400
+
+    response = make_response(jsonify(
+        {'redirect': url_for('views.article',
+                             username=User.query.filter_by(id=article_data.user_id).first().username,
+                             article_link=article_data.link)}
+    ))
+
+    article_save = SavedArticle.query.filter_by(article_id=article_data.id, user_id=current_user.id).first()
+    if article_save:
+        flash('Статтю вже збережено', 'warning')
+        return response, 400
+
+    try:
+        new_article_save = SavedArticle(article_data.id, current_user.id)
+        db.session.add(new_article_save)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        flash('Щось пішло не так! Спробуйте ще раз', 'danger')
+        return response, 400
+
+    return jsonify({}), 200
+
+
+@api.route('/articles/<article_link>/saved/delete', methods=['DELETE'])
+@login_required
+def delete_saved_article(article_link: str):
+    article_data = Article.query.filter_by(link=article_link).first()
+    if not article_data:
+        flash('Статтю не знайдено! Щось пішло не так', 'danger')
+        return jsonify({'redirect': url_for('views.home')}), 400
+
+    response = make_response(jsonify(
+        {'redirect': url_for('views.article',
+                             username=User.query.filter_by(id=article_data.user_id).first().username,
+                             article_link=article_data.link)}
+    ))
+
+    article_save = SavedArticle.query.filter_by(article_id=article_data.id, user_id=current_user.id).first()
+    if not article_save:
+        flash('Стаття не була збережена раніше', 'warning')
+        return response, 400
+
+    try:
+        db.session.delete(article_save)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        flash('Щось пішло не так! Спробуйте ще раз', 'danger')
+        return response, 400
+
     return jsonify({}), 200

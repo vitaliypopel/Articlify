@@ -62,7 +62,8 @@
                                     <i class="fa-regular fa-heart"></i>
                                 </button>
                             {% endif %}
-                            <button class="btn p-1" type="button">
+                            <button class="btn p-1" type="button"
+                                    data-bs-toggle="modal" data-bs-target="#likesModal">
                                 <span class="likes">{{ likes|length }}</span>
                             </button>
                         </td>
@@ -73,16 +74,31 @@
                             </a>
                         </td>
                         <td class="col-2">
-                            <button class="btn p-1" type="button">
+                            <button class="btn p-1" type="button"
+                                    data-bs-toggle="modal" data-bs-target="#viewsModal">
                                 <i class="fa-regular fa-eye"></i>
                                 <span class="views">{{ views|length }}</span>
                             </button>
                         </td>
                         <td class="col-4"></td>
-                        <td class="col-1">
-                            <button class="btn p-1" type="button">
-                                <i class="fa-regular fa-bookmark"></i>
-                            </button>
+                        <td class="col-1 saved-article-container">
+                            {% if current_user.is_authenticated %}
+                                {% if user_save %}
+                                    <button class="saved-article btn p-1" type="button"
+                                            onclick="deleteSavedArticle('{{ article.link }}')">
+                                        <i class="fa-solid fa-bookmark"></i>
+                                    </button>
+                                {% else %}
+                                    <button class="saved-article btn p-1" type="button"
+                                            onclick="addSavedArticle('{{ article.link }}')">
+                                        <i class="fa-regular fa-bookmark"></i>
+                                    </button>
+                                {% endif %}
+                            {% else %}
+                                <button class="btn p-1" type="button">
+                                    <i class="fa-regular fa-bookmark"></i>
+                                </button>
+                            {% endif %}
                         </td>
                         <td class="col-1">
                             <div class="dropdown">
@@ -98,9 +114,10 @@
                                         </li>
                                     {% endif %}
                                     <li>
-                                        <a class="dropdown-item" href="#">
-                                            <i class="fa-regular fa-share-from-square"></i> Поділитись
-                                        </a>
+                                        <button class="dropdown-item" type="button"
+                                                onclick="copyLink('{{ url_for(request.endpoint, username=user.username, article_link=article.link, _external=True) }}')">
+                                            <i class="fa-regular fa-share-from-square"></i> Копіювати посилання
+                                        </button>
                                     </li>
                                 </ul>
                             </div>
@@ -212,7 +229,8 @@
                                     <i class="fa-regular fa-heart"></i>
                                 </button>
                             {% endif %}
-                            <button class="btn p-1" type="button">
+                            <button class="btn p-1" type="button"
+                                    data-bs-toggle="modal" data-bs-target="#likesModal">
                                 <span class="likes">{{ likes|length }}</span>
                             </button>
                         </td>
@@ -223,16 +241,31 @@
                             </a>
                         </td>
                         <td class="col-2">
-                            <button class="btn p-1" type="button">
+                            <button class="btn p-1" type="button"
+                                    data-bs-toggle="modal" data-bs-target="#viewsModal">
                                 <i class="fa-regular fa-eye"></i>
                                 <span class="views">{{ views|length }}</span>
                             </button>
                         </td>
                         <td class="col-4"></td>
-                        <td class="col-1">
-                            <button class="btn p-1" type="button">
-                                <i class="fa-regular fa-bookmark"></i>
-                            </button>
+                        <td class="col-1 saved-article-container">
+                            {% if current_user.is_authenticated %}
+                                {% if user_save %}
+                                    <button class="saved-article btn p-1" type="button"
+                                            onclick="deleteSavedArticle('{{ article.link }}')">
+                                        <i class="fa-solid fa-bookmark"></i>
+                                    </button>
+                                {% else %}
+                                    <button class="saved-article btn p-1" type="button"
+                                            onclick="addSavedArticle('{{ article.link }}')">
+                                        <i class="fa-regular fa-bookmark"></i>
+                                    </button>
+                                {% endif %}
+                            {% else %}
+                                <button class="btn p-1" type="button">
+                                    <i class="fa-regular fa-bookmark"></i>
+                                </button>
+                            {% endif %}
                         </td>
                         <td class="col-1">
                             <div class="dropdown">
@@ -248,9 +281,10 @@
                                         </li>
                                     {% endif %}
                                     <li>
-                                        <a class="dropdown-item" href="#">
-                                            <i class="fa-regular fa-share-from-square"></i> Поділитись
-                                        </a>
+                                        <button class="dropdown-item" type="button"
+                                                onclick="copyLink('{{ url_for(request.endpoint, username=user.username, article_link=article.link, _external=True) }}')">
+                                            <i class="fa-regular fa-share-from-square"></i> Копіювати посилання
+                                        </button>
                                     </li>
                                 </ul>
                             </div>
@@ -264,6 +298,90 @@
             <hr class="mt-1 mb-1">
         </div>
 
+    </div>
+
+    <div class="modal fade" id="likesModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Лайки</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% if likes %}
+                        {% for like in likes %}
+                            {% with liker = like.user_id|user_loader %}
+                                <div class="user-data mt-3 mb-3" id="liker_{{ liker.id }}">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=liker.username) }}">
+                                                <img src="{{ url_for('static', filename='images/user_pictures/' + liker.profile_picture) }}"
+                                                     class="rounded" width="50px">
+                                            </a>
+                                            <a class="btn btn-lg fs-5" href="{{ url_for('views.profile', username=liker.username) }}">
+                                                @{{ liker.username }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endwith %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-warning">Лайки відсутні</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="viewsModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Перегляди</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% if views %}
+                        {% for view in views %}
+                            {% if view.user_id == 0 %}
+                                <div class="user-data mt-3 mb-3" id="viewer_0">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <a class="btn m-0 p-0">
+                                                <img src="{{ url_for('static', filename='images/user_pictures/default_pfp.png') }}"
+                                                     class="rounded" width="50px">
+                                            </a>
+                                            <a class="btn btn-lg fs-5">
+                                                Анонім
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                {% with viewer = view.user_id|user_loader %}
+                                    <div class="user-data mt-3 mb-3" id="viewer_{{ viewer.id }}">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=viewer.username) }}">
+                                                    <img src="{{ url_for('static', filename='images/user_pictures/' + viewer.profile_picture) }}"
+                                                         class="rounded" width="50px">
+                                                </a>
+                                                <a class="btn btn-lg fs-5" href="{{ url_for('views.profile', username=viewer.username) }}">
+                                                    @{{ viewer.username }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endwith %}
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-warning">Перегляди відсутні</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="comments-section">
@@ -285,16 +403,42 @@
                 {% for comment in comments %}
                     {% with commentator = comment.user_id|user_loader %}
                         <div class="card mt-3 mb-3" id="{{ comment.id }}">
-                            <div class="card-body">
-                                <h5 class="card-title">
+                            <div class="card-header d-flex pt-1 pb-1 ps-2 pe-2">
+                                <span class="flex-grow-1 mt-0 mb-0 p-1">
                                     <a class="link-body-emphasis link-underline link-underline-opacity-0"
                                        href="{{ url_for('views.profile', username=commentator.username) }}">
                                         @{{ commentator.username }}
                                     </a>
                                     {% if commentator.id == article.user_id %}
-                                        <span class="text-warning">Автор</span>
+                                        <span class="text-primary">Автор</span>
                                     {% endif %}
-                                </h5>
+                                    {% if current_user.is_authenticated %}
+                                        {% if commentator.id == current_user.id %}
+                                            <span class="text-warning">Ви</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </span>
+
+                                {% if current_user.is_authenticated %}
+                                    {% if commentator.id == current_user.id or article.user_id == current_user.id %}
+                                        <div class="dropdown">
+                                            <button class="btn p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end mt-2">
+                                                <li>
+                                                    <button class="dropdown-item" type="button"
+                                                            onclick="deleteComment('{{ article.link }}', {{ comment.id }})">
+                                                        <i class="fa-regular fa-trash-can"></i> Видалити
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+
+                            </div>
+                            <div class="card-body">
                                 <p class="card-text pre">{{ comment.comment }}</p>
                             </div>
                         </div>

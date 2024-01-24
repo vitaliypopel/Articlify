@@ -7,7 +7,8 @@ from .models import (
     Topic, TopicSubscription,
     UserSubscription, UserSubscriptionRequest,
     Article, ArticleTopic, ArticleDocument,
-    ArticleView, ArticleLike, ArticleComment
+    ArticleView, ArticleLike, ArticleComment,
+    SavedArticle
 )
 from .forms import FeedbackForm
 from json import loads
@@ -342,26 +343,127 @@ def article(username: str, article_link: str):
         flash('Щось пішло не так! Спробуйте ще раз', 'danger')
         return bad_response
 
-    article_views = ArticleView.query.filter_by(article_id=article_data.id).all()
-    article_likes = ArticleLike.query.filter_by(article_id=article_data.id).all()
+    article_views = ArticleView.query.order_by(ArticleView.id.desc()).filter_by(article_id=article_data.id).all()
+    article_likes = ArticleLike.query.order_by(ArticleLike.id.desc()).filter_by(article_id=article_data.id).all()
     article_comments = ArticleComment.query.order_by(ArticleComment.id.desc()).filter_by(
                                                                                 article_id=article_data.id).all()
 
     user_like = None
+    user_save = None
     if current_user.is_authenticated:
         user_like = ArticleLike.query.filter_by(article_id=article_data.id, user_id=current_user.id).first()
+        user_save = SavedArticle.query.filter_by(article_id=article_data.id, user_id=current_user.id).first()
 
     return render_template(
         'main/article.html',
         user=user,
         subscription=subscription,
         user_like=user_like,
+        user_save=user_save,
         article=article_data,
         article_document=article_document.article,
         views=article_views,
         likes=article_likes,
         comments=article_comments
     )
+
+
+@views.route('/articles/editor/<article_link>', methods=['GET', 'PUT', 'DELETE'])
+@login_required
+def articles_editor(article_link: str):
+    topics = Topic.query.all()
+
+    article_data = Article.query.filter_by(link=article_link.lower(), user_id=current_user.id).first()
+    if not article_data:
+        flash('Статтю не знайдено', 'warning')
+        return redirect(url_for('views.home'))
+
+    article_document = ArticleDocument.objects(link=article_data.link.lower(), user_id=current_user.id).first()
+    if not article_document:
+        flash('Документ статті не знайдено', 'danger')
+        return redirect(url_for('views.home'))
+
+    article_topics_id = []
+    for article_topic in ArticleTopic.query.filter_by(article_id=article_data.id).all():
+        article_topics_id.append(article_topic.topic_id)
+
+    response = make_response(render_template('main/articles_editor.html',
+                                             topics=topics, article_topics_id=article_topics_id,
+                                             article=article_data, article_document=article_document))
+
+    if request.method == 'POST':
+        files = request.files
+        data_json = files['json'].read()
+        data = loads(data_json)
+
+        photos = {}
+        for data_type, file in files.items():
+            if data_type != 'json':
+                photos[data_type] = file
+
+        article_document = data['article']
+        topics = data['topics']
+
+        last_article = Article.query.order_by(Article.id.desc()).first()
+        new_article_id = 1
+        if last_article:
+            new_article_id = last_article.id + 1
+
+        link = secret_link(current_user.id, new_article_id)
+
+        try:
+            article_photos_path = os.path.join(
+                app.root_path,
+                *url_for('static', filename='images/article_pictures').split('/'),
+                link
+            )
+            os.makedirs(article_photos_path, exist_ok=True)
+
+            for name, photo in photos.items():
+                photo_path = os.path.join(article_photos_path, name)
+
+                new_photo = photo
+                new_photo.filename = name
+                new_photo.save(photo_path)
+        except Exception:
+            return jsonify(
+                {'bad': 'Під час збереження фотографій щось пішло не так! Спробуйте ще раз'}
+            )
+
+        title = article_document['title']
+        public = article_document['public']
+        created_at = datetime.utcnow()
+
+        try:
+            new_article = Article(link, title, public, created_at, current_user.id)
+            db.session.add(new_article)
+
+            for topic in topics:
+                new_topic = ArticleTopic(new_article_id, int(topic))
+                db.session.add(new_topic)
+
+            new_article_document = ArticleDocument(link, current_user.id, article_document, str(created_at))
+            new_article_document.save()
+
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
+            _article_document = ArticleDocument.objects(link=link).first()
+            if _article_document:
+                _article_document.delete()
+
+            return jsonify(
+                {'bad': 'Щось пішло не так! Спробуйте ще раз'}
+            )
+
+        flash('Стаття успішно опублікована', 'success')
+
+        return jsonify(
+            {'redirect': url_for('views.article', username=current_user.username, article_link=link)}
+        )
+
+    return response
 
 
 @views.route('/settings')

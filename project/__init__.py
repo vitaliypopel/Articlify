@@ -76,6 +76,20 @@ def create_app():
 
     app.jinja_env.filters['user_loader'] = user_loader
 
+    from project.main import Article
+
+    def article_loader(article_id: int) -> object:
+        return Article.query.get(article_id)
+
+    app.jinja_env.filters['article_loader'] = article_loader
+
+    from project.main import Topic
+
+    def topic_loader(topic_id: int) -> object:
+        return Topic.query.get(topic_id)
+
+    app.jinja_env.filters['topic_loader'] = topic_loader
+
     from project.main import Topic
 
     def topic_loader(topic_id: int) -> object:

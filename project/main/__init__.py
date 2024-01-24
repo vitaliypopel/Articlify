@@ -10,6 +10,7 @@ from .models import (
     ArticleLike,
     ArticleComment,
     ArticleTopic,
-    ArticleDocument
+    ArticleDocument,
+    SavedArticle
 )
 from .views import before_first_request
