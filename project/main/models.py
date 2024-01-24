@@ -250,3 +250,22 @@ class ArticleDocument(mongo_db.Document):
                f'   created_at: {self.created_at}\n' \
                f'   updated_at: {self.updated_at}\n' \
                f')'
+
+
+class SavedArticle(db.Model):
+    __tablename__ = 'saved_articles'
+
+    id = db.Column(db.Integer, primary_key=True)
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    def __init__(self, article_id: int, user_id: int):
+        self.article_id = int(article_id)
+        self.user_id = int(user_id)
+
+    def __repr__(self) -> str:
+        return f'SavedArticle(\n' \
+               f'   id [PK]:            {self.id}\n' \
+               f'   article_id [FK]:    {self.article_id}\n' \
+               f'   user_id [FK]:       {self.user_id}\n' \
+               f')'

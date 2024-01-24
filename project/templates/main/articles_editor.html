@@ -1,0 +1,504 @@
+{% extends 'layouts/layout.html' %}
+
+{% block title %}
+    Конструктор статей
+{% endblock %}
+
+{% block content %}
+    <div class="title m-3 text-center">
+        <h1><i class="fa-solid fa-file-pen"></i> Редактор статей</h1>
+    </div>
+
+    <div class="publication mt-3 mb-3 d-flex justify-content-end">
+        <button class="btn btn-outline-info m-2" type="button" id="helpModalButton"
+                data-bs-toggle="modal" data-bs-target="#helpModal">
+            Підказка
+        </button>
+
+        <button class="btn btn-outline-success m-2 me-0" type="button"
+                data-bs-toggle="modal" data-bs-target="#publicationModal" onclick="setTitlePreview()">
+            Опублікувати
+        </button>
+
+        <div class="modal fade" id="helpModal">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-info">Підказка</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p class="fs-5">
+                            Перед написанням статті ознайомтесь з основними блоками та
+                            з можливістю інтеграції HTML тегів для кастомізації тексту.
+                        </p>
+                        <p class="fs-5 text-info mb-0">
+                            Інформація для ознайомлення:
+                        </p>
+                        <p class="fs-5 mb-0">
+                            Типи блоків:
+                        </p>
+                        <ul>
+                            <li>
+                                <u class="underline-offset">Заголовок</u> -
+                                обов'язковий блок, для вводу заголовку статті. <br>
+                                Мінімальна довжина - 1 символ, максимальна - 100 символів.
+                            </li>
+                            <li>
+                                <u class="underline-offset">Підзаголовок</u> -
+                                це блок, що слугує для розбиття статті на певні підтеми,
+                                згідно з якими автоматично буде створюватись зміст статті. <br>
+                                Мінімальна довжина - 1 символ, максимальна - 100 символів.
+                            </li>
+                            <li>
+                                <u class="underline-offset">Рядок</u> -
+                                це блок, в якому вводиться звичайний рядок,
+                                в якому може міститись до прикладу одне речення.
+                                В ньому можна обирати який текст буде: звичайний, товстий чи курсив. <br>
+                                Мінімальна довжина - 1 символ, максимальна - 100 символів.
+                            </li>
+                            <li>
+                                <u class="underline-offset">Гіперпосилання</u> -
+                                це блок, який перетворюється в гіперпосилання з підписом,
+                                в якому потребується ввід посилання та підпису. <br>
+                                Мінімальна довжина посилання - 1 символ, максимальна - 200 символів. <br>
+                                Мінімальна довжина підпису - 1 символ, максимальна - 100 символів.
+                            </li>
+                            <li>
+                                <u class="underline-offset">Абзац</u> -
+                                це блок, в якому вводиться багато речення та безліч рядків.
+                                В ньому також можна обирати який текст буде: звичайний, товстий чи курсив. <br>
+                                Мінімальна довжина - 1 символ, максимальна - 5000 символів.
+                            </li>
+                            <li>
+                                <u class="underline-offset">Фото</u> -
+                                це блок, в якому можна вставити фотографію та додати до неї опис(не обов'язково). <br>
+                                Мінімальна довжина опису - 0 символ, максимальна - 250 символів.
+                            </li>
+                            <li>
+                                <u class="underline-offset">Код</u> -
+                                це блок, в який можна вставляти код з безлічі рядків.
+                                Обов'язковим параметром є вибір мови програмування,
+                                для стилізації синтаксису при читанні статті. <br>
+                                Мінімальна довжина - 1 символ, максимальна - 15000 символів.
+                            </li>
+                            <li>
+                                <u class="underline-offset">Пропуск</u> -
+                                це блок, що слугує розмежуванням обох частин.
+                                В результаті його роботи просто частини розмежуються на короткий інтервал
+                                з трьома крапками по центру.
+                            </li>
+                        </ul>
+                        <p class="fs-5 mb-0">
+                            Дозволи тегів:
+                        </p>
+                        <ul>
+                            <li>
+                                <u class="underline-offset">Заголовок</u> -
+                                використання тегів в цьому блоці заборонене.
+                                Якщо ввести будь який тег, то він не спрацює.
+                                Заголовок автоматично товстий та не змінний.
+                            </li>
+                            <li>
+                                <u class="underline-offset">Підзаголовок</u> -
+                                використання тегів в цьому блоці заборонене.
+                                Якщо ввести будь який тег, то він не спрацює.
+                                Підзаголовок автоматично товстий та не змінний.
+                            </li>
+                            <li>
+                                <u class="underline-offset">Рядок</u> -
+                                дозволено використовувати теги: b, i, a,
+                                де b - товстий, i - курсив, a - гіперпосилання
+                                з обов'язковим параметром href="http://www.example.com".
+                            </li>
+                            <li>
+                                <u class="underline-offset">Гіперпосилання</u> -
+                                використання тегів в цьому блоці заборонене.
+                                Якщо ввести будь який тег, то він не спрацює.
+                                Гіперпосилання автоматично перетворюється в гіперпосилання як окремий блок.
+                            </li>
+                            <li>
+                                <u class="underline-offset">Абзац</u> -
+                                дозволено використовувати теги: b, i, a,
+                                де b - товстий, i - курсив, a - гіперпосилання
+                                з обов'язковим параметром href="http://www.example.com".
+                            </li>
+                            <li>
+                                <u class="underline-offset">Фото</u> -
+                                в описі під фото дозволено використовувати теги: b, i, a,
+                                де b - товстий, i - курсив, a - гіперпосилання
+                                з обов'язковим параметром href="http://www.example.com".
+                            </li>
+                            <li>
+                                <u class="underline-offset">Код</u> -
+                                в коді заборонено використовувати html теги,
+                                оскільки код автоматично перетворюється в синтаксичний стиль мови.
+                            </li>
+                            <li>
+                                <u class="underline-offset">Пропуск</u> -
+                                поле вводу відсутнє.
+                            </li>
+                        </ul>
+                        <p class="fs-5 text-info mb-0">
+                            Примітка:
+                        </p>
+                        <p>
+                            В полі вводу дозволені лише вище перечисленні теги,
+                            які при рендері статті будуть перетворювати тег на стиль.
+                        </p>
+                        <p>
+                            <u class="underline-offset">Наприклад:</u> <br>
+                            Ввід:
+                            Всім &lt;i&gt;привіт&lt;/i&gt;! Мене звуть &lt;b&gt;@{{ current_user.username }}&lt;/b&gt;! <br>
+                            Вивід:
+                            Всім <i>привіт</i>! Мене звуть <b>@{{ current_user.username }}</b>!
+                        </p>
+                        <p>
+                            Теги b та i не приймають в себе параметри, інакше ігнорують їх.
+                            Тег a приймає в себе параметр href="", що приймає посилання в повному вигляді,
+                            інакше гіперпосилання не спрацює.
+                        </p>
+                        <p>
+                            <u class="underline-offset">Наприклад:</u> <br>
+                            <span class="text-success">Правильно:</span> <br>
+                            &lt;a href="http://www.google.com"&gt;Посилання на Гугл&lt;/a&gt;
+                            <br>
+                            <span class="text-danger">Неправильно:</span> <br>
+                            &lt;a href="google.com"&gt;Посилання на Гугл&lt;/a&gt;
+                        </p>
+                        <p class="fs-5 text-warning mb-0">
+                            УВАГА!
+                        </p>
+                        <p>
+                            Якщо Ви не в впевнені в свої знаннях та не знаєте як працюють HTML теги,
+                            то просимо Вас <u class="underline-offset">НЕ</u> використовувати їх,
+                            оскільки при перегляді статті можуть виникнути несподівані конфлікти.
+                        </p>
+                        <p class="fs-5 text-warning mb-0">
+                            ЗАУВАЖЕННЯ!
+                        </p>
+                        <p>
+                            Не закриті або не відкриті теги автоматично закриваються при рендері.
+                            Просимо закривати теги, щоб не відбулось не бажаних конфліктів.
+                            Якщо після написання щось пішло не так, Ви спокійно можете відредагувати.
+                        </p>
+                        <p>
+                            <i>Ви можете повернутись до цієї підказки пізніше,
+                            натиснувши на панелі кнопку "<span class="text-info">Підказка</span>".</i>
+                        </p>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Зрозуміло</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="publicationModal">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Редагування статті зі сторінки @{{ current_user.username }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="article-title-preview">
+                            <div class="input-group mb-3">
+                                <span class="input-group-text bg-transparent w-25">
+                                    Заголовок
+                                </span>
+                                <span class="input-group-text bg-transparent w-75 pre text-start"
+                                      id="articleTitlePreview">{{ article.title }}</span>
+                            </div>
+                        </div>
+
+                        <div class="article-status">
+                            <div class="input-group mb-3">
+                                <span class="input-group-text bg-transparent w-25">
+                                    Публікація
+                                </span>
+                                <select class="form-select" id="articleStatus">
+                                    {% if article.public %}
+                                        <option value="true" selected>Публічна</option>
+                                        <option value="false">Приватна</option>
+                                    {% elif not article.public %}
+                                        <option value="true">Публічна</option>
+                                        <option value="false" selected>Приватна</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="article-topics">
+                            <p>Додайте до своєї статті категорії:</p>
+                            <ul class="list-group" id="articleTopics">
+                                {% for article_topic_id in article_topics_id %}
+                                    {% with topic = article_topic_id|topic_loader %}
+                                        <li class="topic list-group-item d-flex pt-0 pb-0 pe-0" id="{{ topic.id }}">
+                                            <span class="flex-grow-1 d-flex align-items-center">{{ topic.topic }}</span>
+                                            <button class="btn btn-outline-danger border-0 border-start rounded-start-0"
+                                                    type="button" onclick="deleteTopic(this.parentElement, {{ topic.id }}, '{{ topic.topic }}')">
+                                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                                            </button>
+                                        </li>
+                                    {% endwith %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <div class="input-group mt-3 mb-3">
+                            <button class="btn btn-outline-success border" type="button" onclick="addTopic()">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                            <select class="form-select" id="articleTopicSelect">
+                                {% for topic in topics %}
+                                    {% if topic.id not in article_topics_id %}
+                                        <option value="{{ topic.id }}">{{ topic.topic }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="closeButton">Скасувати</button>
+                        <button type="button" class="btn btn-success" onclick="">Опублікувати</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="builder mt-3 mb-3">
+        <div class="article-title">
+            <div class="input-group input-group-lg mt-3 mb-5">
+                <label class="input-group-text bg-transparent w-25" for="title">Заголовок</label>
+                <input type="text" placeholder="Заголовок вашої статті"
+                       class="form-control" id="title" minlength="1" maxlength="100" value="{{ article.title }}">
+            </div>
+        </div>
+
+        <div class="article mt-3 mb-3 w-100 sortable-list">
+            {% for element in article_document.article.body %}
+                {% if element.type == 'subtitle' %}
+                    <div class="subtitle scrolable-item mt-3 mb-3">
+                        <div class="input-group w-100 d-flex flex-nowrap">
+                            <span class="input-group-text bg-transparent drag-handle border-end-0">
+                                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                            </span>
+                            <span class="input-group-text bg-transparent w-25">
+                                Підзаголовок
+                            </span>
+                            <input class="content form-control" type="text" placeholder="Підзаголовок"
+                                   minlength="1" maxlength="100" value="{{ element.content }}">
+                            <button class="btn btn-outline-danger border" type="button"
+                                    onclick="deleteElement(this.parentElement)">
+                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% elif element.type == 'text' %}
+                    <div class="text sortable-item mt-3 mb-3">
+                        <div class="input-group w-100 d-flex flex-nowrap">
+                            <span class="input-group-text bg-transparent drag-handle border-end-0">
+                                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                            </span>
+                            <span class="w-25">
+                                <select class="text-type form-select rounded-0">
+                                    {% if element.text_type == 'normal' %}
+                                        <option value="normal" selected>Звичайний</option>
+                                        <option value="bold">Товстий</option>
+                                        <option value="italic">Курсив</option>
+                                    {% elif element.text_type == 'bold' %}
+                                        <option value="normal">Звичайний</option>
+                                        <option value="bold" selected>Товстий</option>
+                                        <option value="italic">Курсив</option>
+                                    {% elif element.text_type == 'italic' %}
+                                        <option value="normal">Звичайний</option>
+                                        <option value="bold">Товстий</option>
+                                        <option value="italic" selected>Курсив</option>
+                                    {% endif %}
+                                </select>
+                            </span>
+                            <input class="content form-control" type="text" placeholder="Рядок"
+                                   minlength="1" maxlength="100" value="{{ element.content }}">
+                            <button class="btn btn-outline-danger border" type="button"
+                                    onclick="deleteElement(this.parentElement)">
+                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% elif element.type == 'hyperlink' %}
+                    <div class="hyperlink sortable-item mt-3 mb-3">
+                        <div class="input-group w-100 d-flex flex-nowrap">
+                            <span class="input-group-text bg-transparent drag-handle border-end-0">
+                                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                            </span>
+                            <div class="w-auto flex-grow-1">
+                                <div class="input-group w-100">
+                                    <span class="input-group-text bg-transparent w-25 rounded-0 border-bottom-0">
+                                    Посилання
+                                    </span>
+                                    <input class="link form-control rounded-0 border-bottom-0" type="text" placeholder="Посилання"
+                                           minlength="1" maxlength="200" value="{{ element.link }}">
+                                </div>
+                                <div class="input-group w-100">
+                                    <span class="input-group-text bg-transparent w-25 rounded-0">
+                                        Підпис
+                                    </span>
+                                    <input class="content form-control rounded-0" type="text" placeholder="Підпис"
+                                           minlength="1" maxlength="100" value="{{ element.content }}">
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-danger border border-start-0" type="button"
+                                    onclick="deleteElement(this.parentElement)">
+                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% elif element.type == 'textarea' %}
+                    <div class="textarea sortable-item mt-3 mb-3">
+                        <div class="input-group w-100 d-flex flex-nowrap">
+                            <span class="input-group-text bg-transparent drag-handle border-end-0">
+                                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                            </span>
+                            <span class="input-group w-25">
+                                <select class="text-type form-select rounded-0">
+                                    {% if element.text_type == 'normal' %}
+                                        <option value="normal" selected>Звичайний</option>
+                                        <option value="bold">Товстий</option>
+                                        <option value="italic">Курсив</option>
+                                    {% elif element.text_type == 'bold' %}
+                                        <option value="normal">Звичайний</option>
+                                        <option value="bold" selected>Товстий</option>
+                                        <option value="italic">Курсив</option>
+                                    {% elif element.text_type == 'italic' %}
+                                        <option value="normal">Звичайний</option>
+                                        <option value="bold">Товстий</option>
+                                        <option value="italic" selected>Курсив</option>
+                                    {% endif %}
+                                </select>
+                            </span>
+                            <textarea class="content form-control" placeholder="Абзац" minlength="1" maxlength="5000">{{ element.content }}</textarea>
+                            <button class="btn btn-outline-danger border" type="button"
+                                    onclick="deleteElement(this.parentElement)">
+                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% elif element.type == 'photo' %}
+                    <div class="photo sortable-item mt-3 mb-3">
+                        <div class="input-group w-100 d-flex flex-nowrap">
+                            <span class="input-group-text bg-transparent drag-handle border-end-0">
+                                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                            </span>
+                            <div class="w-auto flex-grow-1">
+                                <div class="input-group w-100">
+                                    <span class="input-group-text bg-transparent w-25 rounded-0 border-bottom-0">
+                                        Фото
+                                    </span>
+                                    <img src="{{ url_for('static', filename='images/article_pictures/' + article.link + '/' + element.photo_name) }}" class="w-75">
+<!--                                    <input class="photo-file form-control rounded-0 border-bottom-0" type="file" value="{{ url_for('static', filename='images/article_pictures/' + article.link + '/' + element.photo_name) }}">-->
+                                </div>
+                                <div class="input-group w-100">
+                                    <span class="input-group-text bg-transparent w-25 rounded-0">
+                                        Опис
+                                    </span>
+                                    <input class="content form-control rounded-0" type="text" placeholder="Опис фотографії"
+                                           minlength="1" maxlength="250" value="{{ element.content }}">
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-danger border border-start-0" type="button"
+                                    onclick="deleteElement(this.parentElement)">
+                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% elif element.type == 'code' %}
+                    <div class="code sortable-item mt-3 mb-3">
+                        <div class="input-group w-100 d-flex flex-nowrap">
+                            <span class="input-group-text bg-transparent drag-handle border-end-0">
+                                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                            </span>
+                            <span class="input-group w-25">
+                                <select class="language form-select rounded-0">
+                                    <option value="py" {% if element.language == 'py' %}selected{% endif %}>Python</option>
+                                    <option value="c" {% if element.language == 'c' %}selected{% endif %}>C</option>
+                                    <option value="cpp" {% if element.language == 'cpp' %}selected{% endif %}>C++</option>
+                                    <option value="rust" {% if element.language == 'rust' %}selected{% endif %}>Rust</option>
+                                    <option value="java" {% if element.language == 'java' %}selected{% endif %}>Java</option>
+                                    <option value="cs" {% if element.language == 'cs' %}selected{% endif %}>C#</option>
+                                    <option value="rb" {% if element.language == 'rb' %}selected{% endif %}>Ruby</option>
+                                    <option value="go" {% if element.language == 'go' %}selected{% endif %}>Go</option>
+                                    <option value="html" {% if element.language == 'html' %}selected{% endif %}>HTML</option>
+                                    <option value="css" {% if element.language == 'css' %}selected{% endif %}>CSS</option>
+                                    <option value="js" {% if element.language == 'js' %}selected{% endif %}>JavaScript</option>
+                                    <option value="ts" {% if element.language == 'ts' %}selected{% endif %}>TypeScript</option>
+                                    <option value="php" {% if element.language == 'php' %}selected{% endif %}>PHP</option>
+                                    <option value="swift" {% if element.language == 'swift' %}selected{% endif %}>Swift</option>
+                                    <option value="kt" {% if element.language == 'kt' %}selected{% endif %}>Kotlin</option>
+                                    <option value="dart" {% if element.language == 'dart' %}selected{% endif %}>Dart</option>
+                                    <option value="sql" {% if element.language == 'sql' %}selected{% endif %}>SQL</option>
+                                    <option value="plsql" {% if element.language == 'plsql' %}selected{% endif %}>PL/SQL</option>
+                                    <option value="json" {% if element.language == 'json' %}selected{% endif %}>JSON</option>
+                                    <option value="xml-doc" {% if element.language == 'xml-doc' %}selected{% endif %}>XML</option>
+                                    <option value="yaml" {% if element.language == 'yaml' %}selected{% endif %}>YAML</option>
+                                    <option value="http" {% if element.language == 'http' %}selected{% endif %}>HTTP</option>
+                                    <option value="sh" {% if element.language == 'sh' %}selected{% endif %}>BashShell</option>
+                                </select>
+                            </span>
+                            <textarea class="content form-control" placeholder="Код" minlength="1" maxlength="15000">{{ element.content }}</textarea>
+                            <button class="btn btn-outline-danger border" type="button"
+                                    onclick="deleteElement(this.parentElement)">
+                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% elif element.type == 'pass' %}
+                    <div class="pass sortable-item mt-3 mb-3">
+                        <div class="input-group w-100 d-flex flex-nowrap">
+                            <span class="input-group-text bg-transparent drag-handle border-end-0">
+                                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                            </span>
+                            <span class="input-group-text bg-transparent flex-grow-1 justify-content-center">
+                                <i class="fa-solid fa-ellipsis" aria-hidden="true"></i>
+                            </span>
+                            <button class="btn btn-outline-danger border" type="button"
+                                    onclick="deleteElement(this.parentElement)">
+                                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <br><br><br>
+
+        <div class="elements-addition">
+            <div class="input-group mb-3 container fixed-bottom">
+                <button class="btn btn-outline-success border bg-body-tertiary" type="button" onclick="addElement()">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+                <select class="elementType form-select bg-body-tertiary" id="elementType">
+                    <option value="subtitle">Підзаголовок</option>
+                    <option value="text">Рядок</option>
+                    <option value="hyperlink">Гіперпосилання</option>
+                    <option value="textarea">Абзац</option>
+                    <option value="photo">Фото</option>
+                    <option value="code">Код</option>
+                    <option value="pass">Пропуск</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js" integrity="sha256-xLD7nhI62fcsEZK2/v8LsBcb4lG7dgULkuXoXB/j91c=" crossorigin="anonymous"></script>
+
+    <script src="{{ url_for('static', filename='scripts/articles_builder/articles_builder.js') }}"></script>
+{% endblock %}
