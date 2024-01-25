@@ -108,7 +108,7 @@
                                 <ul class="dropdown-menu dropdown-menu-end mt-2">
                                     {% if current_user.is_authenticated and current_user.id == user.id %}
                                         <li>
-                                            <a class="dropdown-item" href="#">
+                                            <a class="dropdown-item" href="{{ url_for('views.articles_editor', article_link=article.link) }}">
                                                 <i class="fa-regular fa-pen-to-square"></i> Редагувати
                                             </a>
                                         </li>
@@ -275,7 +275,7 @@
                                 <ul class="dropdown-menu dropdown-menu-end mt-2">
                                     {% if current_user.is_authenticated and current_user.id == user.id %}
                                         <li>
-                                            <a class="dropdown-item" href="#">
+                                            <a class="dropdown-item" href="{{ url_for('views.articles_editor', article_link=article.link) }}">
                                                 <i class="fa-regular fa-pen-to-square"></i> Редагувати
                                             </a>
                                         </li>
