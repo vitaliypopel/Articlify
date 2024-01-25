@@ -1,7 +1,7 @@
 {% extends 'layouts/layout.html' %}
 
 {% block title %}
-    Конструктор статей
+    Редактор статей
 {% endblock %}
 
 {% block content %}
@@ -15,9 +15,14 @@
             Підказка
         </button>
 
+        <button class="btn btn-outline-danger m-2" type="button"
+                data-bs-toggle="modal" data-bs-target="#deletePublicationModal">
+            Видалити статтю
+        </button>
+
         <button class="btn btn-outline-success m-2 me-0" type="button"
-                data-bs-toggle="modal" data-bs-target="#publicationModal" onclick="setTitlePreview()">
-            Опублікувати
+                data-bs-toggle="modal" data-bs-target="#updatePublicationModal" onclick="setTitlePreview()">
+            Опублікувати відредаговану статтю
         </button>
 
         <div class="modal fade" id="helpModal">
@@ -196,7 +201,29 @@
             </div>
         </div>
 
-        <div class="modal fade" id="publicationModal">
+        <div class="modal fade" id="deletePublicationModal">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Видалення статті зі сторінки @{{ current_user.username }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <h5>Ви впевнені що хочете видалити цю статтю?</h5>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Скасувати</button>
+                        <button type="button" class="btn btn-success" onclick="deletePublication('{{ article.link }}')">
+                            Видалити
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="updatePublicationModal">
             <div class="modal-dialog modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -265,7 +292,9 @@
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="closeButton">Скасувати</button>
-                        <button type="button" class="btn btn-success" onclick="">Опублікувати</button>
+                        <button type="button" class="btn btn-success" onclick="getPublication('PUT', '{{ article.link }}')">
+                            Опублікувати
+                        </button>
                     </div>
                 </div>
             </div>
@@ -391,7 +420,7 @@
                         </div>
                     </div>
                 {% elif element.type == 'photo' %}
-                    <div class="photo sortable-item mt-3 mb-3">
+                    <div class="existing-photo sortable-item mt-3 mb-3">
                         <div class="input-group w-100 d-flex flex-nowrap">
                             <span class="input-group-text bg-transparent drag-handle border-end-0">
                                 <i class="fa-solid fa-bars" aria-hidden="true"></i>
@@ -401,8 +430,7 @@
                                     <span class="input-group-text bg-transparent w-25 rounded-0 border-bottom-0">
                                         Фото
                                     </span>
-                                    <img src="{{ url_for('static', filename='images/article_pictures/' + article.link + '/' + element.photo_name) }}" class="w-75">
-<!--                                    <input class="photo-file form-control rounded-0 border-bottom-0" type="file" value="{{ url_for('static', filename='images/article_pictures/' + article.link + '/' + element.photo_name) }}">-->
+                                    <img class="existing-photo-file w-75 form-control rounded-0 border-bottom-0 p-0" id="{{ element.photo_name }}" src="{{ url_for('static', filename='images/article_pictures/' + article.link + '/' + element.photo_name) }}">
                                 </div>
                                 <div class="input-group w-100">
                                     <span class="input-group-text bg-transparent w-25 rounded-0">

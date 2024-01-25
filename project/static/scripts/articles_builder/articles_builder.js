@@ -580,7 +580,7 @@ function setTitlePreview() {
     }
 }
 
-function postPublication() {
+function getPublication(method, articleLink=null) {
     const title = document.getElementById('title').value.trim();
     const articleStatus = document.getElementById('articleStatus').value;
     const public = (articleStatus === 'true') ? true : false;
@@ -593,6 +593,7 @@ function postPublication() {
     }
 
     let photos = [];
+    let existingPhotos = [];
 
     let article = {
         'title': title,
@@ -621,7 +622,7 @@ function postPublication() {
             continue;
         }
 
-        let elementBody, photoFile;
+        let elementBody, photoFile, oldPhoto;
         switch (type) {
             case 'subtitle':
                 elementBody = getSubtitle(articleElement.children[0], subtitleID);
@@ -646,6 +647,11 @@ function postPublication() {
             case 'pass':
                 elementBody = getPass();
                 break;
+            case 'existing-photo':
+                let existingPhotoBody = getExistingPhoto(articleElement.children[0], photoID);
+                elementBody = existingPhotoBody[0];
+                oldPhoto = existingPhotoBody[1];
+                break;
             default:
                 alert('Щось пішло не так! Спробуйте ще раз');
                 return 0;
@@ -666,9 +672,14 @@ function postPublication() {
             subtitleID += 1;
 
         } else if (elementBody.type === 'photo') {
-            if (!photoFile) {
-                alert('Під час обробки фото файлів щось пішло не так! Спробуйте ще раз');
-                return 0;
+            // if (!photoFile) {
+            //     alert('Під час обробки фото файлів щось пішло не так! Спробуйте ще раз');
+            //     return 0;
+            // }
+            if (photoFile) {
+                photos.push(photoFile);
+            } else {
+                existingPhotos.push(oldPhoto);
             }
 
             let photo = {
@@ -677,7 +688,6 @@ function postPublication() {
             }
             article.photos.push(photo);
 
-            photos.push(photoFile);
             photoID += 1;
         }
 
@@ -698,19 +708,73 @@ function postPublication() {
         'topics': topics
     }
 
+    console.log(request);
+    console.log(photos);
+    console.log(existingPhotos);
+
     const combinedArticleContent = new FormData();
 
-    for (let i = 0; i < photos.length; i++) {
-        photos[i].forEach((value, key) => {
-            combinedArticleContent.append(key, value);
-        });
+    if (photos) {
+        for (let i = 0; i < photos.length; i++) {
+            photos[i].forEach((value, key) => {
+                combinedArticleContent.append(key, value);
+            });
+        }
     }
 
     combinedArticleContent.append('json', new Blob([JSON.stringify(request)], { type: 'application/json' }));
 
+    if (method === 'POST') {
+        postPublication(combinedArticleContent);
+    } else if (method === 'PUT') {
+        combinedArticleContent.append('existing_photos', new Blob([JSON.stringify(existingPhotos)], { type: 'application/json' }));
+        updatePublication(combinedArticleContent, articleLink);
+    }
+}
+
+function postPublication(combinedArticleContent) {
     fetch('/articles/builder', {
         method: 'POST',
         body: combinedArticleContent
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.bad) {
+            alert(data.bad);
+            return 0;
+        }
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    });
+}
+
+function updatePublication(combinedArticleContent, articleLink) {
+    fetch(`/articles/editor/${articleLink}`, {
+        method: 'PUT',
+        body: combinedArticleContent
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.bad) {
+            alert(data.bad);
+            return 0;
+        }
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    });
+}
+
+function deletePublication(articleLink) {
+    fetch(`/articles/editor/${articleLink}`, {
+        method: 'DELETE'
     })
     .then(response => response.json())
     .then(data => {
@@ -866,3 +930,26 @@ function getPass() {
     return element;
 }
 
+function getExistingPhoto(articleElement, photoID) {
+    let photoElement = articleElement.getElementsByClassName('existing-photo-file')[0];
+    let oldPhotoName = photoElement.id;
+    let oldID = oldPhotoName.slice(6, oldPhotoName.indexOf('.'));
+    let photoType = oldPhotoName.slice(oldPhotoName.indexOf('.') + 1, oldPhotoName.length);
+    let photoName = `photo_${photoID}.${photoType}`;
+    let content = articleElement.getElementsByClassName('content')[0].value;
+
+    let element = {
+        'type': 'photo',
+        'text_type': 'italic',
+        'photo_name': photoName,
+        'content': content
+    }
+
+    let oldPhoto = {
+        'interactive_photo_name': `${photoID}_photo_${photoID}.${photoType}`,
+        'old_photo_name': oldPhotoName,
+        'new_photo_name': photoName
+    }
+
+    return [element, oldPhoto];
+}
