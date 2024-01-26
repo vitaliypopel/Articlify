@@ -1,0 +1,64 @@
+{% extends 'layouts/layout.html' %}
+
+{% block title %}
+    Збережені статті
+{% endblock %}
+
+{% block content %}
+    <div class="title mt-3 mb-3 text-center">
+        <h1>Збережені статті</h1>
+    </div>
+
+    <div class="saved-articles mt-3 mb-3">
+        {% if saved_articles %}
+            {% for saved_article in saved_articles %}
+                {% with article = saved_article.article_id|article_loader %}
+                    {% with author = article.user_id|user_loader %}
+                        <div class="card mt-3 mb-3">
+                            <div class="card-header bg-transparent d-flex pt-1 pb-1 ps-2 pe-2">
+                                <span class="flex-grow-1 mt-0 mb-0 p-1">
+                                    Стаття користувача
+                                    <a class="link-body-emphasis link-underline link-underline-opacity-0"
+                                       href="{{ url_for('views.profile', username=author.username) }}">
+                                        @{{ author.username }}
+                                    </a>
+                                </span>
+
+                                {% if current_user.is_authenticated %}
+                                    {% if author.id == current_user.id %}
+                                        <div class="dropdown">
+                                            <button class="btn p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end mt-2">
+                                                <li>
+                                                    <button class="dropdown-item" type="button">
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    Стаття:
+                                    <a class="link-body-emphasis link-underline link-underline-opacity-0 ms-1 me-1"
+                                       href="{{ url_for('views.article', username=author.username, article_link=article.link) }}">
+                                        "{{ article.title }}"
+                                    </a>
+                                </h5>
+                                <a class="btn btn-primary mt-2"
+                                   href="{{ url_for('views.article', username=author.username, article_link=article.link) }}">
+                                    Переглянути
+                                </a>
+                            </div>
+                        </div>
+                    {% endwith %}
+                {% endwith %}
+            {% endfor %}
+        {% else %}
+            <h5 class="mt-3 mb-3 text-center">Збережені статті відсутні</h5>
+        {% endif %}
+    </div>
+{% endblock %}

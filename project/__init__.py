@@ -13,6 +13,7 @@ from email_validator import validate_email
 from datetime import datetime, timedelta
 from secrets import token_urlsafe
 from hashlib import sha256
+from bleach import clean
 from re import match, sub
 import os
 
@@ -101,5 +102,11 @@ def create_app():
         return datetime.utcnow() - datetime_before
 
     app.jinja_env.filters['datetime_calculation'] = datetime_calculation
+
+    def html_clean(text: str) -> str:
+        allowed_tags = {'b', 'i', 'a'}
+        return clean(text, tags=allowed_tags, strip=False)
+
+    app.jinja_env.filters['html_clean'] = html_clean
 
     return app
