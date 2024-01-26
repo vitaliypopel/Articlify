@@ -36,7 +36,7 @@
     </div>
 
     <div class="article-data mt-3 mb-3">
-        <div class="text-success">
+        <div class="text-primary">
             <hr class="mt-1 mb-1">
         </div>
 
@@ -127,7 +127,7 @@
             </table>
         </div>
 
-        <div class="text-success">
+        <div class="text-primary">
             <hr class="mt-1 mb-1">
         </div>
     </div>
@@ -159,9 +159,9 @@
                 {% elif element.type == 'text' %}
                     <div class="{{ element.type }}">
                         {% if element.text_type in ('normal', 'bold') %}
-                            <p class="fs-5 fw-{{ element.text_type }} pre mb-3">{{ element.content }}</p>
+                            <p class="fs-5 fw-{{ element.text_type }} pre mb-3">{{ element.content|html_clean|safe }}</p>
                         {% else %}
-                            <p class="fs-5 fst-{{ element.text_type }} pre mb-3">{{ element.content }}</p>
+                            <p class="fs-5 fst-{{ element.text_type }} pre mb-3">{{ element.content|html_clean|safe }}</p>
                         {% endif %}
                     </div>
                 {% elif element.type == 'hyperlink' %}
@@ -173,9 +173,9 @@
                 {% elif element.type == 'textarea' %}
                     <div class="{{ element.type }}">
                         {% if element.text_type in ('normal', 'bold') %}
-                            <p class="fs-5 fw-{{ element.text_type }} pre mb-3">{{ element.content }}</p>
+                            <p class="fs-5 fw-{{ element.text_type }} pre mb-3">{{ element.content|html_clean|safe }}</p>
                         {% else %}
-                            <p class="fs-5 fst-{{ element.text_type }} pre mb-3">{{ element.content }}</p>
+                            <p class="fs-5 fst-{{ element.text_type }} pre mb-3">{{ element.content|html_clean|safe }}</p>
                         {% endif %}
                     </div>
                 {% elif element.type == 'photo' %}
@@ -184,7 +184,7 @@
                         filename='images/article_pictures/' + article.link + '/' + element.photo_name) }}"
                         class="w-100" align="middle">
 
-                        <p class="fs-5 fst-{{ element.text_type }} pre mb-3">{{ element.content }}</p>
+                        <p class="fs-5 fst-{{ element.text_type }} pre mb-3">{{ element.content|html_clean|safe }}</p>
                     </div>
                 {% elif element.type == 'code' %}
                     <div class="{{ element.type }}">
@@ -202,8 +202,22 @@
         {% endif %}
     </div>
 
+    <div class="article-topics mt-3 mb-3">
+        {% if topics %}
+            <h5 class="m-1">Категорії:</h5>
+        {% endif %}
+        {% for article_topic in topics %}
+            {% with topic = article_topic.topic_id|topic_loader %}
+                <a class="btn btn-outline-primary m-1"
+                   href="{{ url_for('views.articles_topic', topic=topic.topic) }}">
+                    {{ topic.topic }}
+                </a>
+            {% endwith %}
+        {% endfor %}
+    </div>
+
     <div class="article-data mt-3 mb-3">
-        <div class="text-success">
+        <div class="text-primary">
             <hr class="mt-1 mb-1">
         </div>
 
@@ -294,7 +308,7 @@
             </table>
         </div>
 
-        <div class="text-success">
+        <div class="text-primary">
             <hr class="mt-1 mb-1">
         </div>
 
@@ -403,7 +417,7 @@
                 {% for comment in comments %}
                     {% with commentator = comment.user_id|user_loader %}
                         <div class="card mt-3 mb-3" id="{{ comment.id }}">
-                            <div class="card-header d-flex pt-1 pb-1 ps-2 pe-2">
+                            <div class="card-header bg-transparent d-flex pt-1 pb-1 ps-2 pe-2">
                                 <span class="flex-grow-1 mt-0 mb-0 p-1">
                                     <a class="link-body-emphasis link-underline link-underline-opacity-0"
                                        href="{{ url_for('views.profile', username=commentator.username) }}">

@@ -347,6 +347,7 @@ def article(username: str, article_link: str):
     article_likes = ArticleLike.query.order_by(ArticleLike.id.desc()).filter_by(article_id=article_data.id).all()
     article_comments = ArticleComment.query.order_by(ArticleComment.id.desc()).filter_by(
                                                                                 article_id=article_data.id).all()
+    article_topics = ArticleTopic.query.filter_by(article_id=article_data.id).all()
 
     user_like = None
     user_save = None
@@ -364,7 +365,8 @@ def article(username: str, article_link: str):
         article_document=article_document.article,
         views=article_views,
         likes=article_likes,
-        comments=article_comments
+        comments=article_comments,
+        topics=article_topics
     )
 
 
@@ -545,6 +547,15 @@ def articles_editor(article_link: str):
         return jsonify({'redirect': url_for('views.home')})
 
     return response
+
+
+@views.route('/articles/saved')
+@login_required
+def saved_articles():
+    saved_articles_objects = SavedArticle.query.order_by(SavedArticle.id.desc()).filter_by(
+                                                                                        user_id=current_user.id).all()
+
+    return render_template('main/saved_articles.html', saved_articles=saved_articles_objects)
 
 
 @views.route('/settings')

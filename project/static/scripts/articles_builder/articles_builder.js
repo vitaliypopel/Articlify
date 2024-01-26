@@ -569,14 +569,14 @@ function setTitlePreview() {
             articleTitlePreview.classList.remove('text-danger');
         }
 
-        articleTitlePreview.innerHTML = title;
+        articleTitlePreview.textContent = title;
 
     } else {
         if (!articleTitlePreview.classList.contains('text-danger')) {
             articleTitlePreview.classList.add('text-danger');
         }
 
-        articleTitlePreview.innerHTML = 'Будь ласка введіть заголовок в конструкторі';
+        articleTitlePreview.textContent = 'Будь ласка введіть заголовок в конструкторі';
     }
 }
 
