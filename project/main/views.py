@@ -53,8 +53,7 @@ def favicon():
 @views.route('/')
 def home():
     if current_user.is_authenticated:
-        topic_subscriptions = TopicSubscription.query.filter_by(user_id=current_user.id).all()
-        return render_template('main/home.html', topic_subscriptions=topic_subscriptions)
+        return redirect(url_for('views.articles'))
 
     return render_template('main/home.html')
 
@@ -103,10 +102,104 @@ def feedback():
     return render_template('main/feedback.html', form=form)
 
 
-# != production by the moment
+@views.route('/articles/topics')
+def articles_topics():
+    topics = Topic.query.all()
+    response = make_response(render_template('main/topics.html', topics=topics))
+
+    return response
+
+
+@views.route('/articles/topics/<topic>')
+def articles_topic(topic: str):
+    topic = Topic.query.filter(Topic.topic.ilike(topic)).first()
+
+    if not topic:
+        flash('Категорії статей не знайдено', 'danger')
+        return redirect(url_for('views.articles_topics'))
+
+    articles_with_topic = ArticleTopic.query.filter_by(topic_id=topic.id).all()
+
+    subscriptions = TopicSubscription.query.filter_by(topic_id=topic.id).all()
+
+    topic_articles = ArticleTopic.query.order_by(ArticleTopic.article_id.desc()).filter_by(topic_id=topic.id).all()
+    articles_data = []
+
+    for topic_article in topic_articles:
+        article_data = Article.query.filter_by(id=topic_article.article_id, public=True).first()
+        if article_data:
+            articles_data.append(article_data)
+
+    if current_user.is_authenticated:
+        subscription = TopicSubscription.query.filter_by(user_id=current_user.id, topic_id=topic.id).first()
+        return render_template('main/topic.html',
+                               topic=topic, subscription=subscription, subscriptions=subscriptions,
+                               articles_with_topic=articles_with_topic, articles=articles_data)
+
+    return render_template('main/topic.html',
+                           topic=topic, subscriptions=subscriptions,
+                           articles_with_topic=articles_with_topic, articles=articles_data)
+
+
 @views.route('/articles')
+@login_required
 def articles():
-    ...
+    topics_subscriptions = TopicSubscription.query.filter_by(user_id=current_user.id).all()
+
+    articles_data = Article.query.order_by(Article.id.desc()).filter_by(public=True).all()
+
+    return render_template('main/articles.html', title='Рекомендації',
+                           topics_subscriptions=topics_subscriptions, articles=articles_data)
+
+
+@views.route('/followings')
+@login_required
+def followings():
+    topics_subscriptions = TopicSubscription.query.filter_by(user_id=current_user.id).all()
+
+    user_subscriptions = UserSubscription.query.order_by(UserSubscription.id.desc()).filter_by(
+                                                                                        user_id=current_user.id).all()
+    articles_data = []
+
+    for user_subscription in user_subscriptions:
+        user_subscription_articles = Article.query.order_by(Article.id.desc()).filter_by(
+                                                                            user_id=user_subscription.author_id,
+                                                                            public=True).all()
+        articles_data.extend(user_subscription_articles)
+
+    return render_template('main/articles.html', title='Підписки',
+                           topics_subscriptions=topics_subscriptions, articles=articles_data)
+
+
+@views.route('/followings/topics/<topic>')
+@login_required
+def topics_followings(topic: str):
+    topics_subscriptions = TopicSubscription.query.filter_by(user_id=current_user.id).all()
+
+    topic = Topic.query.filter(Topic.topic.ilike(topic)).first()
+    if not topic:
+        flash('Категорії статей не знайдено', 'danger')
+        return redirect(url_for('views.articles_topics'))
+
+    topic_articles = ArticleTopic.query.order_by(ArticleTopic.article_id.desc()).filter_by(topic_id=topic.id).all()
+    articles_data = []
+
+    for topic_article in topic_articles:
+        article_data = Article.query.filter_by(id=topic_article.article_id, public=True).first()
+        if article_data:
+            articles_data.append(article_data)
+
+    return render_template('main/articles.html', title=topic.topic,
+                           topics_subscriptions=topics_subscriptions, articles=articles_data)
+
+
+@views.route('/articles/saved')
+@login_required
+def saved_articles():
+    saved_articles_objects = SavedArticle.query.order_by(SavedArticle.id.desc()).filter_by(
+                                                                                        user_id=current_user.id).all()
+
+    return render_template('main/saved_articles.html', saved_articles=saved_articles_objects)
 
 
 @views.route('/articles/builder', methods=['GET', 'POST'])
@@ -195,34 +288,183 @@ def articles_builder():
     return response
 
 
-@views.route('/articles/topics')
-def articles_topics():
+@views.route('/articles/editor/<article_link>', methods=['GET', 'PUT', 'DELETE'])
+@login_required
+def articles_editor(article_link: str):
     topics = Topic.query.all()
-    response = make_response(render_template('main/topics.html', topics=topics))
+
+    article_data = Article.query.filter_by(link=article_link.lower(), user_id=current_user.id).first()
+    if not article_data:
+        flash('Статтю не знайдено', 'warning')
+        return redirect(url_for('views.home'))
+
+    _article_document = ArticleDocument.objects(link=article_link.lower(), user_id=current_user.id).first()
+    if not _article_document:
+        flash('Документ статті не знайдено', 'danger')
+        return redirect(url_for('views.home'))
+
+    article_topics_id = []
+    for article_topic in ArticleTopic.query.filter_by(article_id=article_data.id).all():
+        article_topics_id.append(article_topic.topic_id)
+
+    response = make_response(render_template('main/articles_editor.html',
+                                             topics=topics, article_topics_id=article_topics_id,
+                                             article=article_data, article_document=_article_document))
+
+    if request.method == 'PUT':
+        files = request.files
+        data_json = files['json'].read()
+        data = loads(data_json)
+
+        existing_photos_json = files['existing_photos'].read()
+        existing_photos = loads(existing_photos_json)
+
+        photos = {}
+        for data_type, file in files.items():
+            if data_type != 'json' and data_type != 'existing_photos':
+                photos[data_type] = file
+
+        article_document = data['article']
+        topics = data['topics']
+
+        link = article_data.link
+
+        try:
+            article_photos_path = os.path.join(
+                app.root_path,
+                *url_for('static', filename='images/article_pictures').split('/'),
+                link
+            )
+            os.makedirs(article_photos_path, exist_ok=True)
+
+            old_photo_names = [existing_photo['old_photo_name'] for existing_photo in existing_photos]
+            for photo in _article_document['article']['photos']:
+                print(photo)
+                if photo['photo_name'] not in old_photo_names:
+                    photo_path = os.path.join(article_photos_path, photo['photo_name'])
+                    os.remove(photo_path)
+
+            for existing_photo in existing_photos:
+                old_photo_path = os.path.join(article_photos_path, existing_photo['old_photo_name'])
+                interactive_photo_path = os.path.join(article_photos_path, existing_photo['interactive_photo_name'])
+                if os.path.isfile(old_photo_path):
+                    os.rename(old_photo_path, interactive_photo_path)
+
+            for existing_photo in existing_photos:
+                interactive_photo_path = os.path.join(article_photos_path, existing_photo['interactive_photo_name'])
+                new_photo_path = os.path.join(article_photos_path, existing_photo['new_photo_name'])
+                if os.path.isfile(interactive_photo_path):
+                    os.rename(interactive_photo_path, new_photo_path)
+
+            for name, photo in photos.items():
+                photo_path = os.path.join(article_photos_path, name)
+
+                new_photo = photo
+                new_photo.filename = name
+                new_photo.save(photo_path)
+        except Exception:
+            return jsonify(
+                {'bad': 'Під час збереження фотографій щось пішло не так! Спробуйте ще раз'}
+            )
+
+        title = article_document['title']
+        public = article_document['public']
+        updated_at = datetime.utcnow()
+
+        old_article_document = _article_document.article
+        old_updated_at = _article_document.updated_at if _article_document.updated_at else None
+
+        try:
+            article_data.title = title
+            article_data.public = public
+            article_data.updated_at = updated_at
+
+            for topic in ArticleTopic.query.filter_by(article_id=article_data.id).all():
+                db.session.delete(topic)
+
+            for topic in topics:
+                new_topic = ArticleTopic(article_data.id, int(topic))
+                db.session.add(new_topic)
+
+            _article_document.article = article_document
+            _article_document.updated_at = str(updated_at)
+            _article_document.save()
+
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
+            article_document = ArticleDocument.objects(link=link).first()
+            article_document.article = old_article_document
+            article_document.updated_at = old_updated_at
+            article_document.save()
+
+            return jsonify(
+                {'bad': 'Щось пішло не так! Спробуйте ще раз'}
+            )
+
+        flash('Стаття успішно оновлена', 'success')
+
+        return jsonify(
+            {'redirect': url_for('views.article', username=current_user.username, article_link=link)}
+        )
+
+    if request.method == 'DELETE':
+        article_data = Article.query.filter_by(link=article_link.lower(), user_id=current_user.id).first()
+        if not article_data:
+            flash('Статтю не знайдено', 'warning')
+            return jsonify({'redirect': url_for('views.home')})
+
+        article_document = ArticleDocument.objects(link=article_link.lower(), user_id=current_user.id).first()
+        saved_articles_ = SavedArticle.query.filter_by(article_id=article_data.id).all()
+        article_topics = ArticleTopic.query.filter_by(article_id=article_data.id).all()
+        article_views = ArticleView.query.filter_by(article_id=article_data.id).all()
+        article_likes = ArticleLike.query.filter_by(article_id=article_data.id).all()
+        article_comments = ArticleComment.query.filter_by(article_id=article_data.id).all()
+
+        article_photos_path = os.path.join(
+            app.root_path,
+            *url_for('static', filename='images/article_pictures').split('/'),
+            article_data.link
+        )
+
+        try:
+            for photo in article_document['article']['photos']:
+                photo_path = os.path.join(article_photos_path, photo['photo_name'])
+                os.remove(photo_path)
+        except Exception as err:
+            print(f'Фото не видалились.\n{err}')
+
+        try:
+            for saved_article in saved_articles_:
+                db.session.delete(saved_article)
+
+            for article_topic in article_topics:
+                db.session.delete(article_topic)
+
+            for article_view in article_views:
+                db.session.delete(article_view)
+
+            for article_like in article_likes:
+                db.session.delete(article_like)
+
+            for article_comment in article_comments:
+                db.session.delete(article_comment)
+
+            db.session.delete(article_data)
+            db.session.commit()
+
+            article_document.delete()
+        except Exception:
+            flash('Щось пішло не так! Спробуйте ще раз', 'danger')
+            return jsonify(
+                {'redirect': url_for('views.article', username=current_user.username, article_link=article_data.link)}
+            )
+
+        flash('Стаття успішно видалена', 'success')
+        return jsonify({'redirect': url_for('views.home')})
 
     return response
-
-
-@views.route('/articles/topics/<topic>')
-def articles_topic(topic: str):
-    topic = Topic.query.filter(Topic.topic.ilike(topic)).first()
-
-    if not topic:
-        flash('Категорії статей не знайдено', 'danger')
-        return redirect(url_for('views.articles_topics'))
-
-    articles_with_topic = ArticleTopic.query.filter_by(topic_id=topic.id).all()
-
-    subscriptions = TopicSubscription.query.filter_by(topic_id=topic.id).all()
-
-    if current_user.is_authenticated:
-        subscription = TopicSubscription.query.filter_by(user_id=current_user.id, topic_id=topic.id).first()
-        return render_template('main/topic.html',
-                               topic=topic, subscription=subscription,
-                               subscriptions=subscriptions, articles_with_topic=articles_with_topic)
-
-    return render_template('main/topic.html',
-                           topic=topic, subscriptions=subscriptions, articles_with_topic=articles_with_topic)
 
 
 @views.route('/@<username>')
@@ -368,194 +610,6 @@ def article(username: str, article_link: str):
         comments=article_comments,
         topics=article_topics
     )
-
-
-@views.route('/articles/editor/<article_link>', methods=['GET', 'PUT', 'DELETE'])
-@login_required
-def articles_editor(article_link: str):
-    topics = Topic.query.all()
-
-    article_data = Article.query.filter_by(link=article_link.lower(), user_id=current_user.id).first()
-    if not article_data:
-        flash('Статтю не знайдено', 'warning')
-        return redirect(url_for('views.home'))
-
-    _article_document = ArticleDocument.objects(link=article_link.lower(), user_id=current_user.id).first()
-    if not _article_document:
-        flash('Документ статті не знайдено', 'danger')
-        return redirect(url_for('views.home'))
-
-    article_topics_id = []
-    for article_topic in ArticleTopic.query.filter_by(article_id=article_data.id).all():
-        article_topics_id.append(article_topic.topic_id)
-
-    response = make_response(render_template('main/articles_editor.html',
-                                             topics=topics, article_topics_id=article_topics_id,
-                                             article=article_data, article_document=_article_document))
-
-    if request.method == 'PUT':
-        files = request.files
-        data_json = files['json'].read()
-        data = loads(data_json)
-
-        existing_photos_json = files['existing_photos'].read()
-        existing_photos = loads(existing_photos_json)
-
-        photos = {}
-        for data_type, file in files.items():
-            if data_type != 'json' and data_type != 'existing_photos':
-                photos[data_type] = file
-
-        article_document = data['article']
-        topics = data['topics']
-
-        link = article_data.link
-
-        try:
-            article_photos_path = os.path.join(
-                app.root_path,
-                *url_for('static', filename='images/article_pictures').split('/'),
-                link
-            )
-            os.makedirs(article_photos_path, exist_ok=True)
-
-            old_photo_names = [existing_photo['old_photo_name'] for existing_photo in existing_photos]
-            for photo in _article_document['article']['photos']:
-                print(photo)
-                if photo['photo_name'] not in old_photo_names:
-                    photo_path = os.path.join(article_photos_path, photo['photo_name'])
-                    os.remove(photo_path)
-
-            for existing_photo in existing_photos:
-                old_photo_path = os.path.join(article_photos_path, existing_photo['old_photo_name'])
-                interactive_photo_path = os.path.join(article_photos_path, existing_photo['interactive_photo_name'])
-                if os.path.isfile(old_photo_path):
-                    os.rename(old_photo_path, interactive_photo_path)
-
-            for existing_photo in existing_photos:
-                interactive_photo_path = os.path.join(article_photos_path, existing_photo['interactive_photo_name'])
-                new_photo_path = os.path.join(article_photos_path, existing_photo['new_photo_name'])
-                if os.path.isfile(interactive_photo_path):
-                    os.rename(interactive_photo_path, new_photo_path)
-
-            for name, photo in photos.items():
-                photo_path = os.path.join(article_photos_path, name)
-
-                new_photo = photo
-                new_photo.filename = name
-                new_photo.save(photo_path)
-        except Exception:
-            return jsonify(
-                {'bad': 'Під час збереження фотографій щось пішло не так! Спробуйте ще раз'}
-            )
-
-        title = article_document['title']
-        public = article_document['public']
-        updated_at = datetime.utcnow()
-
-        old_article_document = _article_document.article
-        old_updated_at = _article_document.updated_at if _article_document.updated_at else None
-
-        try:
-            article_data.title = title
-            article_data.public = public
-            article_data.updated_at = updated_at
-
-            for topic in ArticleTopic.query.filter_by(article_id=article_data.id).all():
-                db.session.delete(topic)
-
-            for topic in topics:
-                new_topic = ArticleTopic(article_data.id, int(topic))
-                db.session.add(new_topic)
-
-            _article_document.article = article_document
-            _article_document.updated_at = str(updated_at)
-            _article_document.save()
-
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-
-            article_document = ArticleDocument.objects(link=link).first()
-            article_document.article = old_article_document
-            article_document.updated_at = old_updated_at
-            article_document.save()
-
-            return jsonify(
-                {'bad': 'Щось пішло не так! Спробуйте ще раз'}
-            )
-
-        flash('Стаття успішно оновлена', 'success')
-
-        return jsonify(
-            {'redirect': url_for('views.article', username=current_user.username, article_link=link)}
-        )
-
-    if request.method == 'DELETE':
-        article_data = Article.query.filter_by(link=article_link.lower(), user_id=current_user.id).first()
-        if not article_data:
-            flash('Статтю не знайдено', 'warning')
-            return jsonify({'redirect': url_for('views.home')})
-
-        article_document = ArticleDocument.objects(link=article_link.lower(), user_id=current_user.id).first()
-        saved_articles = SavedArticle.query.filter_by(article_id=article_data.id).all()
-        article_topics = ArticleTopic.query.filter_by(article_id=article_data.id).all()
-        article_views = ArticleView.query.filter_by(article_id=article_data.id).all()
-        article_likes = ArticleLike.query.filter_by(article_id=article_data.id).all()
-        article_comments = ArticleComment.query.filter_by(article_id=article_data.id).all()
-
-        article_photos_path = os.path.join(
-            app.root_path,
-            *url_for('static', filename='images/article_pictures').split('/'),
-            article_data.link
-        )
-
-        try:
-            for photo in article_document['article']['photos']:
-                photo_path = os.path.join(article_photos_path, photo['photo_name'])
-                os.remove(photo_path)
-        except Exception as err:
-            print(f'Фото не видалились.\n{err}')
-
-        try:
-            for saved_article in saved_articles:
-                db.session.delete(saved_article)
-
-            for article_topic in article_topics:
-                db.session.delete(article_topic)
-
-            for article_view in article_views:
-                db.session.delete(article_view)
-
-            for article_like in article_likes:
-                db.session.delete(article_like)
-
-            for article_comment in article_comments:
-                db.session.delete(article_comment)
-
-            db.session.delete(article_data)
-            db.session.commit()
-
-            article_document.delete()
-        except Exception:
-            flash('Щось пішло не так! Спробуйте ще раз', 'danger')
-            return jsonify(
-                {'redirect': url_for('views.article', username=current_user.username, article_link=article_data.link)}
-            )
-
-        flash('Стаття успішно видалена', 'success')
-        return jsonify({'redirect': url_for('views.home')})
-
-    return response
-
-
-@views.route('/articles/saved')
-@login_required
-def saved_articles():
-    saved_articles_objects = SavedArticle.query.order_by(SavedArticle.id.desc()).filter_by(
-                                                                                        user_id=current_user.id).all()
-
-    return render_template('main/saved_articles.html', saved_articles=saved_articles_objects)
 
 
 @views.route('/settings')

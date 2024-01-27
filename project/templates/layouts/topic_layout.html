@@ -10,11 +10,11 @@
         <h1>{{ topic.topic }}</h1>
     </div>
 
-    <div class="topic-data mt-3 mb-3" align="center">
+    <div class="topic-data mt-3 mb-4" align="center">
         <p>
             Категорія •
             Читачі: <span id="followers">{{ subscriptions|length }}</span> •
-            Статті: <span id="articles-count">{{ articles_with_topic|length }}</span>
+            Статті: <span id="articles-count">{{ articles|length }}</span>
         </p>
 
         {% if current_user.is_authenticated %}
