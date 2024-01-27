@@ -1,10 +1,43 @@
-{% extends 'layouts/topic_layout.html' %}
+{% extends 'layouts/layout.html' %}
 
-{% block topic_title %}
-    Категорія {{ topic.topic }}
+{% block title %}
+    {{ title }}
 {% endblock %}
 
-{% block topic_content %}
+{% block content %}
+    <div class="title m-3 mb-4 text-center">
+        <h1>{{ title }}</h1>
+    </div>
+
+    <div class="navigation mt-3 mb-3">
+        <ul class="nav nav-tabs nav-fill">
+            <li class="nav-item">
+                <a class="nav-link link-body-emphasis {% if request.endpoint == 'views.articles' %}active{% endif %}"
+                   href="{{ url_for('views.articles') }}">
+                    Рекомендації
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link link-body-emphasis {% if request.endpoint == 'views.followings' %}active{% endif %}"
+                   href="{{ url_for('views.followings') }}">
+                    Підписки
+                </a>
+            </li>
+
+            {% for topic_subscription in topics_subscriptions %}
+                {% with topic = topic_subscription.topic_id|topic_loader %}
+                    <li class="nav-item">
+                        <a class="nav-link link-body-emphasis {% if request.path == url_for('views.topics_followings', topic=topic.topic) %}active{% endif %}"
+                           href="{{ url_for('views.topics_followings', topic=topic.topic) }}">
+                            {{ topic.topic }}
+                        </a>
+                    </li>
+                {% endwith %}
+            {% endfor %}
+        </ul>
+    </div>
+
     <div class="articles mt-3 mb-3">
         {% for article in articles %}
             {% with author = article.user_id|user_loader %}

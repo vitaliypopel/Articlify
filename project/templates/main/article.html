@@ -36,7 +36,7 @@
     </div>
 
     <div class="article-data mt-3 mb-3">
-        <div class="text-primary">
+        <div class="text-body-emphasis">
             <hr class="mt-1 mb-1">
         </div>
 
@@ -127,7 +127,7 @@
             </table>
         </div>
 
-        <div class="text-primary">
+        <div class="text-body-emphasis">
             <hr class="mt-1 mb-1">
         </div>
     </div>
@@ -208,7 +208,7 @@
         {% endif %}
         {% for article_topic in topics %}
             {% with topic = article_topic.topic_id|topic_loader %}
-                <a class="btn btn-outline-primary m-1"
+                <a class="btn border m-1"
                    href="{{ url_for('views.articles_topic', topic=topic.topic) }}">
                     {{ topic.topic }}
                 </a>
@@ -217,7 +217,7 @@
     </div>
 
     <div class="article-data mt-3 mb-3">
-        <div class="text-primary">
+        <div class="text-body-emphasis">
             <hr class="mt-1 mb-1">
         </div>
 
@@ -308,7 +308,7 @@
             </table>
         </div>
 
-        <div class="text-primary">
+        <div class="text-body-emphasis">
             <hr class="mt-1 mb-1">
         </div>
 
