@@ -225,13 +225,13 @@
         <div class="navigation mt-3 mb-3">
             <ul class="nav nav-tabs nav-fill">
                 <li class="nav-item">
-                    <a class="nav-link link-body-emphasis {% if request.endpoint == 'views.profile' %}active{% endif %}"
+                    <a class="nav-link link-body-emphasis {% if request.endpoint == 'views.profile' %}active border border-bottom-1{% endif %}"
                        href="{{ url_for('views.profile', username=user.username) }}">
                         Публікації
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link link-body-emphasis {% if request.endpoint == 'views.profile_about' %}active{% endif %}"
+                    <a class="nav-link link-body-emphasis {% if request.endpoint == 'views.profile_about' %}active border border-bottom-1{% endif %}"
                        href="{{ url_for('views.profile_about', username=user.username) }}">
                         Про себе
                     </a>

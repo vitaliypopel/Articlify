@@ -112,6 +112,7 @@ class Article(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     link = db.Column(db.String, unique=True, nullable=False)
     title = db.Column(db.String(100), nullable=False)
+    lower_title = db.Column(db.String(100), nullable=False)
     public = db.Column(db.Boolean, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False)
     updated_at = db.Column(db.DateTime, default=None)
@@ -120,6 +121,7 @@ class Article(db.Model):
     def __init__(self, link: str, title: str, public: bool, created_at: datetime, user_id: int):
         self.link = link
         self.title = title
+        self.lower_title = title.lower()
         self.public = bool(public)
         self.created_at = created_at
         self.user_id = int(user_id)
@@ -128,6 +130,7 @@ class Article(db.Model):
         return f'Article(\n' \
                f'   id [PK]:        {self.id}\n' \
                f'   title:          {self.title}\n' \
+               f'   lower_title:    {self.lower_title}\n' \
                f'   link:           {self.link}\n' \
                f'   public:         {self.public}\n' \
                f'   created_at:     {self.created_at}\n' \

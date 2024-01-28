@@ -1,0 +1,48 @@
+{% extends 'layouts/layout.html' %}
+
+{% block title %}
+    {% block articles_title %}
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+    <div class="title m-3 mb-4 text-center">
+        <h1>{{ title }}</h1>
+    </div>
+
+    <div class="navigation mt-3 mb-3">
+        <ul class="nav nav-tabs nav-fill">
+            <li class="nav-item">
+                <a class="nav-link link-body-emphasis {% if request.endpoint == 'views.search' %}active border border-bottom-1{% endif %}"
+                   href="{{ url_for('views.search') }}">
+                    Пошук статей
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link link-body-emphasis {% if request.endpoint == 'views.search_users' %}active border border-bottom-1{% endif %}"
+                   href="{{ url_for('views.search_users') }}">
+                    Пошук людей
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    {% block articles_content %}
+    {% endblock %}
+
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js" integrity="sha256-xLD7nhI62fcsEZK2/v8LsBcb4lG7dgULkuXoXB/j91c=" crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function(){
+            $("#checkbox").change(function(){
+                if(this.checked) {
+                    $("#advanced-search").show();
+                } else {
+                    $("#advanced-search").hide();
+                }
+            });
+        });
+    </script>
+{% endblock %}
