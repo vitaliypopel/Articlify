@@ -167,3 +167,4 @@ cython_debug/
 .idea/Articlify.iml
 /project/static/styles/prism/
 /project/static/scripts/prism/
+.idea/discord.xml

@@ -1,0 +1,122 @@
+{% extends 'layouts/search_layout.html' %}
+
+{% block articles_title %}
+    {{ title }}
+{% endblock %}
+
+{% block articles_content %}
+    <div class="search mt-3 mb-3">
+        {% if request.endpoint == 'views.search' %}
+            <form class="form">
+                <div class="input-group mt-2 mb-2">
+                    <input type="text" class="form-control" placeholder="Назва статті" name="title"
+                           value="{% if search_bar %}{{ search_bar }}{% endif %}">
+                    <button class="btn border" type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+
+                <div class="form-check mt-2 mb-2">
+                    <input type="checkbox" class="form-check-input" id="checkbox">
+                    <label class="form-check-label" for="checkbox">Розширений пошук</label>
+                </div>
+
+                <div class="topics mt-3 mb-2" id="advanced-search" style="display: none;">
+                    <p class="mb-1">Категорії</p>
+
+                    <div class="topics row">
+                        {% for topic in topics %}
+                            <div class="topic col-3">
+                                <input class="form-check-input" type="checkbox" name="topic"
+                                       value="{{ topic.topic }}" id="{{ topic.topic }}" {% if advanced_search and topic.topic in advanced_search %}checked{% endif %}>
+                                <label class="form-check-label" for="{{ topic.topic }}">{{ topic.topic }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </form>
+        {% elif request.endpoint == 'views.search_users' %}
+            <form class="form">
+                <div class="input-group mt-2 mb-2">
+                    <label class="input-group-text bg-transparent" for="username">@</label>
+                    <input type="text" class="form-control" placeholder="Ім'я користувача" name="username"
+                           id="username" value="">
+                    <button class="btn border" type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+
+    {% if articles %}
+        <div class="articles mt-3 mb-3">
+            {% for article in articles %}
+                {% with author = article.user_id|user_loader %}
+                    {% if author.profile_status or request.endpoint == 'views.followings' %}
+                        <div class="card mt-3 mb-3">
+                            <div class="card-header bg-transparent d-flex pt-1 pb-1 ps-2 pe-2">
+                                <span class="flex-grow-1 mt-0 mb-0 p-1">
+                                    Стаття користувача
+                                    <a class="link-body-emphasis link-underline link-underline-opacity-0"
+                                       href="{{ url_for('views.profile', username=author.username) }}">
+                                        @{{ author.username }}
+                                    </a>
+                                </span>
+
+                                {% if current_user.is_authenticated %}
+                                    {% if author.id == current_user.id %}
+                                        <div class="dropdown">
+                                            <button class="btn p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end mt-2">
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ url_for('views.articles_editor', article_link=article.link) }}">
+                                                        <i class="fa-regular fa-pen-to-square"></i> Редагувати
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <a class="link-body-emphasis link-underline link-underline-opacity-0 ms-1 me-1"
+                                       href="{{ url_for('views.article', username=author.username, article_link=article.link) }}">
+                                        "{{ article.title }}"
+                                    </a>
+                                </h5>
+                                <a class="btn border mt-2"
+                                   href="{{ url_for('views.article', username=author.username, article_link=article.link) }}">
+                                    Переглянути
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if users %}
+        {% for user in users %}
+            <div class="users mt-3 mb-3">
+                <div class="user-data mt-3 mb-3" id="user_{{ user.id }}">
+                    <div class="card">
+                        <div class="card-body">
+                            <a class="btn m-0 p-0" href="{{ url_for('views.profile', username=user.username) }}">
+                                <img src="{{ url_for('static', filename='images/user_pictures/' + user.profile_picture) }}"
+                                     class="rounded" width="50px">
+                            </a>
+                            <a class="btn btn-lg fs-5" href="{{ url_for('views.profile', username=user.username) }}">
+                                @{{ user.username }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

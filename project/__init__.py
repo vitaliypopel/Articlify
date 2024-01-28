@@ -11,6 +11,7 @@ from wtforms import StringField, TextAreaField, SelectField, PasswordField, Emai
 from wtforms.validators import InputRequired, Length, ValidationError, Regexp
 from email_validator import validate_email
 from datetime import datetime, timedelta
+from sqlalchemy.sql.expression import func
 from secrets import token_urlsafe
 from hashlib import sha256
 from bleach import clean

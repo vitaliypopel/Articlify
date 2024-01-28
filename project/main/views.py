@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask import render_template, flash, redirect, url_for, request, send_from_directory, make_response, jsonify
 from project.auth import User
-from project import db, current_user, login_required, ValidationError, sha256, datetime, os, app
+from project import db, current_user, login_required, ValidationError, sha256, datetime, os, func, app
 from .models import (
     Feedback,
     Topic, TopicSubscription,
@@ -50,12 +50,64 @@ def favicon():
     return send_from_directory('static', path='images/icon/icon.jpg')
 
 
+@views.route('/articles')
 @views.route('/')
 def home():
+    topics_subscriptions = None
     if current_user.is_authenticated:
-        return redirect(url_for('views.articles'))
+        topics_subscriptions = TopicSubscription.query.filter_by(user_id=current_user.id).all()
 
-    return render_template('main/home.html')
+    articles_data = Article.query.order_by(Article.id.desc()).filter_by(public=True).all()
+
+    return render_template('main/articles.html', title='Головна',
+                           topics_subscriptions=topics_subscriptions, articles=articles_data)
+
+
+@views.route('/search/articles')
+@views.route('/search')
+def search():
+    topics = Topic.query.all()
+    articles_data = []
+
+    title = request.args.get('title')
+    topics_list = request.args.getlist('topic')
+
+    if title and not topics_list:
+        searched_articles = Article.query.order_by(Article.id.desc())\
+                                        .filter(func.lower(func.replace(Article.lower_title, " ", ""))
+                                                .ilike(f'%{title.lower().replace(" ", "")}%')).all()
+        articles_data.extend(searched_articles)
+
+    if title and topics_list:
+        for topic_name in topics_list:
+            topic = Topic.query.filter(Topic.topic.ilike(topic_name)).first()
+            articles_with_topic = ArticleTopic.query.filter_by(topic_id=topic.id).all()
+
+            for article_with_topic in articles_with_topic:
+                article_data = Article.query.order_by(Article.id.desc())\
+                                            .filter(func.lower(func.replace(Article.lower_title, " ", ""))
+                                                    .ilike(f'%{title.lower()}%'))\
+                                            .filter_by(id=article_with_topic.article_id).first()
+
+                if article_data and article_data not in articles_data:
+                    articles_data.append(article_data)
+
+    return render_template('main/search.html', title='Пошук статей', topics=topics,
+                           search_bar=title, advanced_search=topics_list, articles=articles_data)
+
+
+@views.route('/search/users')
+def search_users():
+    users = []
+
+    username = request.args.get('username')
+
+    if username:
+        searched_users = User.query.order_by(User.id.desc())\
+                                    .filter(User.username.ilike(f'%{username.lower().replace(" ", "_")}%')).all()
+        users.extend(searched_users)
+
+    return render_template('main/search.html', title='Пошук людей', search_bar=username, users=users)
 
 
 @views.route('/feedback', methods=['GET', 'POST'])
@@ -139,17 +191,6 @@ def articles_topic(topic: str):
     return render_template('main/topic.html',
                            topic=topic, subscriptions=subscriptions,
                            articles_with_topic=articles_with_topic, articles=articles_data)
-
-
-@views.route('/articles')
-@login_required
-def articles():
-    topics_subscriptions = TopicSubscription.query.filter_by(user_id=current_user.id).all()
-
-    articles_data = Article.query.order_by(Article.id.desc()).filter_by(public=True).all()
-
-    return render_template('main/articles.html', title='Рекомендації',
-                           topics_subscriptions=topics_subscriptions, articles=articles_data)
 
 
 @views.route('/followings')

@@ -12,21 +12,21 @@
     <div class="navigation mt-3 mb-3">
         <ul class="nav nav-tabs nav-fill">
             <li class="nav-item">
-                <a class="nav-link link-body-emphasis {% if request.endpoint == 'views.settings' %}active{% endif %}"
+                <a class="nav-link link-body-emphasis {% if request.endpoint == 'views.settings' %}active border border-bottom-1{% endif %}"
                    href="{{ url_for('views.settings') }}">
                     <i class="fa-solid fa-sliders"></i> Загальні
                 </a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link link-body-emphasis {% if request.endpoint == 'views.account_settings' %}active{% endif %}"
+                <a class="nav-link link-body-emphasis {% if request.endpoint == 'views.account_settings' %}active border border-bottom-1{% endif %}"
                    href="{{ url_for('views.account_settings') }}">
                     <i class="fa-regular fa-id-card"></i> Акаунт
                 </a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link link-body-emphasis {% if request.endpoint == 'views.security_settings' %}active{% endif %}"
+                <a class="nav-link link-body-emphasis {% if request.endpoint == 'views.security_settings' %}active border border-bottom-1{% endif %}"
                    href="{{ url_for('views.security_settings') }}">
                     <i class="fa-solid fa-shield-halved"></i> Безпека
                 </a>

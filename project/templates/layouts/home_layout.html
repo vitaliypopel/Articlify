@@ -1,0 +1,47 @@
+{% extends 'layouts/layout.html' %}
+
+{% block title %}
+    {% block articles_title %}
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+    <div class="title m-3 mb-4 text-center">
+        <h1>{{ title }}</h1>
+    </div>
+
+    <div class="navigation mt-3 mb-3">
+        <ul class="nav nav-tabs nav-fill">
+            <li class="nav-item">
+                <a class="nav-link link-body-emphasis {% if request.endpoint == 'views.home' %}active border border-bottom-1{% endif %}"
+                   href="{{ url_for('views.home') }}">
+                    Рекомендації
+                </a>
+            </li>
+
+            {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link link-body-emphasis {% if request.endpoint == 'views.followings' %}active border border-bottom-1{% endif %}"
+                       href="{{ url_for('views.followings') }}">
+                        Підписки
+                    </a>
+                </li>
+
+                {% for topic_subscription in topics_subscriptions %}
+                    {% with topic = topic_subscription.topic_id|topic_loader %}
+                        <li class="nav-item">
+                            <a class="nav-link link-body-emphasis {% if request.path == url_for('views.topics_followings', topic=topic.topic) %}active border border-bottom-1{% endif %}"
+                               href="{{ url_for('views.topics_followings', topic=topic.topic) }}">
+                                {{ topic.topic }}
+                            </a>
+                        </li>
+                    {% endwith %}
+                {% endfor %}
+            {% endif %}
+        </ul>
+    </div>
+
+    {% block articles_content %}
+    {% endblock %}
+
+{% endblock %}
