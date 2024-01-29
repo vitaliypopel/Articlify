@@ -165,6 +165,4 @@ cython_debug/
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/dbnavigator.xml
 .idea/Articlify.iml
-/project/static/styles/prism/
-/project/static/scripts/prism/
 .idea/discord.xml
