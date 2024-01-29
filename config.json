@@ -6,14 +6,15 @@
             "db": "articles",
             "host": "mongodb://localhost:27017/articles"
         },
+        "MONGO_URI": "your_mongodb_atlas_uri",
         "TEMPLATES_FOLDER": "project/templates",
         "STATIC_FOLDER": "project/static",
         "MAIL_SERVER": "smtp.gmail.com",
         "MAIL_PORT": 587,
         "MAIL_USE_TLS": true,
         "MAIL_USE_SSL": false,
-        "MAIL_DEFAULT_SENDER": "popelcompany@gmail.com",
-        "MAIL_USERNAME": "popelcompany@gmail.com",
-        "MAIL_PASSWORD": "xvcexfmxbgwcwhnz"
+        "MAIL_DEFAULT_SENDER": "your_email_address@example.com",
+        "MAIL_USERNAME": "your_email_address@example.com",
+        "MAIL_PASSWORD": "your_email_password"
     }
 }

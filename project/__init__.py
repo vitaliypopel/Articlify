@@ -30,9 +30,11 @@ config = Config()
 
 def create_app():
 
+    # app.config['MONGODB_SETTINGS'] = config.get('MONGODB_SETTINGS')
+
     app.config['SECRET_KEY'] = config.get('SECRET_KEY')
     app.config['SQLALCHEMY_DATABASE_URI'] = config.get('SQLALCHEMY_DATABASE_URI')
-    app.config['MONGODB_SETTINGS'] = config.get('MONGODB_SETTINGS')
+    app.config['MONGO_URI'] = config.get('MONGO_URI')
     app.config['TEMPLATES_FOLDER'] = config.get('TEMPLATES_FOLDER')
     app.config['STATIC_FOLDER'] = config.get('STATIC_FOLDER')
     app.config['MAIL_SERVER'] = config.get('MAIL_SERVER')

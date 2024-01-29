@@ -23,8 +23,5 @@ class Config:
 
 
 class ConfigError(ValueError):
-    # Кастомний ConfigError створений спеціально для класу Config
-
     def __init__(self, error: str):
         self.error = error
-
