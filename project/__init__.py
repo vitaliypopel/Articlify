@@ -92,13 +92,6 @@ def create_app():
 
     app.jinja_env.filters['topic_loader'] = topic_loader
 
-    from project.main import Topic
-
-    def topic_loader(topic_id: int) -> object:
-        return Topic.query.get(topic_id)
-
-    app.jinja_env.filters['topic_loader'] = topic_loader
-
     def datetime_calculation(datetime_before: datetime) -> str:
         delta = datetime.utcnow() - datetime_before
         view_of_time = '{} дн. {:02} год. {:02} хв.'
