@@ -5,16 +5,16 @@ from flask_login import LoginManager, UserMixin, current_user, login_required, l
 from flask_mail import Mail, Message
 from flask_bootstrap import Bootstrap5
 from config import Config
+from bleach import clean
+from datetime import datetime, timedelta
 from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SelectField, PasswordField, EmailField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError, Regexp
 from email_validator import validate_email
-from datetime import datetime, timedelta
 from sqlalchemy.sql.expression import func
 from secrets import token_urlsafe
 from hashlib import sha256
-from bleach import clean
 from re import match, sub
 import os
 
@@ -99,8 +99,11 @@ def create_app():
 
     app.jinja_env.filters['topic_loader'] = topic_loader
 
-    def datetime_calculation(datetime_before: datetime) -> object:
-        return datetime.utcnow() - datetime_before
+    def datetime_calculation(datetime_before: datetime) -> str:
+        delta = datetime.utcnow() - datetime_before
+        view_of_time = '{} дн. {:02} год. {:02} хв.'
+        time_result = view_of_time.format(delta.days, delta.seconds // 3600, (delta.seconds // 60) % 60)
+        return time_result
 
     app.jinja_env.filters['datetime_calculation'] = datetime_calculation
 

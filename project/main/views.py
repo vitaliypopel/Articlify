@@ -619,9 +619,10 @@ def article(username: str, article_link: str):
         if current_user.is_authenticated:
             user_id = current_user.id
 
-        new_view = ArticleView(article_data.id, user_id)
-        db.session.add(new_view)
-        db.session.commit()
+        if not ArticleView.query.filter_by(article_id=article_data.id, user_id=user_id).first() and user_id != 0:
+            new_view = ArticleView(article_data.id, user_id)
+            db.session.add(new_view)
+            db.session.commit()
     except Exception:
         flash('Щось пішло не так! Спробуйте ще раз', 'danger')
         return bad_response

@@ -39,15 +39,24 @@
                         </div>
                         <div class="card-body">
                             <h5 class="card-title">
-                                <a class="link-body-emphasis link-underline link-underline-opacity-0 ms-1 me-1"
+                                <a class="link-body-emphasis link-underline link-underline-opacity-0 fw-semibold ms-1 me-1"
                                    href="{{ url_for('views.article', username=author.username, article_link=article.link) }}">
                                     "{{ article.title }}"
                                 </a>
                             </h5>
-                            <a class="btn border mt-2"
-                               href="{{ url_for('views.article', username=author.username, article_link=article.link) }}">
-                                Переглянути
-                            </a>
+                            <p class="card-text mt-4 mb-2">
+                                <a class="link-body-emphasis link-underline link-underline-opacity-0 ms-1 me-1"
+                                   href="{{ url_for('views.article', username=author.username, article_link=article.link) }}">
+                                    <i class="fa-regular fa-eye"></i> Переглянути
+                                </a>
+                            </p>
+                            <p class="time card-text ms-1 me-1">
+                                {% if article.updated_at %}
+                                    Оновлено {{ article.updated_at|datetime_calculation }} назад.
+                                {% elif article.created_at %}
+                                    Опубліковано {{ article.created_at|datetime_calculation }} назад.
+                                {% endif %}
+                            </p>
                         </div>
                     </div>
                 {% endwith %}

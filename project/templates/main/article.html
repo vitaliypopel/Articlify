@@ -7,6 +7,13 @@
 {% block content %}
     <div class="title mt-3 mb-3">
         <h1>{{ article.title }}</h1>
+        <p class="time fst-italic mb-0">
+            {% if article.updated_at %}
+                Оновлено {{ article.updated_at|datetime_calculation }} назад.
+            {% elif article.created_at %}
+                Опубліковано {{ article.created_at|datetime_calculation }} назад.
+            {% endif %}
+        </p>
     </div>
 
     <div class="user-data mt-4 mb-4">
